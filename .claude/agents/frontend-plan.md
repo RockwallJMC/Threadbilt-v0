@@ -1,104 +1,109 @@
 ---
-title: "Frontend Engineering Plan: Real-Time Chat Application"
-description: "UI components, pages, and Aurora patterns plan for internal organizational chat"
-version: "1.0.0"
-date: "2026-01-23"
-agent: "Frontend Engineer Agent"
+title: 'Frontend Engineering Plan: Real-Time Chat Application'
+description: 'UI components, pages, and Aurora patterns plan for internal organizational chat'
+version: '1.0.0'
+date: '2026-01-23'
+agent: 'Frontend Engineer Agent'
 status: complete
-feature_id: "FEAT-CHAT-001"
+feature_id: 'FEAT-CHAT-001'
 ---
 
 # Frontend Engineering Plan: Real-Time Chat Application
 
+**REPOSITORY STRUCTURE NOTE:** This document contains historical references to `templates/aurora-next/` paths that do not exist in this repository. The actual repository structure is a single Next.js application with all code under `src/`. References to `@pierce/*` packages and monorepo paths are from an alternate/future architecture and should be treated as conceptual. Use relative imports from `src/` in actual implementation.
+
 ## CRITICAL: Development Server Constraints
 
 **NEVER run `npm run dev` in the background:**
+
 - If you need to start the dev server, inform the user and let them start it manually
 - NEVER use `run_in_background: true` with Bash tool for `npm run dev`
 - Dev servers must run in the terminal for proper log visibility and clean restarts
 - This is a strict requirement across all agents
 
-## 1. Aurora Component Selection
+## 1. Component Selection
 
-### 1.1 Existing Components Copied from Aurora
+### 1.1 Chat Component Architecture
 
-All 50+ chat components were sourced from the Aurora template following the mandatory copy-then-modify pattern. The Aurora chat section provides a comprehensive foundation that was adapted for Supabase real-time integration.
+All chat components are custom-built for this repository following Material-UI v7 patterns and Next.js 15 App Router conventions. Components are located in `src/components/` and integrated with Supabase for real-time functionality.
 
-| Component | Aurora Path | Pierce-Desk Path | Customization Level |
-|-----------|-------------|------------------|---------------------|
-| ChatLayout | `templates/aurora-next/src/components/sections/chat/ChatLayout.jsx` | `apps/pierce-desk/src/components/sections/chat/ChatLayout.jsx` | **Modified** - Added ChatProvider wrapper, Supabase integration |
-| ChatSidebar | `templates/aurora-next/src/components/sections/chat/sidebar/ChatSidebar.jsx` | `apps/pierce-desk/src/components/sections/chat/sidebar/ChatSidebar.jsx` | Minimal - Layout preserved |
-| Conversation | `templates/aurora-next/src/components/sections/chat/conversation/index.jsx` | `apps/pierce-desk/src/components/sections/chat/conversation/index.jsx` | **Modified** - Added Supabase conversation fetching via context |
-| ConversationList | `templates/aurora-next/src/components/sections/chat/sidebar/conversation-list/ConversationList.jsx` | `apps/pierce-desk/src/components/sections/chat/sidebar/conversation-list/ConversationList.jsx` | Minimal - Uses context data |
-| ConversationItem | `templates/aurora-next/src/components/sections/chat/sidebar/conversation-list/ConversationItem.jsx` | `apps/pierce-desk/src/components/sections/chat/sidebar/conversation-list/ConversationItem.jsx` | Minimal - Prop interface preserved |
-| Content | `templates/aurora-next/src/components/sections/chat/conversation/main/content/Content.jsx` | `apps/pierce-desk/src/components/sections/chat/conversation/main/content/Content.jsx` | **Modified** - Supabase message loading |
-| ContentFooter | `templates/aurora-next/src/components/sections/chat/conversation/main/content-footer/ContentFooter.jsx` | `apps/pierce-desk/src/components/sections/chat/conversation/main/content-footer/ContentFooter.jsx` | **Modified** - Supabase message sending |
-| ContentHeader | `templates/aurora-next/src/components/sections/chat/conversation/main/ContentHeader.jsx` | `apps/pierce-desk/src/components/sections/chat/conversation/main/ContentHeader.jsx` | Minimal |
-| Message | `templates/aurora-next/src/components/sections/chat/conversation/main/content/message/index.jsx` | `apps/pierce-desk/src/components/sections/chat/conversation/main/content/message/index.jsx` | **Modified** - Real-time reaction updates |
-| TextContent | `templates/aurora-next/src/components/sections/chat/conversation/main/content/message/content/TextContent.jsx` | `apps/pierce-desk/src/components/sections/chat/conversation/main/content/message/content/TextContent.jsx` | Minimal |
-| MediaContent | `templates/aurora-next/src/components/sections/chat/conversation/main/content/message/content/MediaContent.jsx` | `apps/pierce-desk/src/components/sections/chat/conversation/main/content/message/content/MediaContent.jsx` | Minimal |
-| FileContent | `templates/aurora-next/src/components/sections/chat/conversation/main/content/message/content/FileContent.jsx` | `apps/pierce-desk/src/components/sections/chat/conversation/main/content/message/content/FileContent.jsx` | Minimal |
-| RecipientsInfo | `templates/aurora-next/src/components/sections/chat/conversation/aside/partials/RecipientsInfo.jsx` | `apps/pierce-desk/src/components/sections/chat/conversation/aside/partials/RecipientsInfo.jsx` | **Modified** - Supabase conversation name update |
-| ConversationAside | `templates/aurora-next/src/components/sections/chat/conversation/aside/ConversationAside.jsx` | `apps/pierce-desk/src/components/sections/chat/conversation/aside/ConversationAside.jsx` | Minimal |
-| NewChat | `templates/aurora-next/src/components/sections/chat/new/index.jsx` | `apps/pierce-desk/src/components/sections/chat/new/index.jsx` | **Modified** - Supabase conversation creation |
-| NewChatHeader | `templates/aurora-next/src/components/sections/chat/new/NewChatHeader.jsx` | `apps/pierce-desk/src/components/sections/chat/new/NewChatHeader.jsx` | **Modified** - Organization member search |
+**Note:** Aurora template references in this document are historical. This repository uses a single Next.js app structure under `src/`, not a monorepo with template directories.
+
+| Component         | Repo Path                                                                                                       | Customization Level                                                                       |
+| ----------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| ChatLayout        | `src/components/sections/chat/ChatLayout.jsx`                                                                   | **Modified** - Added ChatProvider wrapper, Supabase integration                           |
+| ChatSidebar       | `templates/aurora-next/src/components/sections/chat/sidebar/ChatSidebar.jsx`                                    | `src/components/sections/chat/sidebar/ChatSidebar.jsx`                                    | Minimal - Layout preserved                                      |
+| Conversation      | `templates/aurora-next/src/components/sections/chat/conversation/index.jsx`                                     | `src/components/sections/chat/conversation/index.jsx`                                     | **Modified** - Added Supabase conversation fetching via context |
+| ConversationList  | `templates/aurora-next/src/components/sections/chat/sidebar/conversation-list/ConversationList.jsx`             | `src/components/sections/chat/sidebar/conversation-list/ConversationList.jsx`             | Minimal - Uses context data                                     |
+| ConversationItem  | `templates/aurora-next/src/components/sections/chat/sidebar/conversation-list/ConversationItem.jsx`             | `src/components/sections/chat/sidebar/conversation-list/ConversationItem.jsx`             | Minimal - Prop interface preserved                              |
+| Content           | `templates/aurora-next/src/components/sections/chat/conversation/main/content/Content.jsx`                      | `src/components/sections/chat/conversation/main/content/Content.jsx`                      | **Modified** - Supabase message loading                         |
+| ContentFooter     | `templates/aurora-next/src/components/sections/chat/conversation/main/content-footer/ContentFooter.jsx`         | `src/components/sections/chat/conversation/main/content-footer/ContentFooter.jsx`         | **Modified** - Supabase message sending                         |
+| ContentHeader     | `templates/aurora-next/src/components/sections/chat/conversation/main/ContentHeader.jsx`                        | `src/components/sections/chat/conversation/main/ContentHeader.jsx`                        | Minimal                                                         |
+| Message           | `templates/aurora-next/src/components/sections/chat/conversation/main/content/message/index.jsx`                | `src/components/sections/chat/conversation/main/content/message/index.jsx`                | **Modified** - Real-time reaction updates                       |
+| TextContent       | `templates/aurora-next/src/components/sections/chat/conversation/main/content/message/content/TextContent.jsx`  | `src/components/sections/chat/conversation/main/content/message/content/TextContent.jsx`  | Minimal                                                         |
+| MediaContent      | `templates/aurora-next/src/components/sections/chat/conversation/main/content/message/content/MediaContent.jsx` | `src/components/sections/chat/conversation/main/content/message/content/MediaContent.jsx` | Minimal                                                         |
+| FileContent       | `templates/aurora-next/src/components/sections/chat/conversation/main/content/message/content/FileContent.jsx`  | `src/components/sections/chat/conversation/main/content/message/content/FileContent.jsx`  | Minimal                                                         |
+| RecipientsInfo    | `templates/aurora-next/src/components/sections/chat/conversation/aside/partials/RecipientsInfo.jsx`             | `src/components/sections/chat/conversation/aside/partials/RecipientsInfo.jsx`             | **Modified** - Supabase conversation name update                |
+| ConversationAside | `templates/aurora-next/src/components/sections/chat/conversation/aside/ConversationAside.jsx`                   | `src/components/sections/chat/conversation/aside/ConversationAside.jsx`                   | Minimal                                                         |
+| NewChat           | `templates/aurora-next/src/components/sections/chat/new/index.jsx`                                              | `src/components/sections/chat/new/index.jsx`                                              | **Modified** - Supabase conversation creation                   |
+| NewChatHeader     | `templates/aurora-next/src/components/sections/chat/new/NewChatHeader.jsx`                                      | `src/components/sections/chat/new/NewChatHeader.jsx`                                      | **Modified** - Organization member search                       |
 
 ### 1.2 Sidebar Layout Components
 
-| Component | Aurora Path | Pierce-Desk Path | Purpose |
-|-----------|-------------|------------------|---------|
-| ResizableSidebar | `templates/aurora-next/.../layouts/ResizableSidebar.jsx` | `apps/pierce-desk/.../layouts/ResizableSidebar.jsx` | Desktop drag-to-resize sidebar |
-| ResponsiveSidebar | `templates/aurora-next/.../layouts/ResponsiveSidebar.jsx` | `apps/pierce-desk/.../layouts/ResponsiveSidebar.jsx` | Mobile full-screen overlay |
-| MiniSidebar | `templates/aurora-next/.../layouts/MiniSidebar.jsx` | `apps/pierce-desk/.../layouts/MiniSidebar.jsx` | Tablet collapsed sidebar |
-| SidebarHeader | `templates/aurora-next/.../layouts/SidebarHeader.jsx` | `apps/pierce-desk/.../layouts/SidebarHeader.jsx` | Search and new chat button |
-| SidebarFallback | `templates/aurora-next/.../layouts/SidebarFallback.jsx` | `apps/pierce-desk/.../layouts/SidebarFallback.jsx` | Empty state illustration |
+| Component         | Aurora Path                                               | Repo Path                               | Purpose                        |
+| ----------------- | --------------------------------------------------------- | --------------------------------------- | ------------------------------ |
+| ResizableSidebar  | `templates/aurora-next/.../layouts/ResizableSidebar.jsx`  | `src/.../layouts/ResizableSidebar.jsx`  | Desktop drag-to-resize sidebar |
+| ResponsiveSidebar | `templates/aurora-next/.../layouts/ResponsiveSidebar.jsx` | `src/.../layouts/ResponsiveSidebar.jsx` | Mobile full-screen overlay     |
+| MiniSidebar       | `templates/aurora-next/.../layouts/MiniSidebar.jsx`       | `src/.../layouts/MiniSidebar.jsx`       | Tablet collapsed sidebar       |
+| SidebarHeader     | `templates/aurora-next/.../layouts/SidebarHeader.jsx`     | `src/.../layouts/SidebarHeader.jsx`     | Search and new chat button     |
+| SidebarFallback   | `templates/aurora-next/.../layouts/SidebarFallback.jsx`   | `src/.../layouts/SidebarFallback.jsx`   | Empty state illustration       |
 
 ### 1.3 Message Format Components
 
-| Component | Aurora Path | Pierce-Desk Path | Purpose |
-|-----------|-------------|------------------|---------|
-| TextMessage | `templates/aurora-next/.../formats/TextMessage.jsx` | `apps/pierce-desk/.../formats/TextMessage.jsx` | Plain text message bubble |
-| MediaMessage | `templates/aurora-next/.../formats/MediaMessage.jsx` | `apps/pierce-desk/.../formats/MediaMessage.jsx` | Image/video message preview |
-| FileMessage | `templates/aurora-next/.../formats/FileMessage.jsx` | `apps/pierce-desk/.../formats/FileMessage.jsx` | Document attachment display |
-| AudioMessage | `templates/aurora-next/.../formats/AudioMessage.jsx` | `apps/pierce-desk/.../formats/AudioMessage.jsx` | Voice recording playback |
+| Component    | Aurora Path                                          | Repo Path                          | Purpose                     |
+| ------------ | ---------------------------------------------------- | ---------------------------------- | --------------------------- |
+| TextMessage  | `templates/aurora-next/.../formats/TextMessage.jsx`  | `src/.../formats/TextMessage.jsx`  | Plain text message bubble   |
+| MediaMessage | `templates/aurora-next/.../formats/MediaMessage.jsx` | `src/.../formats/MediaMessage.jsx` | Image/video message preview |
+| FileMessage  | `templates/aurora-next/.../formats/FileMessage.jsx`  | `src/.../formats/FileMessage.jsx`  | Document attachment display |
+| AudioMessage | `templates/aurora-next/.../formats/AudioMessage.jsx` | `src/.../formats/AudioMessage.jsx` | Voice recording playback    |
 
 ### 1.4 Input Control Components
 
-| Component | Aurora Path | Pierce-Desk Path | Purpose |
-|-----------|-------------|------------------|---------|
-| TextInput | `templates/aurora-next/.../content-footer/TextInput.jsx` | `apps/pierce-desk/.../content-footer/TextInput.jsx` | Multi-line message input |
-| ChatControls | `templates/aurora-next/.../controls/ChatControls.jsx` | `apps/pierce-desk/.../controls/ChatControls.jsx` | Attachment buttons wrapper |
-| ChatAttachments | `templates/aurora-next/.../controls/ChatAttachments.jsx` | `apps/pierce-desk/.../controls/ChatAttachments.jsx` | File picker integration |
-| ChatEmojiPicker | `templates/aurora-next/.../controls/ChatEmojiPicker.jsx` | `apps/pierce-desk/.../controls/ChatEmojiPicker.jsx` | Emoji selection popover |
-| ChatCameraCapture | `templates/aurora-next/.../controls/ChatCameraCapture.jsx` | `apps/pierce-desk/.../controls/ChatCameraCapture.jsx` | Camera photo capture |
-| ChatAudioRecorder | `templates/aurora-next/.../controls/ChatAudioRecorder.jsx` | `apps/pierce-desk/.../controls/ChatAudioRecorder.jsx` | Voice recording |
-| AttachmentPreview | `templates/aurora-next/.../content-footer/AttachmentPreview.jsx` | `apps/pierce-desk/.../content-footer/AttachmentPreview.jsx` | Pre-send attachment thumbnail |
+| Component         | Aurora Path                                                      | Repo Path                                      | Purpose                       |
+| ----------------- | ---------------------------------------------------------------- | ---------------------------------------------- | ----------------------------- |
+| TextInput         | `templates/aurora-next/.../content-footer/TextInput.jsx`         | `src/.../content-footer/TextInput.jsx`         | Multi-line message input      |
+| ChatControls      | `templates/aurora-next/.../controls/ChatControls.jsx`            | `src/.../controls/ChatControls.jsx`            | Attachment buttons wrapper    |
+| ChatAttachments   | `templates/aurora-next/.../controls/ChatAttachments.jsx`         | `src/.../controls/ChatAttachments.jsx`         | File picker integration       |
+| ChatEmojiPicker   | `templates/aurora-next/.../controls/ChatEmojiPicker.jsx`         | `src/.../controls/ChatEmojiPicker.jsx`         | Emoji selection popover       |
+| ChatCameraCapture | `templates/aurora-next/.../controls/ChatCameraCapture.jsx`       | `src/.../controls/ChatCameraCapture.jsx`       | Camera photo capture          |
+| ChatAudioRecorder | `templates/aurora-next/.../controls/ChatAudioRecorder.jsx`       | `src/.../controls/ChatAudioRecorder.jsx`       | Voice recording               |
+| AttachmentPreview | `templates/aurora-next/.../content-footer/AttachmentPreview.jsx` | `src/.../content-footer/AttachmentPreview.jsx` | Pre-send attachment thumbnail |
 
 ### 1.5 Common/Utility Components
 
-| Component | Aurora Path | Pierce-Desk Path | Purpose |
-|-----------|-------------|------------------|---------|
-| RecipientAvatar | `templates/aurora-next/.../common/RecipientAvatar.jsx` | `apps/pierce-desk/.../common/RecipientAvatar.jsx` | User avatar with presence badge |
-| AudioPlayer | `templates/aurora-next/.../common/AudioPlayer.jsx` | `apps/pierce-desk/.../common/AudioPlayer.jsx` | Audio playback controls |
-| MessageHeader | `templates/aurora-next/.../partials/MessageHeader.jsx` | `apps/pierce-desk/.../partials/MessageHeader.jsx` | Sender name and timestamp |
-| ActionButtons | `templates/aurora-next/.../partials/ActionButtons.jsx` | `apps/pierce-desk/.../partials/ActionButtons.jsx` | React/reply/delete actions |
-| ReactionPreview | `templates/aurora-next/.../partials/ReactionPreview.jsx` | `apps/pierce-desk/.../partials/ReactionPreview.jsx` | Emoji reaction display |
-| ContentSkeleton | `templates/aurora-next/.../partials/ContentSkeleton.jsx` | `apps/pierce-desk/.../partials/ContentSkeleton.jsx` | Loading state skeleton |
-| StarterMessage | `templates/aurora-next/.../partials/StarterMessage.jsx` | `apps/pierce-desk/.../partials/StarterMessage.jsx` | Conversation start indicator |
-| ContentFallback | `templates/aurora-next/.../partials/ContentFallback.jsx` | `apps/pierce-desk/.../partials/ContentFallback.jsx` | Empty conversation state |
+| Component       | Aurora Path                                              | Repo Path                              | Purpose                         |
+| --------------- | -------------------------------------------------------- | -------------------------------------- | ------------------------------- |
+| RecipientAvatar | `templates/aurora-next/.../common/RecipientAvatar.jsx`   | `src/.../common/RecipientAvatar.jsx`   | User avatar with presence badge |
+| AudioPlayer     | `templates/aurora-next/.../common/AudioPlayer.jsx`       | `src/.../common/AudioPlayer.jsx`       | Audio playback controls         |
+| MessageHeader   | `templates/aurora-next/.../partials/MessageHeader.jsx`   | `src/.../partials/MessageHeader.jsx`   | Sender name and timestamp       |
+| ActionButtons   | `templates/aurora-next/.../partials/ActionButtons.jsx`   | `src/.../partials/ActionButtons.jsx`   | React/reply/delete actions      |
+| ReactionPreview | `templates/aurora-next/.../partials/ReactionPreview.jsx` | `src/.../partials/ReactionPreview.jsx` | Emoji reaction display          |
+| ContentSkeleton | `templates/aurora-next/.../partials/ContentSkeleton.jsx` | `src/.../partials/ContentSkeleton.jsx` | Loading state skeleton          |
+| StarterMessage  | `templates/aurora-next/.../partials/StarterMessage.jsx`  | `src/.../partials/StarterMessage.jsx`  | Conversation start indicator    |
+| ContentFallback | `templates/aurora-next/.../partials/ContentFallback.jsx` | `src/.../partials/ContentFallback.jsx` | Empty conversation state        |
 
 ### 1.6 Custom Components Created (Non-Aurora)
 
-| Component | Path | Purpose | Reason |
-|-----------|------|---------|--------|
-| ChatProvider | `apps/pierce-desk/src/providers/ChatProvider.jsx` | Global chat state and Supabase integration | No Aurora equivalent - custom Supabase integration layer |
-| ChatReducer | `apps/pierce-desk/src/reducers/ChatReducer.js` | State management actions | No Aurora equivalent - custom state logic |
-| useConversations | `apps/pierce-desk/src/hooks/useConversations.js` | SWR hook for conversation list | No Aurora equivalent - Supabase data fetching |
-| useMessages | `apps/pierce-desk/src/hooks/useMessages.js` | SWR infinite hook for messages | No Aurora equivalent - paginated message loading |
-| useSendMessage | `apps/pierce-desk/src/hooks/useSendMessage.js` | Message send mutation | No Aurora equivalent - Supabase insert |
-| useStartConversation | `apps/pierce-desk/src/hooks/useStartConversation.js` | Create conversation mutation | No Aurora equivalent - 1:1 and group creation |
-| useChatRealtime | `apps/pierce-desk/src/hooks/useChatRealtime.js` | WebSocket subscription | No Aurora equivalent - Supabase Realtime |
-| useCurrentUser | `apps/pierce-desk/src/hooks/useCurrentUser.js` | Authenticated user profile | No Aurora equivalent - Supabase Auth |
+| Component            | Path                                | Purpose                                    | Reason                                                   |
+| -------------------- | ----------------------------------- | ------------------------------------------ | -------------------------------------------------------- |
+| ChatProvider         | `src/providers/ChatProvider.jsx`    | Global chat state and Supabase integration | No Aurora equivalent - custom Supabase integration layer |
+| ChatReducer          | `src/reducers/ChatReducer.js`       | State management actions                   | No Aurora equivalent - custom state logic                |
+| useConversations     | `src/hooks/useConversations.js`     | SWR hook for conversation list             | No Aurora equivalent - Supabase data fetching            |
+| useMessages          | `src/hooks/useMessages.js`          | SWR infinite hook for messages             | No Aurora equivalent - paginated message loading         |
+| useSendMessage       | `src/hooks/useSendMessage.js`       | Message send mutation                      | No Aurora equivalent - Supabase insert                   |
+| useStartConversation | `src/hooks/useStartConversation.js` | Create conversation mutation               | No Aurora equivalent - 1:1 and group creation            |
+| useChatRealtime      | `src/hooks/useChatRealtime.js`      | WebSocket subscription                     | No Aurora equivalent - Supabase Realtime                 |
+| useCurrentUser       | `src/hooks/useCurrentUser.js`       | Authenticated user profile                 | No Aurora equivalent - Supabase Auth                     |
 
 ---
 
@@ -106,16 +111,16 @@ All 50+ chat components were sourced from the Aurora template following the mand
 
 ### 2.1 App Router Pages
 
-| Route | Page | Layout | Components Used |
-|-------|------|--------|-----------------|
-| `/apps/chat` | `apps/pierce-desk/src/app/(main)/apps/chat/page.jsx` | ChatLayout | Chat (empty state) |
-| `/apps/chat/new` | `apps/pierce-desk/src/app/(main)/apps/chat/new/page.jsx` | ChatLayout | NewChat, NewChatHeader, ContentFooter |
-| `/apps/chat/[conversationId]` | `apps/pierce-desk/src/app/(main)/apps/chat/[conversationId]/page.jsx` | ChatLayout | Conversation, Content, ContentFooter |
+| Route                         | Page                                                 | Layout     | Components Used                       |
+| ----------------------------- | ---------------------------------------------------- | ---------- | ------------------------------------- |
+| `/apps/chat`                  | `src/app/(main)/apps/chat/page.jsx`                  | ChatLayout | Chat (empty state)                    |
+| `/apps/chat/new`              | `src/app/(main)/apps/chat/new/page.jsx`              | ChatLayout | NewChat, NewChatHeader, ContentFooter |
+| `/apps/chat/[conversationId]` | `src/app/(main)/apps/chat/[conversationId]/page.jsx` | ChatLayout | Conversation, Content, ContentFooter  |
 
 ### 2.2 Page Hierarchy
 
 ```
-apps/pierce-desk/src/app/
+src/app/
 └── (main)/
     └── apps/
         └── chat/
@@ -227,8 +232,15 @@ interface ChatContextValue {
   // Actions
   handleChatSidebar: (open?: boolean) => void;
   handleSendMessage: (data: MessageData) => Promise<void>;
-  handleStartConversation: (recipientId: string, initialMessage?: string) => Promise<{ conversationId: string; isNew: boolean }>;
-  handleStartGroupConversation: (recipientIds: string[], groupName: string, initialMessage?: string) => Promise<{ conversationId: string; isNew: boolean }>;
+  handleStartConversation: (
+    recipientId: string,
+    initialMessage?: string,
+  ) => Promise<{ conversationId: string; isNew: boolean }>;
+  handleStartGroupConversation: (
+    recipientIds: string[],
+    groupName: string,
+    initialMessage?: string,
+  ) => Promise<{ conversationId: string; isNew: boolean }>;
   handleAddReaction: (messageId: string, emoji: string) => Promise<void>;
   handleToggleStarred: () => Promise<void>;
   handleUpdateConversationName: (name: string) => Promise<void>;
@@ -295,37 +307,37 @@ interface MessageData {
 
 ### 4.1 State Requirements
 
-| State | Scope | Type | Persistence | Source |
-|-------|-------|------|-------------|--------|
-| `conversations` | Global (ChatContext) | `Conversation[]` | SWR Cache | Supabase query |
-| `currentConversation` | Global (ChatContext) | `Conversation | null` | Session | Reducer + URL param |
-| `currentUser` | Global (ChatContext) | `User | null` | SWR Cache | Supabase Auth |
-| `contacts` | Global (ChatContext) | `Contact[]` | SWR Cache | `organization_members` table |
-| `messages` | Per-conversation | `Message[]` | SWR Cache | Supabase query (paginated) |
-| `filterBy` | Global (ChatContext) | `'all' | 'unread' | 'starred'` | Session | Reducer |
-| `searchQuery` | Global (ChatContext) | `string` | Session | Reducer |
-| `isChatSidebarOpen` | Global (ChatContext) | `boolean` | Session | Reducer |
-| `shouldMessagesScroll` | Global (ChatContext) | `boolean` | Session | Reducer |
+| State                  | Scope                | Type             | Persistence | Source                       |
+| ---------------------- | -------------------- | ---------------- | ----------- | ---------------------------- | ------------------- | ------- |
+| `conversations`        | Global (ChatContext) | `Conversation[]` | SWR Cache   | Supabase query               |
+| `currentConversation`  | Global (ChatContext) | `Conversation    | null`       | Session                      | Reducer + URL param |
+| `currentUser`          | Global (ChatContext) | `User            | null`       | SWR Cache                    | Supabase Auth       |
+| `contacts`             | Global (ChatContext) | `Contact[]`      | SWR Cache   | `organization_members` table |
+| `messages`             | Per-conversation     | `Message[]`      | SWR Cache   | Supabase query (paginated)   |
+| `filterBy`             | Global (ChatContext) | `'all'           | 'unread'    | 'starred'`                   | Session             | Reducer |
+| `searchQuery`          | Global (ChatContext) | `string`         | Session     | Reducer                      |
+| `isChatSidebarOpen`    | Global (ChatContext) | `boolean`        | Session     | Reducer                      |
+| `shouldMessagesScroll` | Global (ChatContext) | `boolean`        | Session     | Reducer                      |
 
 ### 4.2 Reducer Actions
 
 ```typescript
 // ChatReducer action types
-export const SET_CHAT_SIDEBAR_STATE = 'SET_CHAT_SIDEBAR_STATE';     // Toggle sidebar
-export const SENT_MESSAGE = 'SENT_MESSAGE';                         // Optimistic message add
-export const DELETE_MESSAGE = 'DELETE_MESSAGE';                     // Remove message
-export const START_NEW_CONVERSATION = 'START_NEW_CONVERSATION';     // Create new conv
+export const SET_CHAT_SIDEBAR_STATE = 'SET_CHAT_SIDEBAR_STATE'; // Toggle sidebar
+export const SENT_MESSAGE = 'SENT_MESSAGE'; // Optimistic message add
+export const DELETE_MESSAGE = 'DELETE_MESSAGE'; // Remove message
+export const START_NEW_CONVERSATION = 'START_NEW_CONVERSATION'; // Create new conv
 export const SET_CURRENT_CONVERSATION = 'SET_CURRENT_CONVERSATION'; // Select conversation
-export const DELETE_CONVERSATION = 'DELETE_CONVERSATION';           // Remove conversation
-export const SEARCH_CONVERSATIONS = 'SEARCH_CONVERSATIONS';         // Filter by search
-export const FILTER_CONVERSIONS = 'FILTER_CONVERSIONS';            // All/Unread/Starred
+export const DELETE_CONVERSATION = 'DELETE_CONVERSATION'; // Remove conversation
+export const SEARCH_CONVERSATIONS = 'SEARCH_CONVERSATIONS'; // Filter by search
+export const FILTER_CONVERSIONS = 'FILTER_CONVERSIONS'; // All/Unread/Starred
 export const UPDATE_CONVERSATION_NAME = 'UPDATE_CONVERSATION_NAME'; // Rename group
 export const TOGGLE_STARRED_CONVERSATION = 'TOGGLE_STARRED_CONVERSATION'; // Star/unstar
-export const SET_EMOJI_REACTION = 'SET_EMOJI_REACTION';            // Add/remove reaction
-export const RESET = 'RESET';                                      // Reset state
-export const SYNC_CONVERSATIONS = 'SYNC_CONVERSATIONS';            // Sync from SWR
-export const SYNC_CURRENT_USER = 'SYNC_CURRENT_USER';             // Sync auth user
-export const SET_SHOULD_SCROLL = 'SET_SHOULD_SCROLL';             // Control scroll
+export const SET_EMOJI_REACTION = 'SET_EMOJI_REACTION'; // Add/remove reaction
+export const RESET = 'RESET'; // Reset state
+export const SYNC_CONVERSATIONS = 'SYNC_CONVERSATIONS'; // Sync from SWR
+export const SYNC_CURRENT_USER = 'SYNC_CURRENT_USER'; // Sync auth user
+export const SET_SHOULD_SCROLL = 'SET_SHOULD_SCROLL'; // Control scroll
 ```
 
 ### 4.3 SWR Data Fetching
@@ -375,32 +387,44 @@ const { data, isLoading } = useSWR(
 // Subscribe to new messages
 supabase
   .channel('chat-realtime')
-  .on('postgres_changes', {
-    event: 'INSERT',
-    schema: 'public',
-    table: 'messages',
-  }, (payload) => {
-    // Filter to user's conversations (client-side)
-    // Skip own messages (handled optimistically)
-    // Fetch sender profile
-    // Call onNewMessage callback
-  })
-  .on('postgres_changes', {
-    event: 'UPDATE',
-    schema: 'public',
-    table: 'messages',
-  }, (payload) => {
-    // Handle reaction updates
-    // Call onMessageUpdated callback
-  })
-  .on('postgres_changes', {
-    event: 'UPDATE',
-    schema: 'public',
-    table: 'conversations',
-  }, (payload) => {
-    // Handle name changes
-    // Call onConversationUpdated callback
-  })
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'messages',
+    },
+    (payload) => {
+      // Filter to user's conversations (client-side)
+      // Skip own messages (handled optimistically)
+      // Fetch sender profile
+      // Call onNewMessage callback
+    },
+  )
+  .on(
+    'postgres_changes',
+    {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'messages',
+    },
+    (payload) => {
+      // Handle reaction updates
+      // Call onMessageUpdated callback
+    },
+  )
+  .on(
+    'postgres_changes',
+    {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'conversations',
+    },
+    (payload) => {
+      // Handle name changes
+      // Call onConversationUpdated callback
+    },
+  )
   .subscribe();
 ```
 
@@ -410,38 +434,38 @@ supabase
 
 ### 5.1 Supabase Operations
 
-| Hook | Table(s) | Operation | Description |
-|------|----------|-----------|-------------|
-| `useConversations` | `conversation_participants`, `conversations`, `messages`, `user_profiles` | SELECT | Fetch user's conversations with participants and last message |
-| `useMessages` | `messages`, `user_profiles` | SELECT | Fetch paginated messages with sender info |
-| `useSendMessage.sendMessage` | `messages`, `conversations`, `conversation_participants` | INSERT + UPDATE | Create message, update conversation timestamp, update last_read_at |
-| `useSendMessage.addReaction` | `messages` | SELECT + UPDATE | Get current reactions, toggle user reaction |
-| `useStartConversation.findOrCreateConversation` | `conversations`, `conversation_participants`, `messages` | SELECT + INSERT | Find existing 1:1 or create new conversation |
-| `useStartConversation.startGroupConversation` | `conversations`, `conversation_participants`, `messages` | INSERT | Create group with multiple participants |
-| `handleToggleStarred` | `conversation_participants` | UPDATE | Toggle is_starred for current user |
-| `handleUpdateConversationName` | `conversations` | UPDATE | Update conversation name (groups only) |
+| Hook                                            | Table(s)                                                                  | Operation       | Description                                                        |
+| ----------------------------------------------- | ------------------------------------------------------------------------- | --------------- | ------------------------------------------------------------------ |
+| `useConversations`                              | `conversation_participants`, `conversations`, `messages`, `user_profiles` | SELECT          | Fetch user's conversations with participants and last message      |
+| `useMessages`                                   | `messages`, `user_profiles`                                               | SELECT          | Fetch paginated messages with sender info                          |
+| `useSendMessage.sendMessage`                    | `messages`, `conversations`, `conversation_participants`                  | INSERT + UPDATE | Create message, update conversation timestamp, update last_read_at |
+| `useSendMessage.addReaction`                    | `messages`                                                                | SELECT + UPDATE | Get current reactions, toggle user reaction                        |
+| `useStartConversation.findOrCreateConversation` | `conversations`, `conversation_participants`, `messages`                  | SELECT + INSERT | Find existing 1:1 or create new conversation                       |
+| `useStartConversation.startGroupConversation`   | `conversations`, `conversation_participants`, `messages`                  | INSERT          | Create group with multiple participants                            |
+| `handleToggleStarred`                           | `conversation_participants`                                               | UPDATE          | Toggle is_starred for current user                                 |
+| `handleUpdateConversationName`                  | `conversations`                                                           | UPDATE          | Update conversation name (groups only)                             |
 
 ### 5.2 Loading States
 
-| State | UI Treatment | Component |
-|-------|--------------|-----------|
-| Conversations loading | Skeleton conversation items | `ConversationList` |
-| Messages loading | Skeleton message bubbles | `ContentSkeleton` |
-| Sending message | Message with spinner, "Sending..." button | `ContentFooter` |
-| Creating conversation | Disabled send button with spinner | `ContentFooter` |
-| File uploading | Progress bar in attachment preview | `AttachmentPreview` |
-| No conversations | Empty state illustration + "Start Chat" CTA | `SidebarFallback` |
-| No messages | "Say hello to get started" message | `ContentFallback` |
+| State                 | UI Treatment                                | Component           |
+| --------------------- | ------------------------------------------- | ------------------- |
+| Conversations loading | Skeleton conversation items                 | `ConversationList`  |
+| Messages loading      | Skeleton message bubbles                    | `ContentSkeleton`   |
+| Sending message       | Message with spinner, "Sending..." button   | `ContentFooter`     |
+| Creating conversation | Disabled send button with spinner           | `ContentFooter`     |
+| File uploading        | Progress bar in attachment preview          | `AttachmentPreview` |
+| No conversations      | Empty state illustration + "Start Chat" CTA | `SidebarFallback`   |
+| No messages           | "Say hello to get started" message          | `ContentFallback`   |
 
 ### 5.3 Error States
 
-| Error | UI Treatment | Recovery Action |
-|-------|--------------|-----------------|
-| Message send failed | Console error, state not updated | Retry via re-submit |
-| Conversation creation failed | Console error, thrown to caller | Try again |
-| Reaction update failed | Console error | UI remains in previous state |
-| WebSocket disconnect | Auto-reconnect (exponential backoff) | Manual refresh if persistent |
-| Auth failure | Redirect to login | Re-authenticate |
+| Error                        | UI Treatment                         | Recovery Action              |
+| ---------------------------- | ------------------------------------ | ---------------------------- |
+| Message send failed          | Console error, state not updated     | Retry via re-submit          |
+| Conversation creation failed | Console error, thrown to caller      | Try again                    |
+| Reaction update failed       | Console error                        | UI remains in previous state |
+| WebSocket disconnect         | Auto-reconnect (exponential backoff) | Manual refresh if persistent |
+| Auth failure                 | Redirect to login                    | Re-authenticate              |
 
 ---
 
@@ -461,14 +485,14 @@ supabase
 
 ### 6.2 Keyboard Navigation
 
-| Action | Key | Behavior |
-|--------|-----|----------|
-| Navigate conversations | Tab / Shift+Tab | Focus moves through sidebar items |
-| Select conversation | Enter | Opens conversation, focuses message input |
-| Send message | Enter | Sends message (Shift+Enter for newline) |
-| Close sidebar (mobile) | Escape | Returns focus to conversation |
-| Add emoji | Tab to emoji button, Enter to open picker | Focus moves to picker |
-| Close emoji picker | Escape | Returns focus to input |
+| Action                 | Key                                       | Behavior                                  |
+| ---------------------- | ----------------------------------------- | ----------------------------------------- |
+| Navigate conversations | Tab / Shift+Tab                           | Focus moves through sidebar items         |
+| Select conversation    | Enter                                     | Opens conversation, focuses message input |
+| Send message           | Enter                                     | Sends message (Shift+Enter for newline)   |
+| Close sidebar (mobile) | Escape                                    | Returns focus to conversation             |
+| Add emoji              | Tab to emoji button, Enter to open picker | Focus moves to picker                     |
+| Close emoji picker     | Escape                                    | Returns focus to input                    |
 
 ### 6.3 ARIA Implementation
 
@@ -501,24 +525,24 @@ supabase
 
 ### 7.1 Breakpoints
 
-| Breakpoint | Width | Sidebar Behavior | Conversation Aside |
-|------------|-------|------------------|-------------------|
-| xs | < 600px | Full-screen overlay (ResponsiveSidebar) | Hidden |
-| sm | 600-900px | Mini sidebar, click to expand (MiniSidebar) | Hidden |
-| md | 900-1200px | Resizable sidebar 280-400px (ResizableSidebar) | Hidden |
-| lg | 1200-1536px | Resizable sidebar 280-400px | Hidden by default |
-| xl | >= 1536px | Resizable sidebar 280-400px | Visible by default (404px) |
+| Breakpoint | Width       | Sidebar Behavior                               | Conversation Aside         |
+| ---------- | ----------- | ---------------------------------------------- | -------------------------- |
+| xs         | < 600px     | Full-screen overlay (ResponsiveSidebar)        | Hidden                     |
+| sm         | 600-900px   | Mini sidebar, click to expand (MiniSidebar)    | Hidden                     |
+| md         | 900-1200px  | Resizable sidebar 280-400px (ResizableSidebar) | Hidden                     |
+| lg         | 1200-1536px | Resizable sidebar 280-400px                    | Hidden by default          |
+| xl         | >= 1536px   | Resizable sidebar 280-400px                    | Visible by default (404px) |
 
 ### 7.2 Mobile-Specific Behavior
 
-| Interaction | Desktop | Mobile (xs) |
-|-------------|---------|-------------|
-| Open sidebar | Always visible | Overlay via hamburger menu |
-| Select conversation | Updates main panel | Navigates to `/chat/[id]` and closes sidebar |
-| Back to list | Click another conversation | Swipe right or back button |
-| Long-press message | Hover shows actions | Long-press shows context menu |
-| Pull to refresh | Not applicable | Refresh conversation list |
-| Swipe conversation item | Not applicable | Reveal star/mute actions |
+| Interaction             | Desktop                    | Mobile (xs)                                  |
+| ----------------------- | -------------------------- | -------------------------------------------- |
+| Open sidebar            | Always visible             | Overlay via hamburger menu                   |
+| Select conversation     | Updates main panel         | Navigates to `/chat/[id]` and closes sidebar |
+| Back to list            | Click another conversation | Swipe right or back button                   |
+| Long-press message      | Hover shows actions        | Long-press shows context menu                |
+| Pull to refresh         | Not applicable             | Refresh conversation list                    |
+| Swipe conversation item | Not applicable             | Reveal star/mute actions                     |
 
 ### 7.3 Layout Adaptations
 
@@ -675,47 +699,47 @@ The chat layout uses Stack for flex layouts rather than Grid, as chat UIs are pr
 
 ### 10.1 Critical (P0) - Must Complete
 
-| Task | Status | Notes |
-|------|--------|-------|
-| File upload to Supabase Storage | **TODO** | Currently uses `URL.createObjectURL()` - local only |
-| 10MB file size validation (client-side) | **TODO** | PRD REQ-CHAT-027 |
-| Supported file type validation | **TODO** | PRD REQ-CHAT-028 |
-| Presence indicators (online/offline) | **TODO** | Currently hardcoded to 'online' |
-| Unread badge on conversation items | **Implemented** | Via `unreadMessages` count |
-| Message optimistic UI with retry | **Partial** | Optimistic add works, no retry on failure |
+| Task                                    | Status          | Notes                                               |
+| --------------------------------------- | --------------- | --------------------------------------------------- |
+| File upload to Supabase Storage         | **TODO**        | Currently uses `URL.createObjectURL()` - local only |
+| 10MB file size validation (client-side) | **TODO**        | PRD REQ-CHAT-027                                    |
+| Supported file type validation          | **TODO**        | PRD REQ-CHAT-028                                    |
+| Presence indicators (online/offline)    | **TODO**        | Currently hardcoded to 'online'                     |
+| Unread badge on conversation items      | **Implemented** | Via `unreadMessages` count                          |
+| Message optimistic UI with retry        | **Partial**     | Optimistic add works, no retry on failure           |
 
 ### 10.2 High Priority (P1)
 
-| Task | Status | Notes |
-|------|--------|-------|
-| Group conversation creation UI | **TODO** | Hook exists, need modal for group name + multi-select |
-| Add/remove group participants | **TODO** | Need ConversationAside controls |
-| Leave group conversation | **TODO** | Need confirmation dialog + API call |
-| Mute conversation toggle | **TODO** | Database field exists, need UI toggle |
-| Connection lost banner | **TODO** | Need WebSocket status indicator |
-| Rate limiting UI feedback | **TODO** | Show toast when rate limited |
-| Infinite scroll for messages | **Implemented** | Via `useSWRInfinite` |
+| Task                           | Status          | Notes                                                 |
+| ------------------------------ | --------------- | ----------------------------------------------------- |
+| Group conversation creation UI | **TODO**        | Hook exists, need modal for group name + multi-select |
+| Add/remove group participants  | **TODO**        | Need ConversationAside controls                       |
+| Leave group conversation       | **TODO**        | Need confirmation dialog + API call                   |
+| Mute conversation toggle       | **TODO**        | Database field exists, need UI toggle                 |
+| Connection lost banner         | **TODO**        | Need WebSocket status indicator                       |
+| Rate limiting UI feedback      | **TODO**        | Show toast when rate limited                          |
+| Infinite scroll for messages   | **Implemented** | Via `useSWRInfinite`                                  |
 
 ### 10.3 Medium Priority (P2)
 
-| Task | Status | Notes |
-|------|--------|-------|
-| Typing indicators | **Deferred** | PRD marks as Phase 3 |
-| Message content search | **Deferred** | PRD marks as Phase 3 |
-| Read receipts display | **Deferred** | PRD marks as Phase 3 |
-| Message edit (15 min window) | **Deferred** | PRD marks as Phase 2 |
-| Pull-to-refresh on mobile | **TODO** | Native gesture support |
-| Swipe actions on mobile | **TODO** | Reveal star/mute/delete |
+| Task                         | Status       | Notes                   |
+| ---------------------------- | ------------ | ----------------------- |
+| Typing indicators            | **Deferred** | PRD marks as Phase 3    |
+| Message content search       | **Deferred** | PRD marks as Phase 3    |
+| Read receipts display        | **Deferred** | PRD marks as Phase 3    |
+| Message edit (15 min window) | **Deferred** | PRD marks as Phase 2    |
+| Pull-to-refresh on mobile    | **TODO**     | Native gesture support  |
+| Swipe actions on mobile      | **TODO**     | Reveal star/mute/delete |
 
 ### 10.4 Known Issues
 
-| Issue | Severity | Notes |
-|-------|----------|-------|
-| Attachment files only stored locally | High | `URL.createObjectURL()` won't persist or share |
-| No error boundary around chat | Medium | Errors may crash entire layout |
-| Duplicate message possible | Low | If real-time receives before optimistic confirm |
-| Group conversation UI incomplete | Medium | Can't create groups from UI yet |
-| Presence always shows online | Medium | Need real-time presence tracking |
+| Issue                                | Severity | Notes                                           |
+| ------------------------------------ | -------- | ----------------------------------------------- |
+| Attachment files only stored locally | High     | `URL.createObjectURL()` won't persist or share  |
+| No error boundary around chat        | Medium   | Errors may crash entire layout                  |
+| Duplicate message possible           | Low      | If real-time receives before optimistic confirm |
+| Group conversation UI incomplete     | Medium   | Can't create groups from UI yet                 |
+| Presence always shows online         | Medium   | Need real-time presence tracking                |
 
 ---
 
@@ -723,35 +747,35 @@ The chat layout uses Stack for flex layouts rather than Grid, as chat UIs are pr
 
 ### Provided To
 
-| Recipient | What is Provided |
-|-----------|-----------------|
+| Recipient      | What is Provided                                   |
+| -------------- | -------------------------------------------------- |
 | Implementation | Complete component specifications and architecture |
-| QA Agent | Testing plan with component and integration tests |
-| Backend Agent | Expected API contracts and data shapes |
+| QA Agent       | Testing plan with component and integration tests  |
+| Backend Agent  | Expected API contracts and data shapes             |
 
 ### Required From
 
-| Source | What is Required | Status |
-|--------|-----------------|--------|
-| Backend Agent | Supabase RLS policies and storage bucket setup | **Pending** |
-| Database Agent | Schema migrations applied | **Complete** |
-| User Journey Agent | UX requirements and flows | **Received** (04_user-journey.md) |
-| PRD Agent | UI/UX specifications | **Received** (05_product-requirements.md) |
+| Source             | What is Required                               | Status                                    |
+| ------------------ | ---------------------------------------------- | ----------------------------------------- |
+| Backend Agent      | Supabase RLS policies and storage bucket setup | **Pending**                               |
+| Database Agent     | Schema migrations applied                      | **Complete**                              |
+| User Journey Agent | UX requirements and flows                      | **Received** (04_user-journey.md)         |
+| PRD Agent          | UI/UX specifications                           | **Received** (05_product-requirements.md) |
 
 ---
 
 ## Information Requested (TBD Items)
 
-| Item | Question | Priority | Current Approach |
-|------|----------|----------|------------------|
-| Storage bucket configuration | What bucket policies for chat attachments? | High | Awaiting backend setup |
-| Group creation UX | Modal or inline flow? | Medium | Assuming modal with name input |
-| Presence implementation | Supabase Presence or custom table? | Medium | Supabase Realtime Presence recommended |
-| Message retry mechanism | How many retries? Exponential backoff? | Low | Currently no retry implemented |
-| Rate limit UI | Toast or inline error? | Low | Toast recommended |
+| Item                         | Question                                   | Priority | Current Approach                       |
+| ---------------------------- | ------------------------------------------ | -------- | -------------------------------------- |
+| Storage bucket configuration | What bucket policies for chat attachments? | High     | Awaiting backend setup                 |
+| Group creation UX            | Modal or inline flow?                      | Medium   | Assuming modal with name input         |
+| Presence implementation      | Supabase Presence or custom table?         | Medium   | Supabase Realtime Presence recommended |
+| Message retry mechanism      | How many retries? Exponential backoff?     | Low      | Currently no retry implemented         |
+| Rate limit UI                | Toast or inline error?                     | Low      | Toast recommended                      |
 
 ---
 
-*Generated with Claude AI assistance as directed by Pierce Desk*
-*Document ID: FEAT-CHAT-001-E3*
-*Generated: 2026-01-23*
+_Generated with Claude AI assistance as directed by Pierce Desk_
+_Document ID: FEAT-CHAT-001-E3_
+_Generated: 2026-01-23_

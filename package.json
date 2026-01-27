@@ -8,7 +8,8 @@
     "start": "next start -p 4000",
     "lint": "eslint . --ext .js,.jsx --max-warnings 0",
     "lint:next": "next lint",
-    "pretty": "prettier --write ."
+    "pretty": "prettier --write .",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.8.0",
@@ -89,6 +90,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@iconify-icon/react": "^3.0.1",
+    "@playwright/test": "^1.58.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "eslint": "^9.38.0",
     "eslint-config-next": "15.5.6",

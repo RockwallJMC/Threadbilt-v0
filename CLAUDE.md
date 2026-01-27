@@ -4,80 +4,49 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-**PierceBoard** is a Turborepo monorepo containing the PierceDesk.AI platform - a unified SaaS solution for physical security integration operations. The codebase uses Next.js 15 with App Router, React 19, Material-UI 7, and follows an Aurora-first UI development pattern.
+**piercedesk6** is a single Next.js 15 application (App Router) for the PierceDesk.AI platform. It uses React 19 and Material-UI 7, and runs the dev server on port 4000.
+
+**Important note (repo reality):** Some sections below reference a future/alternate monorepo layout (e.g. `apps/pierce-desk/`, `packages/*`, `templates/*`, `@pierce/*`). Those paths are **not present in this repository**. When in doubt, prefer the actual layout under `src/` and the scripts in `package.json`.
 
 ## Build & Development Commands
 
-### Monorepo Commands (from root)
+### App Commands (from repo root)
+
 ```bash
 # Install dependencies
 npm install --legacy-peer-deps
 
-# Start all apps in dev mode (TERMINAL ONLY - NEVER use run_in_background)
-npm run dev
-
-# Build all apps and packages
-npm run build
-
-# Run linting across all workspaces
-npm run lint
-
-# Clean all build artifacts
-npm run clean
-```
-
-### Pierce Desk App (from apps/pierce-desk)
-```bash
 # Dev server on port 4000 (TERMINAL ONLY - NEVER use run_in_background)
 npm run dev
 
-# Production build with increased memory
+# Production build
 npm run build
+
+# Lint
+npm run lint
 
 # Start production server
 npm run start
-
-# Run linter
-npm run lint
-
-# Clean Next.js build
-npm run clean
 ```
 
 **IMPORTANT: Development Server Constraints**
+
 - `npm run dev` must ONLY be run in the terminal directly
 - NEVER use `run_in_background: true` parameter with Bash tool for dev servers
 - This ensures proper visibility of logs, errors, and the ability to stop/restart cleanly
 - If dev server needs to be started, inform the user and let them start it manually
 
-## Monorepo Architecture
+## Repository Structure
 
-### Package Organization
+This repository uses a standard single-app layout:
 
-**Apps:**
-- `apps/pierce-desk/` - Main Next.js application (runs on port 4000)
+- `src/app/` - Next.js App Router routes/layouts
+- `src/components/` - shared and feature UI components
+- `src/layouts/` - application layouts
+- `src/routes/` - route metadata (e.g. sitemap)
+- `src/services/` - client-side data access (e.g. SWR hooks)
 
-**Packages:**
-- `packages/aurora/*` - Aurora UI design system (6 packages: ui, theme, hooks, providers, layouts, sections)
-- `packages/mantis/*` - Mantis UI alternative design system (6 packages: ui, theme, hooks, providers, layouts, sections)
-- `packages/shared/*` - Shared utilities (auth, services, utils, config, data, routes, locales)
-- `packages/config/*` - Shared configuration (eslint-config)
-
-**Templates:**
-- `templates/aurora-next/` - Source of truth for Aurora UI components and patterns
-- `templates/mantis-next/` - Mantis UI template reference
-
-### Package Import Patterns
-
-Packages are referenced using workspace protocol:
-```typescript
-import { Button } from '@pierce/aurora-ui';
-import { useTheme } from '@pierce/aurora-hooks';
-import { ThemeProvider } from '@pierce/aurora-providers';
-import { DashboardLayout } from '@pierce/aurora-layouts';
-import { api } from '@pierce/services';
-import { formatDate } from '@pierce/utils';
-```
+Imports in this repo are currently local/relative (not `@pierce/*` workspace packages).
 
 ## Critical Development Workflows
 
@@ -94,6 +63,7 @@ If there is even a 1% chance a skill applies, you MUST invoke it. This is non-ne
 </EXTREMELY_IMPORTANT>
 
 **When to invoke skills:**
+
 - Starting ANY conversation → `/using-superpowers` skill
 - Before ANY implementation → `/TDD` skill
 - Before ANY architectural decision → `/software-architecture` skill
@@ -103,6 +73,7 @@ If there is even a 1% chance a skill applies, you MUST invoke it. This is non-ne
 - File organization → `/file-organizer` skill
 
 **Use the Skill tool:**
+
 ```javascript
 // Example invocations
 Skill tool with skill: "using-superpowers"
@@ -112,6 +83,7 @@ Skill tool with skill: "software-architecture"
 ```
 
 **Red flags that mean you're rationalizing (STOP):**
+
 - "This is just a simple task" → Check for skills anyway
 - "I need context first" → Skills tell you HOW to gather context
 - "Let me explore first" → Skills tell you HOW to explore
@@ -127,6 +99,7 @@ TodoWrite is for TRACKING tasks, but Task tool is for EXECUTING them.
 </EXTREMELY_IMPORTANT>
 
 **Use Task tool for ALL:**
+
 - Feature implementation → `react-mui-frontend-engineer`, `wiring-agent`, `supabase-database-architect`
 - Test creation → `playwright-tester`
 - Code exploration → `Explore` agent (thoroughness: quick/medium/very thorough)
@@ -137,6 +110,7 @@ TodoWrite is for TRACKING tasks, but Task tool is for EXECUTING them.
 - Multiple independent tasks → Launch multiple agents IN PARALLEL
 
 **Standard workflow:**
+
 ```
 1. User requests task
 2. Invoke relevant SKILL first (e.g., /TDD, /software-architecture)
@@ -147,6 +121,7 @@ TodoWrite is for TRACKING tasks, but Task tool is for EXECUTING them.
 ```
 
 **Example - Feature Implementation:**
+
 ```
 User: "Add a user profile settings page"
 
@@ -171,6 +146,7 @@ Step 6: Show verification evidence before claiming complete
 ```
 
 **Example - Parallel Execution:**
+
 ```
 User: "Review the authentication code and create tests"
 
@@ -181,6 +157,7 @@ Task(playwright-tester, "Create auth test suite")
 ```
 
 **Critical rules:**
+
 - NEVER execute implementation work directly - always delegate to Task tool
 - TodoWrite = planning and tracking ONLY
 - Task tool = actual execution
@@ -191,16 +168,212 @@ Task(playwright-tester, "Create auth test suite")
 #### 3. Verification Is Evidence-Based, Always
 
 **No claims without fresh command output:**
+
 - "Tests pass" → Show `npm test` output with 0 failures
 - "Build works" → Show `npm run build` with exit code 0
 - "Feature complete" → Show verification commands for ALL requirements
 - "Bug fixed" → Show test demonstrating fix
 
 **Use `/VERIFY-BEFORE-COMPLETE` skill before:**
+
 - Any commit
 - Any PR
 - Any "done" claim
 - Moving to next task
+
+---
+
+### Documentation Standards (MANDATORY)
+
+<EXTREMELY_IMPORTANT>
+**All feature work MUST follow the documentation framework.**
+
+Every feature requires proper documentation from planning through deployment.
+</EXTREMELY_IMPORTANT>
+
+#### Documentation Structure
+
+PierceDesk uses a **hybrid documentation strategy**:
+
+```
+piercedesk6/
+├── docs/                      # USER-FACING DOCUMENTATION
+│   ├── architecture/          # System design
+│   ├── features/              # Feature documentation
+│   ├── guides/                # How-to guides
+│   └── api/                   # API reference
+│
+└── _sys_documents/            # INTERNAL TRACKING
+    ├── vision/                # Product vision
+    ├── roadmap/               # Strategic plans
+    ├── design/                # Design documents
+    ├── execution/             # Implementation tracking
+    └── as-builts/             # Current state docs
+```
+
+#### Feature Documentation Workflow
+
+**When creating ANY feature:**
+
+1. **Create INDEX File** (Master tracking document)
+
+   ```bash
+   cp .claude/templates/INDEX-template.md \
+      _sys_documents/execution/INDEX-feature-name.md
+   ```
+
+   - Single source of truth for feature progress
+   - Tracks all phases, blockers, decisions
+   - Updated continuously throughout development
+
+2. **Create Phase Design Documents**
+
+   ```bash
+   cp .claude/templates/phase-design-template.md \
+      _sys_documents/design/phase-X.Y-topic.md
+   ```
+
+   - One per major phase of work
+   - Architecture, decisions, dependencies
+   - Status tracked via YAML frontmatter
+
+3. **Create Phase Execution Documents**
+
+   ```bash
+   cp .claude/templates/phase-execution-template.md \
+      _sys_documents/execution/phase-X.Y-topic.md
+   ```
+
+   - Implementation log with dated entries
+   - Progress percentage and code references
+   - Verification evidence required
+
+4. **Update As-Built Documentation** (After merge)
+
+   ```bash
+   cp .claude/templates/as-built-template.md \
+      _sys_documents/as-builts/feature-as-built.md
+   ```
+
+   - Reflects ACTUAL deployed state
+   - Living documents, always current
+   - Version incremented with changes
+
+5. **Update User-Facing Documentation**
+   - Use `Task(documentation-expert, "Generate docs")`
+   - Update `docs/features/`, `docs/architecture/`, `docs/api/`
+   - Keep user docs clear and current
+
+#### Abbreviated Workflow (Shallow Impact Features)
+
+**When to use abbreviated workflow:**
+
+Use the simplified documentation process when ALL of these criteria are met:
+
+- **Single file or ≤ 3 files** modified
+- **< 50 lines of code** total change
+- **No architectural decisions** required
+- **No database schema changes**
+- **No API contract changes**
+- **No new external dependencies**
+- **No security implications**
+
+**Abbreviated process:**
+
+1. **Create simplified INDEX** (required)
+   - Use INDEX template but skip Risk Register, Dependencies sections
+   - Single combined "Design & Implementation" phase instead of separate phases
+   - Still include verification checklist and evidence
+
+2. **Create single design-implementation document** (optional)
+   - Combine design decisions + implementation log in one document
+   - Use phase-design-template.md as base, add implementation log section
+   - Useful if decisions need documentation, skip if straightforward
+
+3. **Create verification document** (required)
+   - Always verify with commands (build, lint, tests)
+   - Document evidence even for small changes
+   - Use phase-execution-template.md verification sections
+
+4. **Update user-facing docs if needed**
+   - Only if feature affects user-facing functionality
+
+**When to use FULL workflow:**
+
+- Any feature not meeting ALL abbreviated criteria above
+- Deep impact features (database, API, multi-module, security)
+- Features requiring cross-team coordination
+- Features with multiple implementation options requiring decisions
+
+**Example abbreviated workflow:**
+```bash
+# Small fix: Update button color in single component
+# Criteria met: 1 file, 3 lines, no architecture/DB/API changes
+
+1. Create: _sys_documents/execution/INDEX-button-color-fix.md (simplified)
+2. Skip separate phase docs (straightforward change)
+3. Create: _sys_documents/execution/verification-button-color.md
+4. Capture: build output, lint output, screenshot
+```
+
+**Framework testing note:** The test-rectangle feature (framework validation) used full workflow to exercise all templates, but would qualify for abbreviated workflow by the criteria above.
+
+#### Document Templates
+
+All templates in `.claude/templates/`:
+
+| Template                      | When to Use            |
+| ----------------------------- | ---------------------- |
+| `INDEX-template.md`           | Start of every feature |
+| `phase-design-template.md`    | Before implementation  |
+| `phase-execution-template.md` | During development     |
+| `debug-template.md`           | When bugs occur        |
+| `realignment-template.md`     | When plans change      |
+| `as-built-template.md`        | After merging          |
+
+#### Frontmatter Standards
+
+**All tracking documents use YAML frontmatter** (NO filename suffixes):
+
+```yaml
+---
+title: "Document title"
+type: "design" | "execution" | "as-built"
+status: "planned" | "in-progress" | "complete" | "blocked"
+version: "X.Y"
+created: "YYYY-MM-DD"
+updated: "YYYY-MM-DD"
+---
+```
+
+#### Debugging & Realignment
+
+**When bugs occur:**
+
+1. Create debug document: `_sys_documents/execution/debug-BUG-XXX.md`
+2. Invoke `/systematic-debugging` skill
+3. Document investigation, root cause, fix
+4. Update INDEX with blocker if needed
+
+**When plans change:**
+
+1. Create realignment document: `_sys_documents/execution/realign-YYYY-MM-DD-topic.md`
+2. Document original vs. new approach, rationale
+3. Get approval for scope/timeline changes
+4. Update INDEX and phase documents
+
+#### Documentation Quality Gates
+
+Before merging ANY feature:
+
+- [ ] INDEX file complete and current
+- [ ] All phase documents have status and verification
+- [ ] Code references include file:line numbers
+- [ ] As-built generated and reflects deployed state
+- [ ] User-facing docs updated
+- [ ] All YAML frontmatter valid
+
+**For detailed workflow**, see [Documentation Guide](docs/guides/DOCUMENTATION-GUIDE.md)
 
 ---
 
@@ -214,13 +387,14 @@ Task(playwright-tester, "Create auth test suite")
    - Document search attempts using Aurora Search Log template
 
 2. **Copy-Then-Modify**
+
    ```bash
    # Copy from Aurora template to Pierce Desk
    cp -r templates/aurora-next/src/sections/example apps/pierce-desk/src/sections/
    ```
 
 3. **Customize for Pierce**
-   - Update imports from Aurora paths to @pierce/* packages
+   - Update imports from Aurora paths to @pierce/\* packages
    - Modify functionality to match specifications
    - Maintain Material-UI theme compliance
 
@@ -230,6 +404,7 @@ Task(playwright-tester, "Create auth test suite")
    - Custom component follows Material-UI patterns
 
 **Location of Aurora compliance instructions:**
+
 - `AGENTS-MAIN/agents/agent-instruction/aurora-compliance.instructions.md`
 
 ### Feature Development Workflow (MANDATORY)
@@ -237,6 +412,7 @@ Task(playwright-tester, "Create auth test suite")
 **When developing new features, you MUST follow the PIERCE-SYS-EXE orchestration process.**
 
 **Framework Documentation:**
+
 - `agent-overview.md` - Complete orchestration framework
 - `PIERCE-SYS-EXE/README.md` - Quick start guide
 
@@ -247,19 +423,20 @@ Task(playwright-tester, "Create auth test suite")
    - **Shallow Impact:** UI tweaks, single-module, no schema/API changes → Abbreviated workflow
 
 2. **Create Feature Folder**
+
    ```bash
    cp -r PIERCE-SYS-EXE/FEATURE-template PIERCE-SYS-EXE/FEATURE-{feature-name}
    ```
 
 3. **Follow the Phased Workflow**
 
-   | Phase | Output | Checkpoint |
-   |-------|--------|------------|
-   | 1. Strategic | 01_saas-perspective.md, 02_subscriber-perspective.md | C1 |
-   | 2. Assessment | 03_product-assessment.md | C2 (Human approval) |
-   | 3. Planning | 04-06 docs + eng/*.md plans | C3 |
-   | 4. Review | INDEX.md reports compiled | C4 (Human approval) |
-   | 5. Implementation | Feature branch + code | C5-C7 |
+   | Phase             | Output                                               | Checkpoint          |
+   | ----------------- | ---------------------------------------------------- | ------------------- |
+   | 1. Strategic      | 01_saas-perspective.md, 02_subscriber-perspective.md | C1                  |
+   | 2. Assessment     | 03_product-assessment.md                             | C2 (Human approval) |
+   | 3. Planning       | 04-06 docs + eng/\*.md plans                         | C3                  |
+   | 4. Review         | INDEX.md reports compiled                            | C4 (Human approval) |
+   | 5. Implementation | Feature branch + code                                | C5-C7               |
 
 4. **Never Skip Checkpoints**
    - C2 and C4 require explicit human approval
@@ -267,6 +444,7 @@ Task(playwright-tester, "Create auth test suite")
    - Mark TBD items in Information Requested section
 
 **Key Rules:**
+
 - INDEX.md is the single source of truth for all feature work
 - Deep impact features require 250-line minimum reports
 - Lock INDEX.md after feature is merged (status: locked)
@@ -286,10 +464,12 @@ If there is even a 1% chance a skill applies to your current action, you MUST in
 ### Available Skills
 
 #### 1. TDD - Test-Driven Development
+
 **Location:** `.claude/skills/TDD/SKILL.md`
 **Command:** `/TDD` or use Skill tool with `skill: "TDD"`
 
 **When to invoke:**
+
 - BEFORE implementing any feature or bugfix
 - BEFORE writing implementation code
 - When fixing bugs (write failing test first)
@@ -297,16 +477,19 @@ If there is even a 1% chance a skill applies to your current action, you MUST in
 **Core principle:** Write test first → Watch it fail → Write minimal code to pass → Refactor
 
 **Key requirements:**
+
 - Red-Green-Refactor cycle is mandatory
 - NEVER write production code without a failing test first
 - Watch each test fail before implementing
 - See `.claude/skills/TDD/testing-anti-patterns.md` for common pitfalls
 
 #### 2. VERIFY-BEFORE-COMPLETE / using-superpowers
+
 **Location:** `.claude/skills/VERIFY-BEFORE-COMPLETE/SKILL.md` or `.claude/skills/using-superpowers/SKILL.md`
 **Command:** `/verify` or `/using-superpowers` or use Skill tool
 
 **When to invoke:**
+
 - BEFORE claiming work is complete, fixed, or passing
 - BEFORE committing code
 - BEFORE creating PRs
@@ -316,6 +499,7 @@ If there is even a 1% chance a skill applies to your current action, you MUST in
 **Core principle:** Evidence before assertions, always
 
 **Key requirements:**
+
 - Run verification commands and show output
 - No completion claims without fresh evidence
 - Tests pass → Show test output with 0 failures
@@ -323,16 +507,19 @@ If there is even a 1% chance a skill applies to your current action, you MUST in
 - Never use "should", "probably", "seems to" when claiming completion
 
 #### 3. software-architecture
+
 **Location:** `.claude/skills/software-architecture/SKILL.md`
 **Command:** `/software-architecture` or use Skill tool with `skill: "software-architecture"`
 
 **When to invoke:**
+
 - When designing or analyzing code architecture
 - When writing any code (for quality standards)
 - When making architectural decisions
 - During code reviews
 
 **Core principles:**
+
 - Clean Architecture & Domain-Driven Design
 - Library-first approach (search npm before writing custom code)
 - Domain-specific naming (avoid generic names like `utils`, `helpers`)
@@ -340,15 +527,18 @@ If there is even a 1% chance a skill applies to your current action, you MUST in
 - Early return pattern for readability
 
 #### 4. file-organizer
+
 **Location:** `.claude/skills/file-organizer/SKILL.md`
 **Command:** `/file-organizer` or use Skill tool with `skill: "file-organizer"`
 
 **When to invoke:**
+
 - When organizing files and folders
 - When codebase structure needs cleanup
 - When finding duplicates or suggesting better structures
 
 **Purpose:**
+
 - Intelligently organize files across the workspace
 - Reduce cognitive load
 - Maintain clean digital workspace
@@ -356,6 +546,7 @@ If there is even a 1% chance a skill applies to your current action, you MUST in
 ### Skill Integration in Workflow
 
 **Standard Development Flow (Skills + Sub-Agents):**
+
 ```
 1. Receive task/feature request
 2. INVOKE using-superpowers skill → Establish workflow foundation
@@ -377,19 +568,20 @@ If there is even a 1% chance a skill applies to your current action, you MUST in
 
 **Critical Checkpoints:**
 
-| Checkpoint | Required Skill | Verification |
-|------------|----------------|--------------|
-| Before writing implementation | TDD | Test written and failing |
-| Before claiming "tests pass" | VERIFY-BEFORE-COMPLETE | Test command output shown |
-| Before claiming "build works" | VERIFY-BEFORE-COMPLETE | Build command exit 0 shown |
-| Before commit/PR | VERIFY-BEFORE-COMPLETE | Full verification evidence |
-| During architecture decisions | software-architecture | Clean Architecture principles |
-| File organization tasks | file-organizer | Structured cleanup |
+| Checkpoint                    | Required Skill         | Verification                  |
+| ----------------------------- | ---------------------- | ----------------------------- |
+| Before writing implementation | TDD                    | Test written and failing      |
+| Before claiming "tests pass"  | VERIFY-BEFORE-COMPLETE | Test command output shown     |
+| Before claiming "build works" | VERIFY-BEFORE-COMPLETE | Build command exit 0 shown    |
+| Before commit/PR              | VERIFY-BEFORE-COMPLETE | Full verification evidence    |
+| During architecture decisions | software-architecture  | Clean Architecture principles |
+| File organization tasks       | file-organizer         | Structured cleanup            |
 
 ### Skill Invocation Methods
 
 1. **Slash Commands:** `/TDD`, `/verify`, `/software-architecture`, `/file-organizer`
 2. **Skill Tool:** Use the Skill tool in Claude Code
+
    ```
    Skill tool with skill: "TDD"
    Skill tool with skill: "VERIFY-BEFORE-COMPLETE"
@@ -402,11 +594,13 @@ If there is even a 1% chance a skill applies to your current action, you MUST in
 ### Integration with Agent Framework
 
 Skills work alongside the agent framework:
+
 - **PIERCE-SYS-EXE** → Feature orchestration workflow
 - **AGENTS-MAIN** → Coding standards and guidelines
 - **Skills** → Enforced practices and quality gates
 
 **Example Agent + Skill Integration:**
+
 - `react-mui-frontend-engineer` agent uses `TDD` skill before implementation
 - `react-mui-frontend-engineer` agent uses `VERIFY-BEFORE-COMPLETE` before claiming completion
 - All agents reference `software-architecture` for code quality standards
@@ -415,24 +609,25 @@ Skills work alongside the agent framework:
 
 **ALWAYS use specialized sub-agents via Task tool for execution work:**
 
-| Agent | When to Use | Example |
-|-------|------------|---------|
-| `Explore` | Codebase exploration, pattern finding, architecture understanding | Task(Explore, "Find authentication patterns", thoroughness: "medium") |
-| `react-mui-frontend-engineer` | UI component creation, Aurora duplication, MUI implementation | Task(react-mui-frontend-engineer, "Build profile settings page") |
-| `wiring-agent` | API integration, SWR hooks, authentication flows, routing | Task(wiring-agent, "Implement user profile API integration") |
-| `supabase-database-architect` | Schema design, migrations, RLS policies, database queries (ALWAYS uses Supabase MCP tools - database is in cloud, not local) | Task(supabase-database-architect, "Create user_profiles table") |
-| `playwright-tester` | E2E test creation, test debugging, test maintenance | Task(playwright-tester, "Create login flow tests") |
-| `documentation-expert` | README updates, API docs, docstrings, CHANGELOG | Task(documentation-expert, "Document authentication API") |
-| `superpowers:code-reviewer` | Code review after major feature completion | Task(superpowers:code-reviewer, "Review authentication implementation") |
-| `feature-dev:code-architect` | Design feature architecture, create implementation blueprints | Task(feature-dev:code-architect, "Design metrics export system") |
+| Agent                         | When to Use                                                                                                                  | Example                                                                 |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `Explore`                     | Codebase exploration, pattern finding, architecture understanding                                                            | Task(Explore, "Find authentication patterns", thoroughness: "medium")   |
+| `react-mui-frontend-engineer` | UI component creation, Aurora duplication, MUI implementation                                                                | Task(react-mui-frontend-engineer, "Build profile settings page")        |
+| `wiring-agent`                | API integration, SWR hooks, authentication flows, routing                                                                    | Task(wiring-agent, "Implement user profile API integration")            |
+| `supabase-database-architect` | Schema design, migrations, RLS policies, database queries (ALWAYS uses Supabase MCP tools - database is in cloud, not local) | Task(supabase-database-architect, "Create user_profiles table")         |
+| `playwright-tester`           | E2E test creation, test debugging, test maintenance                                                                          | Task(playwright-tester, "Create login flow tests")                      |
+| `documentation-expert`        | README updates, API docs, docstrings, CHANGELOG                                                                              | Task(documentation-expert, "Document authentication API")               |
+| `superpowers:code-reviewer`   | Code review after major feature completion                                                                                   | Task(superpowers:code-reviewer, "Review authentication implementation") |
+| `feature-dev:code-architect`  | Design feature architecture, create implementation blueprints                                                                | Task(feature-dev:code-architect, "Design metrics export system")        |
 
 **Parallel Execution:**
 When tasks are independent, launch multiple agents in a SINGLE message:
+
 ```javascript
 // CORRECT - Single message, multiple Task calls
-Task(Explore, "Find dashboard patterns")
-Task(react-mui-frontend-engineer, "Build dashboard UI")
-Task(playwright-tester, "Create dashboard tests")
+Task(Explore, 'Find dashboard patterns');
+Task(react - mui - frontend - engineer, 'Build dashboard UI');
+Task(playwright - tester, 'Create dashboard tests');
 
 // INCORRECT - Sequential when could be parallel
 // Task... wait for result... Task... wait for result...
@@ -450,6 +645,7 @@ Task(playwright-tester, "Create dashboard tests")
 8. **Sequential execution of independent tasks** - Use parallel Task calls in single message
 
 **See Also:**
+
 - `.claude/skills/TDD/testing-anti-patterns.md` - Testing antipatterns to avoid
 - `.claude/agents/` - Agent definitions that should invoke these skills
 - `.claude/skills-integration-guide.md` - Detailed guide on skill usage (to be created)
@@ -461,12 +657,14 @@ Task(playwright-tester, "Create dashboard tests")
 **NEVER edit files in `templates/aurora-next/`**. This is the source of truth.
 
 **Workflow:**
+
 1. Find the component in `templates/aurora-next/src/`
 2. Copy the file to the corresponding location in `apps/pierce-desk/src/`
 3. Edit ONLY the copied file
-4. Update imports from Aurora paths to @pierce/* packages
+4. Update imports from Aurora paths to @pierce/\* packages
 
 **Example:**
+
 ```bash
 # Copy authentication component
 cp templates/aurora-next/src/components/sections/authentications/default/LoginForm.jsx \
@@ -478,6 +676,7 @@ cp templates/aurora-next/src/components/sections/authentications/default/LoginFo
 ### MUI v7 Import Patterns
 
 **Grid (MUI v7 syntax - uses `size` prop, not `xs/md` directly):**
+
 ```javascript
 import Grid from '@mui/material/Grid';
 
@@ -492,6 +691,7 @@ import Grid from '@mui/material/Grid';
 ```
 
 **Paper for content sections:**
+
 ```javascript
 import Paper from '@mui/material/Paper';
 
@@ -507,6 +707,7 @@ import Paper from '@mui/material/Paper';
 ```
 
 **Stack for flex layouts:**
+
 ```javascript
 import { Stack } from '@mui/material';
 
@@ -531,6 +732,7 @@ import { Stack } from '@mui/material';
 ```
 
 **Drawer with drawerClasses:**
+
 ```javascript
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
 
@@ -555,6 +757,7 @@ import Drawer, { drawerClasses } from '@mui/material/Drawer';
 **Template Location:** `templates/aurora-next/src/components/sections/authentications/`
 
 **Key Components:**
+
 - `LoginForm.jsx` - Login with email/password
 - `SignupForm.jsx` - Registration form
 - `ForgotPasswordForm.jsx` - Password recovery
@@ -563,6 +766,7 @@ import Drawer, { drawerClasses } from '@mui/material/Drawer';
 - `SocialAuth.jsx` - OAuth buttons (Google, GitHub, etc.)
 
 **Import Update Pattern (Aurora → Pierce):**
+
 ```javascript
 // Aurora template uses:
 import { rootPaths } from 'routes/paths';
@@ -574,30 +778,35 @@ import { rootPaths } from '@pierce/routes';
 ### Shared Packages Reference
 
 **Routes and Navigation:**
+
 ```javascript
 import paths, { rootPaths } from '@pierce/routes';
 import sitemap from '@pierce/routes/sitemap';
 ```
 
 **Services (API calls, SWR):**
+
 ```javascript
 import { axiosFetcher, axiosInstance } from '@pierce/services';
 import { useAuthApi, useProductApi } from '@pierce/services/swr';
 ```
 
 **Utilities:**
+
 ```javascript
 import { formatDate, kebabCase } from '@pierce/utils';
 import { passwordStrength } from '@pierce/utils';
 ```
 
 **Data (mock/seed data):**
+
 ```javascript
 import { calendarData } from '@pierce/data';
 import { countries } from '@pierce/data';
 ```
 
 **Locales:**
+
 ```javascript
 import { i18n, languages } from '@pierce/locales';
 ```
@@ -607,6 +816,7 @@ import { i18n, languages } from '@pierce/locales';
 **Location:** `packages/shared/routes/src/sitemap.js`
 
 **Structure:**
+
 ```javascript
 const sitemap = [
   {
@@ -630,6 +840,7 @@ const sitemap = [
 ```
 
 **Adding New Routes:**
+
 1. Add path in `packages/shared/routes/src/paths.js`
 2. Add sitemap entry in `packages/shared/routes/src/sitemap.js`
 3. Create page in `apps/pierce-desk/src/app/`
@@ -637,6 +848,7 @@ const sitemap = [
 ### MCP Server Integration
 
 **Configuration:** `.mcp.json`
+
 ```json
 {
   "mcpServers": {
@@ -654,6 +866,7 @@ const sitemap = [
 The Supabase database is hosted in the cloud, NOT locally. You MUST use Supabase MCP tools (functions with `mcp__` prefix) for ALL database operations.
 
 **NEVER:**
+
 - ❌ Try to connect with psql locally
 - ❌ Use DATABASE_URL for local connections
 - ❌ Suggest pg_dump or pg_restore commands
@@ -661,27 +874,29 @@ The Supabase database is hosted in the cloud, NOT locally. You MUST use Supabase
 - ❌ Use direct PostgreSQL connection strings
 
 **ALWAYS:**
+
 - ✅ Use Supabase MCP tools for schema inspection
 - ✅ Use Supabase MCP tools for SQL execution
 - ✅ Use Supabase MCP tools for query testing
 - ✅ Use Supabase MCP tools for RLS policy inspection
 - ✅ Use Task tool with `supabase-database-architect` agent for database work
-</EXTREMELY_IMPORTANT>
+  </EXTREMELY_IMPORTANT>
 
 ### Common Component Locations
 
-| Component Type | Aurora Template | Pierce-desk Target |
-|---------------|-----------------|-------------------|
-| Auth Forms | `templates/aurora-next/src/components/sections/authentications/` | `apps/pierce-desk/src/components/sections/authentications/` |
-| Dashboards | `templates/aurora-next/src/components/sections/dashboards/` | `apps/pierce-desk/src/components/sections/dashboards/` |
-| Layouts | `templates/aurora-next/src/layouts/` | `apps/pierce-desk/src/layouts/` |
-| Pages | `templates/aurora-next/src/app/(main)/` | `apps/pierce-desk/src/app/` |
+| Component Type | Aurora Template                                                  | Pierce-desk Target                                          |
+| -------------- | ---------------------------------------------------------------- | ----------------------------------------------------------- |
+| Auth Forms     | `templates/aurora-next/src/components/sections/authentications/` | `apps/pierce-desk/src/components/sections/authentications/` |
+| Dashboards     | `templates/aurora-next/src/components/sections/dashboards/`      | `apps/pierce-desk/src/components/sections/dashboards/`      |
+| Layouts        | `templates/aurora-next/src/layouts/`                             | `apps/pierce-desk/src/layouts/`                             |
+| Pages          | `templates/aurora-next/src/app/(main)/`                          | `apps/pierce-desk/src/app/`                                 |
 
 ### Working with the Agent Framework
 
 The repository includes two complementary frameworks:
 
 **1. PIERCE-SYS-EXE Orchestration (Feature Development)**
+
 - `agent-overview.md` - Sub-Agent Orchestration Framework for feature workflows
 - `PIERCE-SYS-EXE/` - Feature execution directory with INDEX tracking
 - Use this for all new feature development (see Feature Development Workflow above)
@@ -691,6 +906,7 @@ The repository includes two complementary frameworks:
 The repository includes coding standards in `AGENTS-MAIN/`:
 
 **Core Agents (6):**
+
 - UI/UX Agent - Design system, accessibility, Aurora compliance
 - Wiring Agent - Backend APIs, integration
 - Database Agent - Schema design, migrations
@@ -699,6 +915,7 @@ The repository includes coding standards in `AGENTS-MAIN/`:
 - Orchestration Agent - GitHub-first feature coordination
 
 **Key Documents:**
+
 - `AGENTS-MAIN/README.md` - Framework overview
 - `AGENTS-MAIN/AI_TOOL_INTEGRATION.md` - How to work with this framework
 - `AGENTS-MAIN/agents/uiux/exec.md` - UI development workflow
@@ -706,6 +923,7 @@ The repository includes coding standards in `AGENTS-MAIN/`:
 
 **Using Agents in Claude Code:**
 When starting work on a feature:
+
 1. Invoke `/using-superpowers` skill FIRST
 2. Follow PIERCE-SYS-EXE workflow (create INDEX.md, follow checkpoints)
 3. Use Task tool with specialized sub-agents for ALL implementation work:
@@ -723,6 +941,7 @@ When starting work on a feature:
 ### GitHub-First Coordination
 
 For multi-agent feature work:
+
 1. Feature requests should be GitHub issues
 2. Create PIERCE-SYS-EXE feature folder and INDEX.md
 3. Follow checkpoint-gated workflow with human approvals at C2 and C4
@@ -733,6 +952,7 @@ For multi-agent feature work:
 ### Next.js App Router Structure
 
 Pierce Desk uses Next.js 15 App Router:
+
 ```
 apps/pierce-desk/src/
 ├── app/              # App Router pages and layouts
@@ -754,6 +974,7 @@ apps/pierce-desk/src/
 ### SWR and API Services
 
 API services are in `@pierce/services`:
+
 - Use SWR for data fetching
 - Follow service patterns in shared/services/
 - API documentation: See root README.md → API Documentation link
@@ -761,12 +982,14 @@ API services are in `@pierce/services`:
 ### Multi-Tenant Database Architecture
 
 Database uses Supabase with PostgreSQL (CLOUD-HOSTED):
+
 - **Cloud database**: All operations MUST use Supabase MCP tools
 - Multi-tenant with Row Level Security (RLS)
 - Schema documentation in `database-documentation/`
 - Follow database agent guidelines in `AGENTS-MAIN/agents/database/`
 
 **For ALL database work:**
+
 1. Use Task tool with `supabase-database-architect` agent
 2. Agent will use Supabase MCP tools (never local connections)
 3. Inspect schema via MCP before modifications
@@ -780,6 +1003,7 @@ Database uses Supabase with PostgreSQL (CLOUD-HOSTED):
 Location: `AGENTS-MAIN/agents/agent-instruction/playwright-typescript.md`
 
 Key guidelines:
+
 - Use TypeScript for all test files
 - Follow page object model pattern
 - Use data-testid attributes for selectors
@@ -792,6 +1016,7 @@ Key guidelines:
 **Critical:** Follow security guidelines in `AGENTS-MAIN/agents/agent-instruction/security-owasp-guidelines.md`
 
 Key requirements:
+
 - Input validation at all boundaries
 - Parameterized queries (prevent SQL injection)
 - XSS prevention (sanitize outputs)
@@ -799,7 +1024,9 @@ Key requirements:
 - Secure authentication patterns
 
 ### React/TypeScript Standards
+
 Highlights:
+
 - React 19.2 with modern hooks
 - TypeScript for all components
 - Functional components only
@@ -809,6 +1036,7 @@ Highlights:
 ### Accessibility (WCAG 2.1 AA)
 
 Required for all UI components:
+
 - Semantic HTML
 - ARIA labels where needed
 - Keyboard navigation support
@@ -818,6 +1046,7 @@ Required for all UI components:
 ## Important Documentation
 
 **Product & Vision:**
+
 - Root `README.md` - Complete documentation index
 - `vision-and-planning/piercedesk-VISION.md` - Product vision
 - `vision-and-planning/piercedesk-a-snapshot.md` - Quick overview
@@ -825,14 +1054,17 @@ Required for all UI components:
 - `development-and-technical/piercedesk-development.md` - Development setup
 
 **Database:**
+
 - `database-documentation/database-architecture.md` - Multi-tenant architecture
 - `database-documentation/database-schema-template.md` - Schema documentation template
 
 **Features:**
+
 - `features-documentation/piercedesk-features-AI.md` - AI capabilities
 - `sprints-and-project-management/piercedesk-SPRINTS.md` - Sprint planning
 
 **Feature Development:**
+
 - `agent-overview.md` - Claude Sub-Agent Orchestration Framework
 - `PIERCE-SYS-EXE/README.md` - Feature execution directory
 - `PIERCE-SYS-EXE/FEATURE-template/` - Starter template for new features
@@ -863,7 +1095,4 @@ Required for all UI components:
 
 ## Additional Context
 
-When working on features:
-2. Check if similar components exist in `templates/aurora-next/`
-3. Follow the copy-then-modify pattern for UI
-
+When working on features: 2. Check if similar components exist in `templates/aurora-next/` 3. Follow the copy-then-modify pattern for UI

@@ -83,6 +83,19 @@ const AppBar = () => {
             flex: 1,
           }}
         >
+          {/* Test element for framework validation */}
+          <Box
+            sx={{
+              bgcolor: 'red',
+              color: 'white',
+              px: 2,
+              py: 1,
+              mr: 2,
+            }}
+          >
+            test
+          </Box>
+
           {upMd ? (
             <SearchBox
               sx={{
