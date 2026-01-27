@@ -113,22 +113,23 @@ Key considerations for implementation:
 
 ## Verification Plan
 
-How to verify this phase is complete and working correctly:
+**Overall verification checklist tracked in INDEX.** This section documents phase-specific verification steps only.
 
-### Automated Tests
-- [ ] Unit tests for component X
-- [ ] Integration tests for Y
-- [ ] E2E tests for user flow Z
+### Phase-Specific Verification
 
-### Manual Verification
-1. Step 1: Expected result
-2. Step 2: Expected result
-3. Step 3: Expected result
+How to verify this specific phase is complete:
 
-### Acceptance Criteria
-- [ ] Criterion 1
-- [ ] Criterion 2
-- [ ] Criterion 3
+1. **Step 1**: Expected result
+2. **Step 2**: Expected result
+3. **Step 3**: Expected result
+
+### Phase Acceptance Criteria
+
+**Note:** These are phase-specific criteria. Feature-level criteria tracked in INDEX.
+
+- [ ] Phase criterion 1
+- [ ] Phase criterion 2
+- [ ] Phase criterion 3
 
 ## Related Documentation
 

@@ -56,17 +56,21 @@ Key files and their purposes:
 
 ## Technical Notes
 
+**Major technical decisions tracked in INDEX Technical Decisions Log.** This section documents phase-specific implementation details only.
+
 ### Challenges Encountered
 1. **Challenge**: Description
    - **Solution**: How it was resolved
    - **Learnings**: What we learned
+   - **Impact**: If this affects INDEX decisions or risks, update INDEX
 
 2. **Challenge**: Description
    - [Repeat pattern]
 
-### Implementation Decisions
-- **Decision**: Why this approach was taken
-- **Alternatives considered**: What else was considered and why not chosen
+### Implementation Details
+- **Detail**: Phase-specific implementation note
+- **Trade-off**: Local trade-offs made during implementation
+- **Note**: If significant enough to affect other phases, add to INDEX Technical Decisions Log
 
 ## Verification Evidence
 
@@ -94,13 +98,18 @@ $ npm run test
 
 ## Blockers
 
-### Current Blockers
-None / List of current blockers
+**Current blockers tracked in INDEX Current Blockers section.** Document phase-specific blocker details here.
 
-### Resolved Blockers
+### Phase-Specific Blocker Details
+- **Context**: Additional detail about how blocker affects this phase
+- **Workaround**: Any temporary workarounds being used
+- **Status**: Update INDEX when blocker is resolved
+
+### Resolved Blockers (Phase-Specific)
 1. **Blocker**: Description
    - **Resolved by**: Solution
    - **Date resolved**: YYYY-MM-DD
+   - **Note**: If blocker affected multiple phases, ensure INDEX is updated
 
 ## Next Steps
 
