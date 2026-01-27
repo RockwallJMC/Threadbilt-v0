@@ -98,6 +98,21 @@ Each phase has specific documentation requirements.
    ---
    ```
 
+### GitHub Workflow Guidance (Feature Branch → PR → Merge)
+
+- **Branch from main** before any changes; keep branch names consistent:
+   - `feature/desk-name-feature-name`
+   - `fix/area-short-description`
+- **Commit in small, reviewable chunks** (1 logical change per commit).
+   - Use imperative commit messages (e.g., `Add CRM lead filters`)
+   - Reference issue numbers in PR description, not commit titles
+- **Push early and open a Draft PR** once the branch builds.
+   - Enables early feedback and CI visibility
+   - Link issue, INDEX, and design docs in PR description
+- **Keep branch up to date** with `main` during long-running work.
+   - Rebase or merge `main` locally; avoid rewriting shared history
+
+
 ### INDEX File Purpose
 
 The INDEX file is the **single source of truth** for a feature:
@@ -323,6 +338,7 @@ If requirements change or technical discoveries require course correction:
 1. Review all code changes yourself
 2. Check against design document
 3. Verify all acceptance criteria met
+4. Ensure commits/PR are scoped and include required links
 
 ### Agent Review
 
@@ -341,6 +357,12 @@ If requirements change or technical discoveries require course correction:
    - Log code review findings
    - Document changes made
    - Mark as complete after addressing feedback
+
+### GitHub Review Expectations
+
+- Request a GitHub review once verification evidence is attached
+- Respond to review comments with fixes or rationale
+- Mark conversations as resolved only after changes are pushed
 
 ---
 
@@ -404,6 +426,11 @@ If requirements change or technical discoveries require course correction:
 4. **Automated Code Review**
    - GitHub will trigger code review agent
    - Address any additional feedback
+
+5. **PR Hygiene**
+   - Keep PRs focused; split oversized work into follow-up PRs
+   - Ensure CI green before requesting final approval
+   - Add screenshots or short clips for UI changes
 
 ---
 
