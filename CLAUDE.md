@@ -331,6 +331,8 @@ All templates in `.claude/templates/`:
 | `realignment-template.md`     | When plans change      |
 | `as-built-template.md`        | After merging          |
 
+**Template Examples:** See `.claude/templates/examples/` for completed example documents showing proper usage of each template. The examples demonstrate expected format, detail level, and cross-referencing patterns.
+
 #### Frontmatter Standards
 
 **All tracking documents use YAML frontmatter** (NO filename suffixes):

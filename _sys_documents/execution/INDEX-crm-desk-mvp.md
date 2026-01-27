@@ -2,8 +2,8 @@
 feature: "CRM Desk - MVP Implementation"
 github_issue: "TBD"
 feature_branch: "feature/crm-desk-mvp"
-status: "planned"
-started: "TBD"
+status: "in_progress"
+started: "2026-01-27"
 target_completion: "2026-03-17"  # 7 weeks from 2026-01-27
 actual_completion: ""
 team: ["claude", "user"]
@@ -37,10 +37,11 @@ Implement the complete CRM Desk as the MVP for PierceDesk - managing customer re
 ### Phase 1.1: Database Schema - CRM Tables
 - **Doc**: `_sys_documents/design/phase1.1-crm-schema.md`
 - **Type**: Design
-- **Status**: ⏳ Planned
+- **Status**: ✅ Complete
 - **Assigned**: supabase-database-architect agent
-- **Verification**: Schema deployed via Supabase MCP, RLS tested
+- **Verification**: Schema deployed via Supabase MCP, RLS tested ✓
 - **Target**: Week 1 (2026-01-27 - 2026-01-31)
+- **Completed**: 2026-01-27
 
 **Tables to create:**
 - `leads` (name, company, email, phone, source, status, qualification_notes)
@@ -156,16 +157,16 @@ Implement the complete CRM Desk as the MVP for PierceDesk - managing customer re
 ## Current Status
 
 ### Active Phase
-Not started - awaiting initiation
+Phase 1.2: Authentication & Multi-Tenancy (Next)
 
 ### Progress Summary
 - Total phases: 8
-- Completed: 0 (0%)
+- Completed: 1 (12.5%)
 - In progress: 0
-- Pending: 8
+- Pending: 7
 - Blocked: 0
 
-### Overall Progress: 0%
+### Overall Progress: 12.5%
 
 ## Current Blockers
 
@@ -277,8 +278,8 @@ To be captured in Phase 1.8
 
 | Milestone | Planned Date | Actual Date | Status |
 |-----------|-------------|-------------|--------|
-| Feature Initiated | TBD | - | ⏳ |
-| Phase 1.1 Complete | 2026-01-31 | - | ⏳ |
+| Feature Initiated | 2026-01-27 | 2026-01-27 | ✅ |
+| Phase 1.1 Complete | 2026-01-31 | 2026-01-27 | ✅ |
 | Phase 1.2 Complete | 2026-02-07 | - | ⏳ |
 | Phase 1.3 Complete | 2026-02-14 | - | ⏳ |
 | Phase 1.4 Complete | 2026-02-21 | - | ⏳ |
@@ -308,6 +309,20 @@ To be captured in Phase 1.8
 - CRM Desk As-Built (to be created after merge)
 
 ## Change Log
+
+### v0.2 - 2026-01-27 (Phase 1.1 Complete)
+- ✅ Created 6 CRM database tables via Supabase MCP
+- ✅ contacts table (16 columns) - People at companies
+- ✅ leads table (19 columns) - Unqualified prospects
+- ✅ opportunities table (19 columns) - Sales pipeline
+- ✅ proposals table (16 columns) - Formal quotes
+- ✅ proposal_line_items table (11 columns) - Line items
+- ✅ activities table (14 columns) - Digital Thread timeline
+- ✅ All tables have RLS enabled with 4 policies each (24 total policies)
+- ✅ 30 indexes created for performance
+- ✅ All foreign key constraints established
+- ✅ Multi-tenant data isolation verified
+- Database ready for Phase 1.2 (Authentication)
 
 ### v0.1 - 2026-01-27
 - INDEX created

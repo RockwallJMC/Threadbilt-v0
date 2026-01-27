@@ -30,9 +30,9 @@ This as-built document captures the actual current state of the PierceDesk datab
 - **Status**: Active and Healthy
 - **Environment**: Development
 - **Multi-Tenancy**: Enabled (RLS on all tables)
-- **Total Tables**: 27 public schema tables
-- **Last Major Change**: Initial schema creation
-- **Next Planned Changes**: CRM Desk tables (Phase 1.1)
+- **Total Tables**: 33 public schema tables
+- **Last Major Change**: Phase 1.1 - CRM Desk tables added (2026-01-27)
+- **Next Planned Changes**: Phase 1.2 - Authentication & Multi-Tenancy
 
 ## Database Architecture
 
@@ -91,6 +91,50 @@ Uses Supabase Auth:
 - **Key columns**: id, organization_id, account_id, address, coordinates
 - **RLS**: Enabled
 - **Relationships**: Many properties can belong to one account
+
+### CRM - Sales Pipeline (Phase 1.1 - Added 2026-01-27)
+
+#### contacts (16 columns)
+- **Purpose**: Track people (stakeholders) at companies
+- **Key columns**: id, organization_id, account_id, first_name, last_name, email, phone, title
+- **RLS**: Enabled with 4 policies
+- **Relationships**: Links to accounts, many contacts per account
+- **Features**: Primary contact flag, LinkedIn URL, unique email per org
+
+#### leads (19 columns)
+- **Purpose**: Capture unqualified prospects before conversion
+- **Key columns**: id, organization_id, first_name, last_name, email, company, status, lead_score
+- **RLS**: Enabled with 4 policies
+- **Relationships**: Converts to account + contact + opportunity
+- **Features**: Lead scoring (0-100), status workflow, assignment to sales reps
+
+#### opportunities (19 columns)
+- **Purpose**: Track deals in sales pipeline with forecasting
+- **Key columns**: id, organization_id, account_id, primary_contact_id, name, value, probability, stage
+- **RLS**: Enabled with 4 policies
+- **Relationships**: Links to accounts and contacts
+- **Features**: Stage-based workflow, probability forecasting, expected close dates
+
+#### proposals (16 columns)
+- **Purpose**: Formal quotes/proposals linked to opportunities
+- **Key columns**: id, organization_id, opportunity_id, proposal_number, title, status, total_amount
+- **RLS**: Enabled with 4 policies
+- **Relationships**: Links to opportunities
+- **Features**: Unique proposal numbers per org, status workflow, validity periods
+
+#### proposal_line_items (11 columns)
+- **Purpose**: Individual line items within proposals
+- **Key columns**: id, organization_id, proposal_id, description, quantity, unit_price, total
+- **RLS**: Enabled with 4 policies
+- **Relationships**: Many line items per proposal
+- **Features**: Sort ordering, quantity/price calculations
+
+#### activities (14 columns)
+- **Purpose**: Unified timeline of CRM interactions (Digital Thread foundation)
+- **Key columns**: id, organization_id, entity_type, entity_id, activity_type, subject, activity_date
+- **RLS**: Enabled with 4 policies
+- **Relationships**: Polymorphic - links to leads, opportunities, accounts, contacts, proposals
+- **Features**: Activity types (call, email, meeting, note, task, status_change), duration tracking
 
 ### Projects & Tasks
 
@@ -302,6 +346,20 @@ None currently - initial schema
 
 ## Change History
 
+### Version 1.1 (2026-01-27) - CRM Desk Tables (Phase 1.1)
+**Added Tables:**
+- `contacts` - People at companies (16 columns)
+- `leads` - Unqualified prospects (19 columns)
+- `opportunities` - Sales pipeline deals (19 columns)
+- `proposals` - Formal quotes (16 columns)
+- `proposal_line_items` - Line items (11 columns)
+- `activities` - CRM interaction timeline (14 columns, polymorphic)
+
+**Total Added**: 6 tables with full RLS (24 RLS policies)
+**Total Now**: 33 tables
+
+**Rationale:** Complete CRM sales pipeline from lead capture through closed deals, Digital Thread foundation
+
 ### Version 1.0 (2026-01-27) - Initial Schema
 **Created Tables:**
 - Organization and user management (4 tables)
@@ -321,16 +379,15 @@ None currently - initial schema
 
 ### Planned Enhancements
 
-#### Phase 1.1: CRM Desk Tables (Week 1)
-- `leads` table
-- `opportunities` table
-- `proposals` table
-- `activities` table (enhanced for CRM)
-- Junction tables for polymorphic relationships
+#### Phase 1.2: Authentication & Multi-Tenancy (Week 2)
+- Supabase Auth configuration
+- Organization selection/creation on first login
+- Session management and context
+- Multi-user testing with data isolation verification
 
 **Priority**: High
-**Effort**: 8 hours
-**Target**: Week 1 of MVP development
+**Effort**: 12 hours
+**Target**: Week 2 (2026-02-03 - 2026-02-07)
 
 #### Phase 2.1: Service Desk Tables (Month 2)
 - `tickets` table
