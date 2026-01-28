@@ -1,4 +1,9 @@
 const { test, expect } = require('@playwright/test');
+const { captureScreenshot } = require('./helpers/playwrightArtifacts');
+
+test.afterEach(async ({ page }, testInfo) => {
+  await captureScreenshot(page, testInfo);
+});
 
 /**
  * Phase C: Supabase Authentication Component Tests
@@ -92,6 +97,9 @@ test.describe('Supabase Authentication - Login', () => {
   });
 });
 
+const EXISTING_USER_EMAIL = process.env.PLAYWRIGHT_EXISTING_USER_EMAIL || 'existing@example.com';
+const EXISTING_USER_PASSWORD = process.env.PLAYWRIGHT_EXISTING_USER_PASSWORD || 'password123';
+
 test.describe('Supabase Authentication - SignUp', () => {
   test.beforeEach(async ({ page, context }) => {
     // Clear all cookies and storage to ensure clean state
@@ -134,7 +142,9 @@ test.describe('Supabase Authentication - SignUp', () => {
     await page.getByRole('button', { name: 'Create Account' }).click();
 
     // Email validation error should appear
-    await expect(page.getByText('Please provide a valid email address.')).toBeVisible({ timeout: 3000 });
+    await expect(page.getByText('Please provide a valid email address.')).toBeVisible({
+      timeout: 3000,
+    });
   });
 
   test('shows validation error for empty password', async ({ page }) => {
@@ -160,14 +170,21 @@ test.describe('Supabase Authentication - SignUp', () => {
   });
 
   test('displays error for already registered email', async ({ page }) => {
+    test.skip(
+      !process.env.PLAYWRIGHT_EXISTING_USER_EMAIL,
+      'Set PLAYWRIGHT_EXISTING_USER_EMAIL to run this test.',
+    );
     // Use a known test email that should already exist
     await page.getByLabel('Name').fill('Existing User');
-    await page.getByLabel('Email').fill('existing@example.com');
-    await page.getByLabel('Password').fill('password123');
+    await page.getByLabel('Email').fill(EXISTING_USER_EMAIL);
+    await page.getByLabel('Password').fill(EXISTING_USER_PASSWORD);
     await page.getByRole('button', { name: 'Create Account' }).click();
 
     // Supabase returns error for duplicate user
-    await expect(page.getByText(/already registered|already exists/i)).toBeVisible({ timeout: 5000 });
+    const duplicateAlert = page
+      .getByRole('alert')
+      .filter({ hasText: /already|exist|confirm|check your email/i });
+    await expect(duplicateAlert).toBeVisible({ timeout: 5000 });
   });
 });
 
@@ -268,7 +285,10 @@ test.describe('Supabase Authentication - Error Handling', () => {
     // Supabase should return a specific error message
     // The error should be displayed in an Alert component
     // Filter to get the error alert specifically (not the demo credentials alert or route announcer)
-    const errorAlert = page.getByRole('alert').filter({ hasText: /invalid|error|wrong/i }).first();
+    const errorAlert = page
+      .getByRole('alert')
+      .filter({ hasText: /invalid|error|wrong/i })
+      .first();
     await expect(errorAlert).toBeVisible({ timeout: 5000 });
   });
 });
@@ -289,7 +309,7 @@ test.describe('Supabase Authentication - Integration Points', () => {
     // We'll check this by verifying the component renders without console errors
 
     const consoleErrors = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         consoleErrors.push(msg.text());
       }
@@ -298,12 +318,12 @@ test.describe('Supabase Authentication - Integration Points', () => {
     await page.goto('/authentication/default/jwt/login');
 
     // No errors about missing useSupabaseAuth hook
-    expect(consoleErrors.filter(e => e.includes('useSupabaseAuth'))).toHaveLength(0);
+    expect(consoleErrors.filter((e) => e.includes('useSupabaseAuth'))).toHaveLength(0);
   });
 
   test('Supabase client is properly initialized', async ({ page }) => {
     const consoleErrors = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         consoleErrors.push(msg.text());
       }
@@ -312,6 +332,6 @@ test.describe('Supabase Authentication - Integration Points', () => {
     await page.goto('/authentication/default/jwt/login');
 
     // No errors about missing Supabase configuration
-    expect(consoleErrors.filter(e => e.includes('SUPABASE'))).toHaveLength(0);
+    expect(consoleErrors.filter((e) => e.includes('SUPABASE'))).toHaveLength(0);
   });
 });

@@ -190,6 +190,20 @@ Task(playwright-tester, "Create auth test suite")
 - Complex exploration = use Explore agent (not direct Grep/Glob)
 - Skills + Sub-agents = mandatory combination, not either/or
 
+**GitHub Issue Updates During Execution:**
+
+Sub-agents MUST post progress updates to the GitHub issue at these checkpoints:
+
+1. **Phase start**: Announce phase beginning and agent assignment
+2. **Progress milestones**: Update every 30-40% with completed tasks
+3. **TDD checkpoint**: After invoking /TDD skill
+4. **Playwright completion**: Post test results WITH SCREENSHOTS
+5. **Phase completion**: Post verification evidence
+
+Use `gh issue comment {issue-number}` for all updates. See templates in DOCUMENTATION-GUIDE.md.
+
+The GitHub issue number is available in the INDEX frontmatter field `github_issue`. Sub-agents should read the INDEX file to get this value before posting comments.
+
 #### 3. Verification Is Evidence-Based, Always
 
 **No claims without fresh command output:**
@@ -229,12 +243,15 @@ piercedesk6/
 │   └── api/                   # API reference
 │
 └── _sys_documents/            # INTERNAL TRACKING
+    ├── AGENT.md               # Organization rules (READ THIS FIRST!)
     ├── vision/                # Product vision
     ├── roadmap/               # Strategic plans
     ├── design/                # Design documents
     ├── execution/             # Implementation tracking
     └── as-builts/             # Current state docs
 ```
+
+**CRITICAL:** Before creating ANY file in `_sys_documents/`, read [_sys_documents/AGENT.md](_sys_documents/AGENT.md) for strict organization rules, file naming conventions, and lifecycle management.
 
 #### Feature Documentation Workflow
 
@@ -250,6 +267,56 @@ piercedesk6/
    - Single source of truth for feature progress
    - Tracks all phases, blockers, decisions
    - Updated continuously throughout development
+
+1.5. **Create GitHub Issue and Feature Branch** (After plan approval)
+
+   After plan mode completes and user approves:
+
+   a. Create feature branch:
+   ```bash
+   git checkout -b feature/desk-{feature-name}
+   ```
+
+   b. Create GitHub issue:
+   ```bash
+   gh issue create \
+     --title "Feature: {Feature Name}" \
+     --body "$(cat <<'EOF'
+   ## Overview
+   {Brief description from INDEX}
+
+   ## Documentation
+   - INDEX: [_sys_documents/execution/INDEX-{feature}.md]
+   - Design docs: Listed in INDEX
+
+   ## Phases
+   - [ ] Phase 1.1: {Phase name}
+   - [ ] Phase 1.2: {Phase name}
+
+   ## Branch
+   `feature/desk-{feature-name}`
+
+   ---
+   🤖 Created by Claude Code
+   EOF
+   )"
+   ```
+
+   c. Update INDEX frontmatter with `github_issue` and `feature_branch` fields
+
+   d. Commit and push INDEX update:
+   ```bash
+   git add _sys_documents/execution/INDEX-{feature}.md
+   git commit -m "Add GitHub issue tracking to INDEX
+
+   Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+   git push -u origin feature/desk-{feature-name}
+   ```
+
+   e. Post kickoff comment to issue:
+   ```bash
+   gh issue comment {issue-number} --body "🚀 Feature branch created and INDEX updated. Starting implementation..."
+   ```
 
 2. **Create Phase Design Documents**
 

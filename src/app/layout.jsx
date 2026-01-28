@@ -8,6 +8,8 @@ import NotistackProvider from 'providers/NotistackProvider';
 import { SupabaseAuthProvider } from 'providers/SupabaseAuthProvider';
 import SettingsProvider from 'providers/SettingsProvider';
 import ThemeProvider from 'providers/ThemeProvider';
+import CRMAccountsProvider from 'providers/CRMAccountsProvider';
+import CRMContactsProvider from 'providers/CRMContactsProvider';
 import { plusJakartaSans, splineSansMono } from 'theme/typography';
 import App from './App';
 
@@ -44,7 +46,11 @@ export default async function RootLayout({ children }) {
                 <ThemeProvider>
                   <NotistackProvider>
                     <BreakpointsProvider>
-                      <App>{children}</App>
+                      <CRMAccountsProvider>
+                        <CRMContactsProvider>
+                          <App>{children}</App>
+                        </CRMContactsProvider>
+                      </CRMAccountsProvider>
                     </BreakpointsProvider>
                   </NotistackProvider>
                 </ThemeProvider>

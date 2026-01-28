@@ -1,4 +1,9 @@
 const { test, expect } = require('@playwright/test');
+const { captureScreenshot } = require('./helpers/playwrightArtifacts');
+
+test.afterEach(async ({ page }, testInfo) => {
+  await captureScreenshot(page, testInfo);
+});
 
 /**
  * Organization Switching E2E Tests
@@ -34,16 +39,26 @@ const { test, expect } = require('@playwright/test');
 
 const TEST_USERS = {
   singleOrg: {
-    email: 'single-org-user@piercedesk.test',
-    password: 'TestPassword123!',
-    expectedOrganization: 'Test Organization A',
+    email: process.env.PLAYWRIGHT_SINGLE_ORG_EMAIL || 'single-org-user@piercedesk.test',
+    password: process.env.PLAYWRIGHT_SINGLE_ORG_PASSWORD || 'TestPassword123!',
+    expectedOrganization: process.env.PLAYWRIGHT_SINGLE_ORG_NAME || 'Test Organization A',
   },
   multiOrg: {
-    email: 'multi-org-user@piercedesk.test',
-    password: 'TestPassword123!',
-    organizations: ['Test Organization A', 'Test Organization B'],
+    email: process.env.PLAYWRIGHT_MULTI_ORG_EMAIL || 'multi-org-user@piercedesk.test',
+    password: process.env.PLAYWRIGHT_MULTI_ORG_PASSWORD || 'TestPassword123!',
+    organizations: [
+      process.env.PLAYWRIGHT_MULTI_ORG_NAME_1 || 'Test Organization A',
+      process.env.PLAYWRIGHT_MULTI_ORG_NAME_2 || 'Test Organization B',
+    ],
   },
 };
+
+const hasSingleOrgUser = Boolean(
+  process.env.PLAYWRIGHT_SINGLE_ORG_EMAIL && process.env.PLAYWRIGHT_SINGLE_ORG_PASSWORD,
+);
+const hasMultiOrgUser = Boolean(
+  process.env.PLAYWRIGHT_MULTI_ORG_EMAIL && process.env.PLAYWRIGHT_MULTI_ORG_PASSWORD,
+);
 
 /**
  * Authentication Helper
@@ -80,7 +95,10 @@ async function loginUser(page, email, password, context) {
  */
 async function openProfileMenu(page) {
   // Click the avatar button to open profile menu
-  const profileButton = page.locator('button').filter({ has: page.locator('[alt]') }).first();
+  const profileButton = page
+    .locator('button')
+    .filter({ has: page.locator('[alt]') })
+    .first();
   await profileButton.click();
 
   // Wait for menu to be visible
@@ -105,6 +123,10 @@ function getOrganizationSwitcher(page) {
  */
 test.describe('Organization Switching - Single Organization User', () => {
   test.beforeEach(async ({ page, context }) => {
+    test.skip(
+      !hasSingleOrgUser,
+      'Set PLAYWRIGHT_SINGLE_ORG_EMAIL and PLAYWRIGHT_SINGLE_ORG_PASSWORD to run this suite.',
+    );
     await loginUser(page, TEST_USERS.singleOrg.email, TEST_USERS.singleOrg.password, context);
   });
 
@@ -139,7 +161,9 @@ test.describe('Organization Switching - Single Organization User', () => {
     await expect(organizationOptions).toHaveCount(1);
 
     // Verify the option matches the expected organization
-    await expect(organizationOptions.first()).toContainText(TEST_USERS.singleOrg.expectedOrganization);
+    await expect(organizationOptions.first()).toContainText(
+      TEST_USERS.singleOrg.expectedOrganization,
+    );
   });
 
   test('selecting the same organization does not trigger API call', async ({ page }) => {
@@ -181,6 +205,10 @@ test.describe('Organization Switching - Single Organization User', () => {
  */
 test.describe('Organization Switching - Multiple Organizations User', () => {
   test.beforeEach(async ({ page, context }) => {
+    test.skip(
+      !hasMultiOrgUser,
+      'Set PLAYWRIGHT_MULTI_ORG_EMAIL and PLAYWRIGHT_MULTI_ORG_PASSWORD to run this suite.',
+    );
     await loginUser(page, TEST_USERS.multiOrg.email, TEST_USERS.multiOrg.password, context);
   });
 
@@ -195,7 +223,7 @@ test.describe('Organization Switching - Multiple Organizations User', () => {
     // Current organization should be one of the user's organizations
     const currentOrgText = await switcher.textContent();
     const hasValidOrg = TEST_USERS.multiOrg.organizations.some((org) =>
-      currentOrgText?.includes(org)
+      currentOrgText?.includes(org),
     );
     expect(hasValidOrg).toBeTruthy();
   });
@@ -335,6 +363,10 @@ test.describe('Organization Switching - Multiple Organizations User', () => {
  */
 test.describe('Organization Context - Persistence Across Navigation', () => {
   test.beforeEach(async ({ page }) => {
+    test.skip(
+      !hasMultiOrgUser,
+      'Set PLAYWRIGHT_MULTI_ORG_EMAIL and PLAYWRIGHT_MULTI_ORG_PASSWORD to run this suite.',
+    );
     await loginUser(page, TEST_USERS.multiOrg.email, TEST_USERS.multiOrg.password);
   });
 
@@ -387,6 +419,10 @@ test.describe('Organization Context - Persistence Across Navigation', () => {
  */
 test.describe('Organization Context - Persistence After Reload', () => {
   test.beforeEach(async ({ page }) => {
+    test.skip(
+      !hasMultiOrgUser,
+      'Set PLAYWRIGHT_MULTI_ORG_EMAIL and PLAYWRIGHT_MULTI_ORG_PASSWORD to run this suite.',
+    );
     await loginUser(page, TEST_USERS.multiOrg.email, TEST_USERS.multiOrg.password);
   });
 
@@ -463,6 +499,10 @@ test.describe('Organization Context - Persistence After Reload', () => {
  */
 test.describe('Data Isolation - Organization Context', () => {
   test.beforeEach(async ({ page }) => {
+    test.skip(
+      !hasMultiOrgUser,
+      'Set PLAYWRIGHT_MULTI_ORG_EMAIL and PLAYWRIGHT_MULTI_ORG_PASSWORD to run this suite.',
+    );
     await loginUser(page, TEST_USERS.multiOrg.email, TEST_USERS.multiOrg.password);
   });
 
@@ -537,6 +577,10 @@ test.describe('Data Isolation - Organization Context', () => {
  */
 test.describe('Organization Switcher - Loading States and Errors', () => {
   test.beforeEach(async ({ page }) => {
+    test.skip(
+      !hasMultiOrgUser,
+      'Set PLAYWRIGHT_MULTI_ORG_EMAIL and PLAYWRIGHT_MULTI_ORG_PASSWORD to run this suite.',
+    );
     await loginUser(page, TEST_USERS.multiOrg.email, TEST_USERS.multiOrg.password);
   });
 
@@ -622,9 +666,11 @@ test.describe('Organization Switcher - Loading States and Errors', () => {
     await expect(errorAlert).toBeVisible({ timeout: 5000 });
 
     // Find and click close button on alert
-    const closeButton = errorAlert.locator('button[aria-label*="close" i], button[title*="close" i]');
+    const closeButton = errorAlert.locator(
+      'button[aria-label*="close" i], button[title*="close" i]',
+    );
 
-    if (await closeButton.count() > 0) {
+    if ((await closeButton.count()) > 0) {
       await closeButton.click();
 
       // Verify alert is dismissed
@@ -655,6 +701,10 @@ test.describe('Organization Switcher - Loading States and Errors', () => {
  */
 test.describe('Organization Switcher - Accessibility', () => {
   test.beforeEach(async ({ page }) => {
+    test.skip(
+      !hasMultiOrgUser,
+      'Set PLAYWRIGHT_MULTI_ORG_EMAIL and PLAYWRIGHT_MULTI_ORG_PASSWORD to run this suite.',
+    );
     await loginUser(page, TEST_USERS.multiOrg.email, TEST_USERS.multiOrg.password);
   });
 

@@ -125,6 +125,63 @@ The INDEX file is the **single source of truth** for a feature:
 
 **Keep it updated** as the feature progresses!
 
+### GitHub Integration (After Plan Approval)
+
+After creating INDEX and design documents (during plan approval), create GitHub coordination:
+
+1. **Create Feature Branch**
+   ```bash
+   git checkout -b feature/desk-{feature-name}
+   ```
+
+2. **Create GitHub Issue**
+   ```bash
+   gh issue create \
+     --title "Feature: {Feature Name}" \
+     --body "$(cat <<'EOF'
+   ## Overview
+   {Brief description from INDEX}
+
+   ## Documentation
+   - INDEX: [_sys_documents/execution/INDEX-{feature}.md]
+   - Design docs: Listed in INDEX
+
+   ## Phases
+   - [ ] Phase 1.1: {Phase name}
+   - [ ] Phase 1.2: {Phase name}
+   - [ ] Phase 1.3: {Phase name}
+
+   ## Branch
+   `feature/desk-{feature-name}`
+
+   ---
+   🤖 Created by Claude Code
+   EOF
+   )"
+   ```
+
+3. **Update INDEX Frontmatter**
+   Add these fields:
+   ```yaml
+   github_issue: "#123"
+   feature_branch: "feature/desk-{feature-name}"
+   pr_number: "#456"  # Filled after PR created
+   ```
+
+4. **Commit and Push**
+   ```bash
+   git add _sys_documents/execution/INDEX-{feature}.md
+   git commit -m "Add GitHub issue tracking to INDEX
+
+   Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+   git push -u origin feature/desk-{feature-name}
+   ```
+
+5. **Post Kickoff Comment**
+   ```bash
+   gh issue comment {issue-number} --body "🚀 Feature branch created and INDEX updated. Starting implementation..."
+   ```
+
 ---
 
 ## Phase 2: Planning
@@ -240,6 +297,66 @@ Task(playwright - tester, 'Create leads management E2E tests');
 ```
 
 **Always use sub-agents for execution work!**
+
+### GitHub Progress Updates
+
+Sub-agents executing phases MUST post updates to the GitHub issue at key checkpoints:
+
+**Phase Start**:
+```bash
+gh issue comment {issue-number} --body "🔨 **Phase {X.Y} Started**: {Phase name}
+
+Assigned to: {agent-name}
+Progress: 0%"
+```
+
+**Progress Milestones** (every 30-40%):
+```bash
+gh issue comment {issue-number} --body "📊 **Phase {X.Y} Update**:
+- ✅ {Completed task}
+- 🚧 {In-progress task}
+
+Progress: {percentage}%"
+```
+
+**After TDD Skill Invocation**:
+```bash
+gh issue comment {issue-number} --body "🧪 **TDD Phase {X.Y}**:
+- Created failing test for {feature}
+- Test watching for implementation"
+```
+
+**After Playwright Tests** (MUST include screenshots):
+```bash
+gh issue comment {issue-number} --body "✅ **E2E Tests Passed - Phase {X.Y}**
+
+Test Results:
+- All {N} tests passing
+- Coverage: {scenarios}
+
+Screenshots attached:
+![{Feature 1}](./screenshots/{feature1}.png)
+![{Feature 2}](./screenshots/{feature2}.png)
+
+See full test report in phase execution doc."
+```
+
+Note: Upload screenshots to repository first, then reference in comment.
+
+**Phase Completion**:
+```bash
+gh issue comment {issue-number} --body "✅ **Phase {X.Y} Complete**
+
+Verification:
+- [x] All tests passing ({N}/{N})
+- [x] Build succeeds
+- [x] Linting clean
+- [x] E2E tests with screenshots posted
+
+Progress: 100%
+
+Updated: _sys_documents/execution/phase{X.Y}-{topic}.md"
+```
 
 ---
 
@@ -368,6 +485,23 @@ If requirements change or technical discoveries require course correction:
 
 ## Phase 7: Pull Request
 
+### Pre-PR GitHub Update
+
+Before creating PR, post final verification to issue:
+
+```bash
+gh issue comment {issue-number} --body "🎉 **All Phases Complete - Creating PR**
+
+Final Verification:
+- [x] All tests passing ({N}/{N})
+- [x] Build succeeds
+- [x] Linting clean
+- [x] E2E tests complete with screenshots
+- [x] Documentation updated
+
+Opening pull request..."
+```
+
 ### Create PR
 
 1. **Commit All Changes**
@@ -391,43 +525,63 @@ If requirements change or technical discoveries require course correction:
    git push -u origin feature/crm-desk-leads
    ```
 
-3. **Create PR with Template**
+3. **Create PR with gh CLI**
 
-   ```markdown
+   ```bash
+   gh pr create \
+     --title "Feature: {Feature Name}" \
+     --body "$(cat <<'EOF'
    ## Summary
-
-   Implements leads management for CRM Desk.
+   {Brief description of feature and value}
 
    ## Links
-
-   - GitHub Issue: #123
-   - INDEX: [INDEX-crm-leads.md](_sys_documents/execution/INDEX-crm-leads.md)
-   - Design: [phase1.1-leads-schema.md](_sys_documents/design/phase1.1-leads-schema.md)
+   - Closes #{issue-number}
+   - INDEX: [INDEX-{feature}.md](_sys_documents/execution/INDEX-{feature}.md)
+   - Design: [phase1.1-{topic}.md](_sys_documents/design/phase1.1-{topic}.md)
 
    ## Changes
+   - {Change 1} (Phase X.Y)
+   - {Change 2} (Phase X.Y)
+   - Added {N} E2E tests with screenshots
 
-   - Added leads table with RLS policies
-   - Implemented CRUD endpoints
-   - Created leads list and detail UI
-   - Added E2E test coverage
+   ## Verification Evidence
 
-   ## Verification
-
-   - ✅ All tests passing (78/78)
-   - ✅ Build succeeds
-   - ✅ RLS policies verified
-   - ✅ Screenshots captured
-
-   ## Screenshots
-
-   [Screenshots of leads list and detail views]
+   ### Tests
+   ```
+   ✅ All tests passing ({N}/{N})
    ```
 
-4. **Automated Code Review**
+   ### Build
+   ```
+   ✅ Build succeeded
+   ```
+
+   ### E2E Screenshots
+   See issue #{issue-number} for all test screenshots.
+
+   ## Phases Completed
+   - ✅ Phase 1.1: {Phase name}
+   - ✅ Phase 1.2: {Phase name}
+   - ✅ Phase 1.3: {Phase name}
+
+   ---
+   🤖 Generated by Claude Code
+   EOF
+   )"
+   ```
+
+4. **Link PR to Issue**
+   ```bash
+   gh issue comment {issue-number} --body "🔗 **Pull Request Created**
+
+   PR #{pr-number}: Ready for review!"
+   ```
+
+5. **Automated Code Review**
    - GitHub will trigger code review agent
    - Address any additional feedback
 
-5. **PR Hygiene**
+6. **PR Hygiene**
    - Keep PRs focused; split oversized work into follow-up PRs
    - Ensure CI green before requesting final approval
    - Add screenshots or short clips for UI changes
@@ -438,7 +592,30 @@ If requirements change or technical discoveries require course correction:
 
 ### After PR Approval
 
-1. **Merge to Main**
+1. **Close GitHub Issue with Summary**
+
+   ```bash
+   gh issue close {issue-number} --comment "✅ **Feature Merged to Main**
+
+   PR #{pr-number} merged successfully.
+
+   Post-merge activities:
+   - [x] As-built documentation generated
+   - [x] User-facing docs updated
+   - [x] INDEX status set to 'merged'
+   - [x] Feature branch deleted
+
+   Final Stats:
+   - Phases completed: {N}/{N}
+   - Tests added: {N}
+   - Files changed: {N}
+
+   As-built doc: [_sys_documents/as-builts/{feature}-as-built.md]
+
+   Feature complete! 🎉"
+   ```
+
+2. **Merge to Main**
 
    ```bash
    # Via GitHub UI or:
@@ -448,7 +625,7 @@ If requirements change or technical discoveries require course correction:
    git push origin main
    ```
 
-2. **Generate As-Built Documentation**
+3. **Generate As-Built Documentation**
 
    ```bash
    cp .claude/templates/as-built-template.md \
@@ -461,7 +638,7 @@ If requirements change or technical discoveries require course correction:
    - Current component structure
    - Verification commands
 
-3. **Update User-Facing Docs**
+4. **Update User-Facing Docs**
    - Update or create `docs/features/CRM-DESK.md`
    - Update `docs/architecture/` if applicable
    - Update `docs/api/REST-API.md` with new endpoints
@@ -472,12 +649,12 @@ If requirements change or technical discoveries require course correction:
    Task(documentation - expert, 'Generate CRM Leads user documentation');
    ```
 
-4. **Lock INDEX File**
+5. **Lock INDEX File**
    - Update status → "merged"
    - Add merge date and PR number
    - Add final commit hash
 
-5. **Delete Feature Branch**
+6. **Delete Feature Branch**
    ```bash
    git branch -d feature/crm-desk-leads
    git push origin --delete feature/crm-desk-leads

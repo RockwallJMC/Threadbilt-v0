@@ -245,6 +245,22 @@ const sitemap = [
         active: true,
         items: [
           {
+            name: 'Accounts',
+            key: 'accounts',
+            path: paths.crmAccounts,
+            pathName: 'accounts',
+            icon: 'material-symbols:business-outline',
+            active: true,
+          },
+          {
+            name: 'Contacts',
+            key: 'contacts',
+            path: paths.crmContacts,
+            pathName: 'contacts',
+            icon: 'material-symbols:contacts-outline',
+            active: true,
+          },
+          {
             name: 'Deals',
             key: 'deals',
             path: paths.deals,
