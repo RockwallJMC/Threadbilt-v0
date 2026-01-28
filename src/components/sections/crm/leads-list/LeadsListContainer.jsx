@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Button, InputAdornment, Stack } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { useGridApiRef } from '@mui/x-data-grid';
-import paths from 'routes/paths';
 import IconifyIcon from 'components/base/IconifyIcon';
 import StyledTextField from 'components/styled/StyledTextField';
 import LeadsTable from './LeadsTable';
