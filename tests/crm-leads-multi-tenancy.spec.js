@@ -4,7 +4,6 @@ const {
   TEST_LEADS,
   ROUTES,
   waitForLeadsTable,
-  MULTI_TENANT_TEST_DATA,
 } = require('./helpers/crm-test-data');
 
 test.afterEach(async ({ page }, testInfo) => {
