@@ -144,6 +144,11 @@ const ROUTES = {
     detail: (id) => `/apps/crm/contacts/${id}`,
     create: '/apps/crm/add-contact',
   },
+  leads: {
+    list: '/apps/crm/leads',
+    detail: (id) => `/apps/crm/leads/${id}`,
+    create: '/apps/crm/leads/create', // TODO: Update when route exists
+  },
 };
 
 /**
@@ -188,6 +193,91 @@ const waitForContactDetail = async (page) => {
 };
 
 /**
+ * Wait for leads table to load
+ */
+const waitForLeadsTable = async (page) => {
+  await page.waitForSelector('[role="grid"]', { timeout: 10000 });
+  // Wait for at least one row to appear
+  await page.waitForSelector('[role="row"][data-id]', { timeout: 10000 });
+};
+
+/**
+ * Wait for lead detail page to load
+ */
+const waitForLeadDetail = async (page) => {
+  // Wait for lead name heading
+  await page.waitForSelector('h4, h5, h6', { timeout: 5000 });
+  // Wait for lead information to appear
+  await page.waitForTimeout(500);
+};
+
+/**
+ * Test Leads
+ * Selected from mock data for predictable testing
+ */
+const TEST_LEADS = {
+  // NEW status
+  newLead1: {
+    id: 'lead_001',
+    name: 'Sarah Mitchell',
+    company: 'TechVision Analytics',
+    email: 'sarah.mitchell@techvision.com',
+    phone: '+1 (415) 234-5678',
+    source: 'website',
+    status: 'new',
+  },
+  newLead2: {
+    id: 'lead_002',
+    name: 'Marcus Chen',
+    company: 'GlobalTrade Solutions',
+    email: 'marcus.chen@globaltrade.io',
+    phone: '+1 (650) 789-0123',
+    source: 'referral',
+    status: 'new',
+  },
+  // CONTACTED status
+  contactedLead: {
+    id: 'lead_004',
+    name: 'David Park',
+    company: 'HealthCare Innovations Inc',
+    email: 'david.park@healthcareinnovations.com',
+    phone: '+1 (408) 555-0199',
+    source: 'cold_call',
+    status: 'contacted',
+  },
+  // QUALIFIED status
+  qualifiedLead: {
+    id: 'lead_007',
+    name: 'Lisa Anderson',
+    company: 'Financial Services Group',
+    email: 'lisa.anderson@fsg.com',
+    phone: '+1 (212) 555-0144',
+    source: 'referral',
+    status: 'qualified',
+  },
+  // UNQUALIFIED status
+  unqualifiedLead: {
+    id: 'lead_010',
+    name: 'Jason Miller',
+    company: 'Small Business Consulting',
+    email: 'jason@smallbizconsult.com',
+    phone: '+1 (303) 123-4567',
+    source: 'cold_call',
+    status: 'unqualified',
+  },
+  // CONVERTED status
+  convertedLead: {
+    id: 'lead_012',
+    name: 'William Harris',
+    company: 'SwiftPay Systems',
+    email: 'william.harris@swiftpay.com',
+    phone: '+1 (415) 999-0001',
+    source: 'referral',
+    status: 'converted',
+  },
+};
+
+/**
  * Multi-Tenancy Test Data (for future Phase 1.2 integration)
  *
  * TODO: Enable when Phase 1.2 completes
@@ -203,6 +293,9 @@ const MULTI_TENANT_TEST_DATA = {
     contacts: [
       // Contacts belonging to Org A
     ],
+    leads: [
+      // Leads belonging to Org A
+    ],
   },
   organizationB: {
     id: 'org_beta',
@@ -213,12 +306,16 @@ const MULTI_TENANT_TEST_DATA = {
     contacts: [
       // Contacts belonging to Org B
     ],
+    leads: [
+      // Leads belonging to Org B
+    ],
   },
 };
 
 module.exports = {
   TEST_ACCOUNTS,
   TEST_CONTACTS,
+  TEST_LEADS,
   ROUTES,
   getAccountById,
   getContactById,
@@ -229,5 +326,7 @@ module.exports = {
   waitForContactsTable,
   waitForAccountDetail,
   waitForContactDetail,
+  waitForLeadsTable,
+  waitForLeadDetail,
   MULTI_TENANT_TEST_DATA,
 };

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Alert, Box, Button, Divider, Link, Stack, TextField, Typography } from '@mui/material';
@@ -23,6 +24,7 @@ const schema = yup
   .required();
 
 const SignupForm = ({ handleSignup, socialAuth = true, provider = 'jwt' }) => {
+  const [successMessage, setSuccessMessage] = useState('');
   const {
     register,
     handleSubmit,
@@ -33,12 +35,25 @@ const SignupForm = ({ handleSignup, socialAuth = true, provider = 'jwt' }) => {
   });
 
   const onSubmit = async (data) => {
-    await handleSignup(data).catch((error) => {
+    setSuccessMessage('');
+    try {
+      const result = await handleSignup(data);
+
+      if (result?.ok === false) {
+        setError('root.credential', {
+          type: 'manual',
+          message: result.error || 'Sign up failed',
+        });
+        return;
+      }
+
+      setSuccessMessage('Check your email for a confirmation link.');
+    } catch (error) {
       if (error) {
         console.log(error, 'error');
         setError('root.credential', { type: 'manual', message: error.message });
       }
-    });
+    }
   };
 
   return (
@@ -111,6 +126,11 @@ const SignupForm = ({ handleSignup, socialAuth = true, provider = 'jwt' }) => {
             {errors.root?.credential?.message && (
               <Alert severity="error" sx={{ mb: 3 }}>
                 {errors.root?.credential?.message}
+              </Alert>
+            )}
+            {successMessage && (
+              <Alert severity="success" sx={{ mb: 3 }}>
+                {successMessage}
               </Alert>
             )}
             <Grid container>
