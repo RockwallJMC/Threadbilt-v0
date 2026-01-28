@@ -95,9 +95,33 @@ Implement the complete CRM Desk as the MVP for PierceDesk - managing customer re
 
 ### Phase 1.4: Leads Management
 
-- **Doc**: `_sys_documents/execution/phase1.4-leads-management.md`
+- **Doc**: `_sys_documents/design/phase1.4-leads-management.md`
 - **Type**: Execution
-- **Status**: ⏳ Planned
+- **Status**: ✅ Complete (Mock Data - Awaiting Phase 1.2 for Supabase Integration)
+- **Assigned**: wiring-agent + react-mui-frontend-engineer + playwright-tester
+- **Progress**: 100% (Steps 1-9 complete; Step 10 blocked on Phase 1.2)
+- **Verification**: Build succeeds (exit 0); Lint passes (0 errors in Phase 1.4 files); 35 E2E tests created (29 active, 6 multi-tenancy pending Phase 1.2)
+- **Target**: Week 4 (2026-02-17 - 2026-02-21)
+- **Completed**: 2026-01-28
+
+**Deliverables:**
+
+- LeadsListContainer, LeadsTable with status filter tabs (COPIED from ProductsTable pattern)
+- LeadDetail enhancement with status dropdown and Convert button
+- AddLeadForm (SIMPLIFIED from AddContactStepper - single-page form)
+- ConvertLeadModal (lead-to-opportunity conversion with selective pre-fill)
+- CRMLeadsProvider (State management - COPIED from DealsProvider pattern)
+- useLeadApi (SWR hooks with 14 TODO markers for Supabase migration)
+- Mock data: 15 leads across all statuses (new, contacted, qualified, unqualified, converted)
+- 35 E2E tests: 29 active tests + 6 multi-tenancy tests marked .skip()
+- Routes: /apps/crm/leads (list) and /apps/crm/leads/[id] (detail)
+- Navigation: Leads menu item added to CRM section (icon: material-symbols:person-search)
+
+**Integration Status:**
+- ✅ All components built and integrated with mock data
+- ⏳ Step 10 (Supabase Integration) blocked - awaiting Phase 1.2 completion
+- ⏳ 6 multi-tenancy E2E tests marked .skip() - will be enabled after Phase 1.2
+- ⏳ 14 TODO markers in useLeadApi.js for Supabase query migration
 - **Assigned**: react-mui-frontend-engineer + wiring-agent
 - **Progress**: 0%
 - **Target**: Week 4 (2026-02-17 - 2026-02-21)
@@ -183,28 +207,32 @@ Implement the complete CRM Desk as the MVP for PierceDesk - managing customer re
 
 ### Active Phase
 
-Phase 1.3: Complete ✅
-Next Phase: Phase 1.4 - Leads Management
+Phase 1.4: Complete ✅ (Mock Data - Awaiting Phase 1.2 for Supabase)
+Next Phase: Phase 1.5 - Opportunity Pipeline (Blocked on Phase 1.2)
 
 ### Progress Summary
 
 - Total phases: 8
-- Completed: 2 (25%)
-- In progress: 0
-- Pending: 6
+- Completed: 3 (37.5%)
+- In progress: 1 (Phase 1.2 at 60%)
+- Pending: 4
 - Blocked: 0
 
-### Overall Progress: 25%
+### Overall Progress: 37.5%
 
 ## Current Blockers
 
 **Phase 1.3 Blockers (Resolved):**
 - ~~Phase 1.2 incomplete (60%)~~ ✅ Mitigated via Incremental Integration strategy with mock data
 
-**Phase 1.4 Blockers:**
+**Phase 1.4 Blockers (Mitigated):**
+- ~~Phase 1.2 incomplete (60%)~~ ✅ Mitigated via Incremental Integration strategy with mock data
+- Phase 1.4 complete with mock data; Step 10 (Supabase integration) pending Phase 1.2
+
+**Phase 1.5 Blockers:**
 - Phase 1.2 (Auth & Multi-Tenancy) at 60% - needed for Supabase integration
-- 28 TODO markers in Phase 1.3 SWR hooks await Phase 1.2 completion
-- Multi-tenancy E2E tests (12 tests) await Phase 1.2 completion
+- 42 TODO markers total in Phase 1.3 + 1.4 SWR hooks await Phase 1.2 completion (28 from Phase 1.3, 14 from Phase 1.4)
+- Multi-tenancy E2E tests (18 total: 12 from Phase 1.3, 6 from Phase 1.4) await Phase 1.2 completion
 
 ## Technical Decisions Log
 
@@ -331,7 +359,7 @@ To be captured in Phase 1.8
 | Phase 1.1 Complete | 2026-01-31   | 2026-01-27  | ✅     |
 | Phase 1.2 Complete | 2026-02-07   | -           | ⏳     |
 | Phase 1.3 Complete | 2026-02-14   | 2026-01-28  | ✅     |
-| Phase 1.4 Complete | 2026-02-21   | -           | ⏳     |
+| Phase 1.4 Complete | 2026-02-21   | 2026-01-28  | ✅     |
 | Phase 1.5 Complete | 2026-02-28   | -           | ⏳     |
 | Phase 1.6 Complete | 2026-03-07   | -           | ⏳     |
 | Phase 1.7 Complete | 2026-03-07   | -           | ⏳     |
@@ -362,6 +390,26 @@ To be captured in Phase 1.8
 - CRM Desk As-Built (to be created after merge)
 
 ## Change Log
+
+### v0.4 - 2026-01-28 (Phase 1.4 Complete)
+
+- ✅ Complete Leads Management UI delivered (with mock data)
+- ✅ 9 new components created (list, detail enhancement, form, modal, provider)
+- ✅ Lead List: LeadsListContainer + LeadsTable with status filter tabs (7 tabs: All, Active, New, Contacted, Qualified, Unqualified, Converted)
+- ✅ Lead Detail: Enhanced with status dropdown (Select component) and "Convert to Opportunity" button (conditional visibility)
+- ✅ Lead Creation: AddLeadForm (simplified single-page form from AddContactStepper)
+- ✅ Conversion: ConvertLeadModal (selective data pre-fill: contact, company, source; user input: opportunity details)
+- ✅ State Management: CRMLeadsProvider (filter, search, bulk selection)
+- ✅ Data Layer: useLeadApi with 6 hooks (useLeads, useLead, useCreateLead, useUpdateLead, useDeleteLead, useConvertLeadToOpportunity)
+- ✅ Mock Data: 15 leads across all statuses (3 new, 3 contacted, 3 qualified, 2 unqualified, 4 converted)
+- ✅ Routes: /apps/crm/leads (list) and /apps/crm/leads/[id] (detail)
+- ✅ Navigation: Leads menu item in CRM section (icon: material-symbols:person-search)
+- ✅ E2E Tests: 35 tests (29 active: 16 CRUD, 8 conversion, 5 validation; 6 multi-tenancy marked .skip())
+- ✅ Build Verification: Exit code 0, all routes compile successfully
+- ✅ Lint Verification: 0 errors, 0 warnings in Phase 1.4 files
+- ⏳ Step 10 (Supabase Integration) blocked - 14 TODO markers await Phase 1.2 completion
+- ⏳ 6 multi-tenancy E2E tests marked .skip() - will be enabled after Phase 1.2
+- Phase 1.5 (Opportunity Pipeline) ready to begin after Phase 1.2 completes
 
 ### v0.3 - 2026-01-28 (Phase 1.3 Complete)
 

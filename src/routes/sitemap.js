@@ -261,6 +261,14 @@ const sitemap = [
             active: true,
           },
           {
+            name: 'Leads',
+            key: 'leads',
+            path: paths.crmLeads,
+            pathName: 'leads',
+            icon: 'material-symbols:person-search',
+            active: true,
+          },
+          {
             name: 'Deals',
             key: 'deals',
             path: paths.deals,
