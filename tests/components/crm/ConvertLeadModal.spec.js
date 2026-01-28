@@ -1,6 +1,21 @@
 import { test, expect } from '@playwright/test';
-import { loginUser } from '../../helpers/authHelper';
 
+// Local login helper to replace missing '../../helpers/authHelper'
+async function loginUser(page, email, password, context) {
+  // Navigate to login page
+  await page.goto('http://localhost:4000/login');
+
+  // Fill in credentials using accessible labels
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/password/i).fill(password);
+
+  // Submit the login form
+  const submitButton = page.getByRole('button', { name: /log in|login|sign in/i });
+  await submitButton.click();
+
+  // Wait for navigation and network to be idle after login
+  await page.waitForLoadState('networkidle');
+}
 test.describe('ConvertLeadModal', () => {
   test.beforeEach(async ({ page, context }) => {
     page.setDefaultNavigationTimeout(60000);
