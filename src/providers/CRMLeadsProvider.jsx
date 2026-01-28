@@ -132,7 +132,7 @@ const CRMLeadsProvider = ({ children }) => {
     ],
   );
 
-  return <CRMLeadsContext value={contextValue}>{children}</CRMLeadsContext>;
+  return <CRMLeadsContext.Provider value={contextValue}>{children}</CRMLeadsContext.Provider>;
 };
 
 CRMLeadsProvider.propTypes = {

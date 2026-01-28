@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -6,11 +7,26 @@ import ActivityTabs from 'components/sections/crm/common/ActivityTabs';
 import ContactInfo from 'components/sections/crm/lead-details/ContactInfo';
 import LeadDetailsHeader from 'components/sections/crm/lead-details/LeadDetailsHeader';
 import OngoingDeals from 'components/sections/crm/lead-details/OngoingDeals';
+import { useLead } from 'services/swr/api-hooks/useLeadApi';
 
-const LeadDetails = () => {
+const LeadDetails = ({ id }) => {
+  // Fetch the lead data using the id
+  const { data: lead, error, isLoading } = useLead(id);
+
+  // TODO: After Phase 1.2, use real lead data instead of hardcoded contactInfoData
+  // For now, we fetch the lead to validate the ID works but still use mock data
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading lead: {error.message}</div>;
+  }
+
   return (
     <Stack direction="column">
-      <LeadDetailsHeader />
+      <LeadDetailsHeader lead={lead} />
 
       <Grid container>
         {contactInfoData.map((item) => (
@@ -31,6 +47,10 @@ const LeadDetails = () => {
       </Grid>
     </Stack>
   );
+};
+
+LeadDetails.propTypes = {
+  id: PropTypes.string.isRequired,
 };
 
 export default LeadDetails;

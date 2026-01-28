@@ -2,8 +2,9 @@
 
 import LeadDetails from 'components/sections/crm/lead-details';
 
-const Page = () => {
-  return <LeadDetails />;
+const Page = ({ params }) => {
+  const { id } = params;
+  return <LeadDetails id={id} />;
 };
 
 export default Page;

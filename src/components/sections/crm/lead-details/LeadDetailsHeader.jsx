@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -14,13 +15,18 @@ import IconifyIcon from 'components/base/IconifyIcon';
 import PageBreadcrumb from 'components/sections/common/PageBreadcrumb';
 import CRMDropdownMenu from '../common/CRMDropdownMenu';
 
-const LeadDetailsHeader = () => {
+const LeadDetailsHeader = ({ lead }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [starred, setStarred] = useState(false);
   const { down } = useBreakpoints();
 
   const downSm = down('sm');
   const downMd = down('md');
+
+  // TODO: After Phase 1.2, use lead.avatar if available
+  // For now, use a default avatar from users array
+  const leadName = lead?.name || 'Unknown Lead';
+  const leadAvatar = users[6]?.avatar || '';
 
   return (
     <Paper background={1} sx={{ px: { xs: 3, md: 5 }, py: 3 }}>
@@ -35,13 +41,13 @@ const LeadDetailsHeader = () => {
           />
           <Stack gap={{ xs: 1, md: 2 }} sx={{ alignItems: 'center' }}>
             <Avatar
-              src={users[6].avatar}
+              src={leadAvatar}
               sx={{ width: { xs: 40, md: 56 }, height: { xs: 40, md: 56 } }}
             />
 
             <Stack gap={0.75} sx={{ alignItems: 'center' }}>
               <Typography variant="h4" sx={{ fontSize: { xs: 20, md: 28 } }}>
-                Tsamina Mina
+                {leadName}
               </Typography>
               <Button
                 shape="square"
@@ -92,6 +98,13 @@ const LeadDetailsHeader = () => {
       </Stack>
     </Paper>
   );
+};
+
+LeadDetailsHeader.propTypes = {
+  lead: PropTypes.shape({
+    name: PropTypes.string,
+    avatar: PropTypes.string,
+  }),
 };
 
 export default LeadDetailsHeader;
