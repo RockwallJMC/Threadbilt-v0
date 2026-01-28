@@ -46,7 +46,9 @@ const convertLeadSchema = yup.object({
   expectedCloseDate: yup
     .date()
     .required('Expected close date is required')
-    .min(new Date(), 'Close date must be in the future'),
+    .test('is-future', 'Close date must be in the future', (value) => {
+      return !value || new Date(value) > new Date();
+    }),
   probability: yup
     .number()
     .typeError('Probability must be a number')

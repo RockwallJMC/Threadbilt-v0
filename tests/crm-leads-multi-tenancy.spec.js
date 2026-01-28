@@ -1,12 +1,19 @@
-const { test, expect } = require('@playwright/test');
+const { test } = require('@playwright/test');
 const { captureScreenshot } = require('./helpers/playwrightArtifacts');
-const {
-  TEST_LEADS,
   ROUTES,
-  waitForLeadsTable,
   MULTI_TENANT_TEST_DATA,
 } = require('./helpers/crm-test-data');
 
+// Local placeholders for future multi-tenancy test data/helpers.
+// These are not yet exported from ./helpers/crm-test-data, so we define
+// stubs here to avoid import-time/runtime errors while tests are skipped.
+const TEST_LEADS = [];
+
+async function waitForLeadsTable(page) {
+  // No-op placeholder: implement real leads table wait logic when
+  // multi-tenancy tests are enabled.
+  return page;
+}
 test.afterEach(async ({ page }, testInfo) => {
   await captureScreenshot(page, testInfo);
 });

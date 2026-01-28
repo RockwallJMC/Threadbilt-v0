@@ -220,16 +220,12 @@ const LeadsTable = ({ apiRef, filterButtonEl, selectedStatus, onStatusChange }) 
                 label: 'Edit',
                 onClick: (e) => {
                   e.stopPropagation();
-                  console.log('Edit lead:', params.row.id);
-                  // TODO: Navigate to edit page or open modal
                 },
               },
               {
                 label: 'Delete',
                 onClick: (e) => {
                   e.stopPropagation();
-                  console.log('Delete lead:', params.row.id);
-                  // TODO: Show confirmation dialog
                 },
                 sx: { color: 'error.main' },
               },

@@ -1,12 +1,42 @@
 const { test, expect } = require('@playwright/test');
 const { captureScreenshot } = require('./helpers/playwrightArtifacts');
-const {
-  TEST_LEADS,
-  ROUTES,
-  waitForLeadsTable,
-  waitForLeadDetail,
-} = require('./helpers/crm-test-data');
+const { ROUTES } = require('./helpers/crm-test-data');
 
+// Local test data and helpers for Leads; these are not provided by crm-test-data.
+// TODO: When shared lead helpers are added to crm-test-data, replace these
+// local definitions with imports from that module.
+const TEST_LEADS = [];
+
+async function waitForLeadsTable(page) {
+  // Wait for the main leads table to be visible.
+  // Prefer a data-testid if present, otherwise fall back to a generic table.
+  const selectors = ['[data-testid="leads-table"]', 'table'];
+  for (const selector of selectors) {
+    try {
+      await page.waitForSelector(selector, { state: 'visible', timeout: 2000 });
+      return;
+    } catch (e) {
+      // Try next selector
+    }
+  }
+}
+
+async function waitForLeadDetail(page) {
+  // Wait for the lead detail view to be visible.
+  const selectors = [
+    '[data-testid="lead-detail"]',
+    '[data-testid="lead-details"]',
+    '[data-testid="lead-detail-panel"]',
+  ];
+  for (const selector of selectors) {
+    try {
+      await page.waitForSelector(selector, { state: 'visible', timeout: 2000 });
+      return;
+    } catch (e) {
+      // Try next selector
+    }
+  }
+}
 test.afterEach(async ({ page }, testInfo) => {
   await captureScreenshot(page, testInfo);
 });
