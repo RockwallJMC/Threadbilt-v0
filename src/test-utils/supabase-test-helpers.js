@@ -66,6 +66,12 @@ export async function mockSupabaseAuthWithRealUser(userType = 'singleOrg') {
  * @returns {Promise<Array>} Array of records
  */
 export async function getTestData(table, filters = {}) {
+  // Validate table name to prevent SQL injection
+  const allowedTables = ['leads', 'opportunities', 'proposals', 'organizations', 'organization_members', 'users'];
+  if (!allowedTables.includes(table)) {
+    throw new Error(`Invalid table name: ${table}. Allowed tables: ${allowedTables.join(', ')}`);
+  }
+
   const { supabase } = await getAuthenticatedSupabaseClient();
 
   let query = supabase.from(table).select('*');
