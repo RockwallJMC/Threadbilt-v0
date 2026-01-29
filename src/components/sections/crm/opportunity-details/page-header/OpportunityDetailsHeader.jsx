@@ -3,19 +3,46 @@ import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import Badge from '@mui/material/Badge';
 import { useBreakpoints } from 'providers/BreakpointsProvider';
 import paths from 'routes/paths';
 import IconifyIcon from 'components/base/IconifyIcon';
 import PageBreadcrumb from 'components/sections/common/PageBreadcrumb';
 import CRMDropdownMenu from 'components/sections/crm/common/CRMDropdownMenu';
+import CreateProposalDialog from 'components/sections/crm/proposals/CreateProposalDialog';
+import { useProposals } from 'services/swr/api-hooks/useProposalApi';
 import AccessToggle from './AccessToggle';
 import OpportunityStatus from './OpportunityStatus';
 
-const OpportunityDetailsHeader = ({ title }) => {
+const OpportunityDetailsHeader = ({ title, opportunity }) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [createProposalOpen, setCreateProposalOpen] = useState(false);
   const { down } = useBreakpoints();
 
   const downLg = down('lg');
+
+  // Fetch proposals count for badge
+  const { data: proposals } = useProposals(
+    opportunity?.id ? { opportunity_id: opportunity.id } : {},
+  );
+  const proposalCount = proposals?.length || 0;
+
+  // Only show "Create Proposal" button for proposal or negotiation stage
+  const canCreateProposal =
+    opportunity?.stage === 'proposal' || opportunity?.stage === 'negotiation';
+
+  const handleCreateProposal = () => {
+    setCreateProposalOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setCreateProposalOpen(false);
+  };
+
+  const handleProposalSuccess = () => {
+    setCreateProposalOpen(false);
+    // SWR will auto-revalidate the proposals list
+  };
 
   return (
     <Paper sx={{ px: { xs: 3, md: 5 }, py: 3 }}>
@@ -38,6 +65,19 @@ const OpportunityDetailsHeader = ({ title }) => {
             <Stack gap={{ xs: 1, sm: 2 }}>
               <AccessToggle />
               <OpportunityStatus />
+              {canCreateProposal && (
+                <Badge badgeContent={proposalCount} color="primary">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    onClick={handleCreateProposal}
+                    startIcon={<IconifyIcon icon="material-symbols:description-rounded" />}
+                  >
+                    Create Proposal
+                  </Button>
+                </Badge>
+              )}
             </Stack>
             <Button shape="square" color="neutral" onClick={(e) => setAnchorEl(e.currentTarget)}>
               <IconifyIcon icon="material-symbols:more-vert" sx={{ fontSize: 20 }} />
@@ -48,6 +88,14 @@ const OpportunityDetailsHeader = ({ title }) => {
               handleClose={() => setAnchorEl(null)}
             />
           </Stack>
+
+          {/* Create Proposal Dialog */}
+          <CreateProposalDialog
+            open={createProposalOpen}
+            onClose={handleCloseDialog}
+            opportunity={opportunity}
+            onSuccess={handleProposalSuccess}
+          />
         </Stack>
       </div>
     </Paper>

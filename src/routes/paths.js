@@ -113,6 +113,8 @@ const paths = {
   crmAccountDetail: (id) => `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/accounts/${id}`,
   crmContacts: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/contacts`,
   crmContactDetail: (id) => `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/contacts/${id}`,
+  crmProposals: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/proposals`,
+  crmProposalDetail: (id) => `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/proposals/${id}`,
 
   chat: `/${rootPaths.appsRoot}/chat`,
   newChat: `/${rootPaths.appsRoot}/chat/new`,

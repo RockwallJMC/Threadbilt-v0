@@ -300,6 +300,14 @@ const sitemap = [
             ],
           },
           {
+            name: 'Proposals',
+            key: 'proposals',
+            path: paths.crmProposals,
+            pathName: 'proposals',
+            icon: 'material-symbols:description-outline',
+            active: true,
+          },
+          {
             name: 'Deals',
             key: 'deals',
             path: paths.deals,
