@@ -1,39 +1,35 @@
 'use client';
 
+import createClient from 'lib/supabase/client';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-// TODO: Replace with Supabase import after Phase 1.2 complete
-// import createClient from 'lib/supabase/client';
-import accountsData from 'data/crm/accounts';
 
 /**
  * Fetcher function for all accounts
- * TODO: Replace with Supabase query after Phase 1.2 complete
  *
  * @returns {Promise<Array>} Array of account objects filtered by organization_id (via RLS)
  */
 const accountsFetcher = async () => {
-  // TODO: Replace with Supabase query
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  // const { data, error } = await supabase
-  //   .from('accounts')
-  //   .select('*')
-  //   .order('created_at', { ascending: false });
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data || [];
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  // Simulate async fetch
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
+  }
 
-  // Return all accounts (RLS would filter by organization_id in real implementation)
-  return accountsData;
+  const { data, error } = await supabase
+    .from('accounts')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data || [];
 };
 
 /**
@@ -55,7 +51,7 @@ export const useAccounts = (config) => {
       revalidateOnMount: true,
       revalidateOnFocus: false,
       ...config,
-    }
+    },
   );
 
   return swr;
@@ -63,38 +59,28 @@ export const useAccounts = (config) => {
 
 /**
  * Fetcher function for a single account by ID
- * TODO: Replace with Supabase query after Phase 1.2 complete
  *
  * @param {string} id - Account ID
  * @returns {Promise<Object>} Account object
  */
 const accountFetcher = async (id) => {
-  // TODO: Replace with Supabase query
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  // const { data, error } = await supabase
-  //   .from('accounts')
-  //   .select('*')
-  //   .eq('id', id)
-  //   .single();
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
-  const account = accountsData.find((acc) => acc.id === id);
-
-  if (!account) {
-    throw new Error(`Account not found: ${id}`);
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
   }
 
-  return account;
+  const { data, error } = await supabase.from('accounts').select('*').eq('id', id).single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**
@@ -116,7 +102,7 @@ export const useAccount = (id, config) => {
       revalidateOnMount: true,
       revalidateOnFocus: false,
       ...config,
-    }
+    },
   );
 
   return swr;
@@ -124,7 +110,6 @@ export const useAccount = (id, config) => {
 
 /**
  * Mutation function to create a new account
- * TODO: Replace with Supabase mutation after Phase 1.2 complete
  *
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
@@ -132,42 +117,27 @@ export const useAccount = (id, config) => {
  * @returns {Promise<Object>} Created account object
  */
 const createAccountMutation = async (url, { arg }) => {
-  // TODO: Replace with Supabase mutation
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // // Get active organization from user metadata or state
-  // // (Assuming organization_id comes from auth context or is passed in arg)
-  // const { data, error } = await supabase
-  //   .from('accounts')
-  //   .insert([{ ...arg }])
-  //   .select()
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  console.log('CREATE ACCOUNT (MOCK):', arg);
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
+  }
 
-  // Simulate async operation
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  const { data, error } = await supabase
+    .from('accounts')
+    .insert([{ ...arg }])
+    .select()
+    .single();
 
-  // Generate optimistic response
-  const newAccount = {
-    id: `acc_${Date.now()}`,
-    organization_id: 'org_001', // TODO: Get from active organization context
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    ...arg,
-  };
+  if (error) {
+    throw new Error(error.message);
+  }
 
-  return newAccount;
+  return data;
 };
 
 /**
@@ -200,7 +170,6 @@ export const useCreateAccount = () => {
 
 /**
  * Mutation function to update an existing account
- * TODO: Replace with Supabase mutation after Phase 1.2 complete
  *
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
@@ -210,47 +179,28 @@ export const useCreateAccount = () => {
  */
 const updateAccountMutation = async (url, { arg }) => {
   const { id, updates } = arg;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // TODO: Replace with Supabase mutation
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // const { data, error } = await supabase
-  //   .from('accounts')
-  //   .update({ ...updates, updated_at: new Date().toISOString() })
-  //   .eq('id', id)
-  //   .select()
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data;
-
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  console.log('UPDATE ACCOUNT (MOCK):', { id, updates });
-
-  // Simulate async operation
-  await new Promise((resolve) => setTimeout(resolve, 200));
-
-  // Find existing account
-  const existingAccount = accountsData.find((acc) => acc.id === id);
-
-  if (!existingAccount) {
-    throw new Error(`Account not found: ${id}`);
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
   }
 
-  // Generate optimistic response
-  const updatedAccount = {
-    ...existingAccount,
-    ...updates,
-    updated_at: new Date().toISOString(),
-  };
+  const { data, error } = await supabase
+    .from('accounts')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
 
-  return updatedAccount;
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**
@@ -281,7 +231,6 @@ export const useUpdateAccount = () => {
 
 /**
  * Mutation function to delete an account
- * TODO: Replace with Supabase mutation after Phase 1.2 complete
  *
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
@@ -290,42 +239,23 @@ export const useUpdateAccount = () => {
  */
 const deleteAccountMutation = async (url, { arg }) => {
   const { id } = arg;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // TODO: Replace with Supabase mutation
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // // Check if account has contacts before deleting
-  // // (This might be handled by database constraints or business logic)
-  // const { data, error } = await supabase
-  //   .from('accounts')
-  //   .delete()
-  //   .eq('id', id)
-  //   .select()
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data;
-
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  console.log('DELETE ACCOUNT (MOCK):', id);
-
-  // Simulate async operation
-  await new Promise((resolve) => setTimeout(resolve, 200));
-
-  // Check if account exists
-  const account = accountsData.find((acc) => acc.id === id);
-
-  if (!account) {
-    throw new Error(`Account not found: ${id}`);
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
   }
 
-  return { id };
+  const { data, error } = await supabase.from('accounts').delete().eq('id', id).select().single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**

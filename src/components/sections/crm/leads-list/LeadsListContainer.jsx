@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button, InputAdornment, Stack } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { useGridApiRef } from '@mui/x-data-grid';
@@ -13,7 +12,6 @@ const LeadsListContainer = () => {
   const [filterButtonEl, setFilterButtonEl] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const apiRef = useGridApiRef();
-  const router = useRouter();
 
   const handleSearch = useCallback(
     (e) => {

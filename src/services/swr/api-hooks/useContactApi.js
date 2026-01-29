@@ -1,39 +1,35 @@
 'use client';
 
+import createClient from 'lib/supabase/client';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-// TODO: Replace with Supabase import after Phase 1.2 complete
-// import createClient from 'lib/supabase/client';
-import contactsData from 'data/crm/contacts';
 
 /**
  * Fetcher function for all contacts
- * TODO: Replace with Supabase query after Phase 1.2 complete
  *
  * @returns {Promise<Array>} Array of contact objects filtered by organization_id (via RLS)
  */
 const contactsFetcher = async () => {
-  // TODO: Replace with Supabase query
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  // const { data, error } = await supabase
-  //   .from('contacts')
-  //   .select('*')
-  //   .order('created_at', { ascending: false });
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data || [];
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  // Simulate async fetch
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
+  }
 
-  // Return all contacts (RLS would filter by organization_id in real implementation)
-  return contactsData;
+  const { data, error } = await supabase
+    .from('contacts')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data || [];
 };
 
 /**
@@ -55,7 +51,7 @@ export const useContacts = (config) => {
       revalidateOnMount: true,
       revalidateOnFocus: false,
       ...config,
-    }
+    },
   );
 
   return swr;
@@ -63,38 +59,28 @@ export const useContacts = (config) => {
 
 /**
  * Fetcher function for a single contact by ID
- * TODO: Replace with Supabase query after Phase 1.2 complete
  *
  * @param {string} id - Contact ID
  * @returns {Promise<Object>} Contact object
  */
 const contactFetcher = async (id) => {
-  // TODO: Replace with Supabase query
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  // const { data, error } = await supabase
-  //   .from('contacts')
-  //   .select('*')
-  //   .eq('id', id)
-  //   .single();
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
-  const contact = contactsData.find((c) => c.id === id);
-
-  if (!contact) {
-    throw new Error(`Contact not found: ${id}`);
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
   }
 
-  return contact;
+  const { data, error } = await supabase.from('contacts').select('*').eq('id', id).single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**
@@ -116,7 +102,7 @@ export const useContact = (id, config) => {
       revalidateOnMount: true,
       revalidateOnFocus: false,
       ...config,
-    }
+    },
   );
 
   return swr;
@@ -124,35 +110,32 @@ export const useContact = (id, config) => {
 
 /**
  * Fetcher function for contacts belonging to a specific account
- * TODO: Replace with Supabase query after Phase 1.2 complete
  *
  * @param {string} accountId - Account ID to filter contacts by
  * @returns {Promise<Array>} Array of contact objects for the account
  */
 const accountContactsFetcher = async (accountId) => {
-  // TODO: Replace with Supabase query
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  // const { data, error } = await supabase
-  //   .from('contacts')
-  //   .select('*')
-  //   .eq('account_id', accountId)
-  //   .order('created_at', { ascending: false });
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data || [];
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
+  }
 
-  // Filter contacts by account_id
-  const accountContacts = contactsData.filter((c) => c.account_id === accountId);
+  const { data, error } = await supabase
+    .from('contacts')
+    .select('*')
+    .eq('account_id', accountId)
+    .order('created_at', { ascending: false });
 
-  return accountContacts;
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data || [];
 };
 
 /**
@@ -174,7 +157,7 @@ export const useAccountContacts = (accountId, config) => {
       revalidateOnMount: true,
       revalidateOnFocus: false,
       ...config,
-    }
+    },
   );
 
   return swr;
@@ -182,7 +165,6 @@ export const useAccountContacts = (accountId, config) => {
 
 /**
  * Mutation function to create a new contact
- * TODO: Replace with Supabase mutation after Phase 1.2 complete
  *
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
@@ -190,43 +172,27 @@ export const useAccountContacts = (accountId, config) => {
  * @returns {Promise<Object>} Created contact object
  */
 const createContactMutation = async (url, { arg }) => {
-  // TODO: Replace with Supabase mutation
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // // Get active organization from user metadata or state
-  // // (Assuming organization_id comes from auth context or is passed in arg)
-  // const { data, error } = await supabase
-  //   .from('contacts')
-  //   .insert([{ ...arg }])
-  //   .select()
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  console.log('CREATE CONTACT (MOCK):', arg);
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
+  }
 
-  // Simulate async operation
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  const { data, error } = await supabase
+    .from('contacts')
+    .insert([{ ...arg }])
+    .select()
+    .single();
 
-  // Generate optimistic response
-  const newContact = {
-    id: `contact_${Date.now()}`,
-    organization_id: 'org_001', // TODO: Get from active organization context
-    account_id: arg.account_id || null, // Can be null for independent contacts
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    ...arg,
-  };
+  if (error) {
+    throw new Error(error.message);
+  }
 
-  return newContact;
+  return data;
 };
 
 /**
@@ -262,7 +228,6 @@ export const useCreateContact = () => {
 
 /**
  * Mutation function to update an existing contact
- * TODO: Replace with Supabase mutation after Phase 1.2 complete
  *
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
@@ -272,47 +237,28 @@ export const useCreateContact = () => {
  */
 const updateContactMutation = async (url, { arg }) => {
   const { id, updates } = arg;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // TODO: Replace with Supabase mutation
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // const { data, error } = await supabase
-  //   .from('contacts')
-  //   .update({ ...updates, updated_at: new Date().toISOString() })
-  //   .eq('id', id)
-  //   .select()
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data;
-
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  console.log('UPDATE CONTACT (MOCK):', { id, updates });
-
-  // Simulate async operation
-  await new Promise((resolve) => setTimeout(resolve, 200));
-
-  // Find existing contact
-  const existingContact = contactsData.find((c) => c.id === id);
-
-  if (!existingContact) {
-    throw new Error(`Contact not found: ${id}`);
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
   }
 
-  // Generate optimistic response
-  const updatedContact = {
-    ...existingContact,
-    ...updates,
-    updated_at: new Date().toISOString(),
-  };
+  const { data, error } = await supabase
+    .from('contacts')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
 
-  return updatedContact;
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**
@@ -343,7 +289,6 @@ export const useUpdateContact = () => {
 
 /**
  * Mutation function to delete a contact
- * TODO: Replace with Supabase mutation after Phase 1.2 complete
  *
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
@@ -352,40 +297,23 @@ export const useUpdateContact = () => {
  */
 const deleteContactMutation = async (url, { arg }) => {
   const { id } = arg;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // TODO: Replace with Supabase mutation
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // const { data, error } = await supabase
-  //   .from('contacts')
-  //   .delete()
-  //   .eq('id', id)
-  //   .select()
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data;
-
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  console.log('DELETE CONTACT (MOCK):', id);
-
-  // Simulate async operation
-  await new Promise((resolve) => setTimeout(resolve, 200));
-
-  // Check if contact exists
-  const contact = contactsData.find((c) => c.id === id);
-
-  if (!contact) {
-    throw new Error(`Contact not found: ${id}`);
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
   }
 
-  return { id };
+  const { data, error } = await supabase.from('contacts').delete().eq('id', id).select().single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**
@@ -414,7 +342,6 @@ export const useDeleteContact = () => {
 /**
  * Mutation function to link a contact to an account
  * Updates the contact's account_id and role fields
- * TODO: Replace with Supabase mutation after Phase 1.2 complete
  *
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
@@ -425,60 +352,42 @@ export const useDeleteContact = () => {
  */
 const linkContactToAccountMutation = async (url, { arg }) => {
   const { contactId, accountId, role } = arg;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // TODO: Replace with Supabase mutation
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // // Verify account exists and belongs to user's organization (via RLS)
-  // const { data: accountData, error: accountError } = await supabase
-  //   .from('accounts')
-  //   .select('id')
-  //   .eq('id', accountId)
-  //   .single();
-  //
-  // if (accountError || !accountData) {
-  //   throw new Error('Account not found or permission denied');
-  // }
-  //
-  // // Update contact's account_id
-  // const { data, error } = await supabase
-  //   .from('contacts')
-  //   .update({ account_id: accountId, updated_at: new Date().toISOString() })
-  //   .eq('id', contactId)
-  //   .select()
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data;
-
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  console.log('LINK CONTACT TO ACCOUNT (MOCK):', { contactId, accountId, role });
-
-  // Simulate async operation
-  await new Promise((resolve) => setTimeout(resolve, 200));
-
-  // Find contact
-  const contact = contactsData.find((c) => c.id === contactId);
-
-  if (!contact) {
-    throw new Error(`Contact not found: ${contactId}`);
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
   }
 
-  // Generate optimistic response
-  const linkedContact = {
-    ...contact,
-    account_id: accountId,
-    role: role,
-    updated_at: new Date().toISOString(),
-  };
+  const { data: accountData, error: accountError } = await supabase
+    .from('accounts')
+    .select('id')
+    .eq('id', accountId)
+    .single();
 
-  return linkedContact;
+  if (accountError || !accountData) {
+    throw new Error('Account not found or permission denied');
+  }
+
+  const { data, error } = await supabase
+    .from('contacts')
+    .update({
+      account_id: accountId,
+      role,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', contactId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**
@@ -511,7 +420,6 @@ export const useLinkContactToAccount = () => {
 /**
  * Mutation function to unlink a contact from an account
  * Sets the contact's account_id to null
- * TODO: Replace with Supabase mutation after Phase 1.2 complete
  *
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
@@ -520,48 +428,28 @@ export const useLinkContactToAccount = () => {
  */
 const unlinkContactFromAccountMutation = async (url, { arg }) => {
   const { contactId } = arg;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // TODO: Replace with Supabase mutation
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // // Update contact's account_id to null
-  // const { data, error } = await supabase
-  //   .from('contacts')
-  //   .update({ account_id: null, updated_at: new Date().toISOString() })
-  //   .eq('id', contactId)
-  //   .select()
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  // return data;
-
-  // MOCK DATA IMPLEMENTATION (Days 1-2)
-  console.log('UNLINK CONTACT FROM ACCOUNT (MOCK):', contactId);
-
-  // Simulate async operation
-  await new Promise((resolve) => setTimeout(resolve, 200));
-
-  // Find contact
-  const contact = contactsData.find((c) => c.id === contactId);
-
-  if (!contact) {
-    throw new Error(`Contact not found: ${contactId}`);
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
   }
 
-  // Generate optimistic response
-  const unlinkedContact = {
-    ...contact,
-    account_id: null,
-    updated_at: new Date().toISOString(),
-  };
+  const { data, error } = await supabase
+    .from('contacts')
+    .update({ account_id: null, role: null, updated_at: new Date().toISOString() })
+    .eq('id', contactId)
+    .select()
+    .single();
 
-  return unlinkedContact;
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**
