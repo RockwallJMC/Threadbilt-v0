@@ -56,22 +56,34 @@ Implement the complete CRM Desk as the MVP for PierceDesk - managing customer re
 
 ### Phase 1.2: Authentication & Multi-Tenancy
 
-- **Doc**: `_sys_documents/execution/phase1.2-auth-system.md`
+- **Doc**: `docs/plans/2026-01-29-phase1.2-complete-integration.md`
+- **Execution Doc**: `_sys_documents/execution/phase1.2-auth-system.md`
 - **Type**: Execution
 - **Status**: 🚧 In Progress
-- **Assigned**: wiring-agent
+- **GitHub Issue**: #29
+- **Feature Branch**: `feature/desk-phase1.2-complete-integration`
+- **Assigned**: Orchestrator → general-purpose agents (subagent-driven development)
 - **Progress**: 60%
 - **Verification**: Build succeeds; lint runs with deprecation warning; tests + RLS validation pending
 - **Target**: Week 2 (2026-02-03 - 2026-02-07)
+- **Started**: 2026-01-29
 
 **Blockers:** Supabase RLS validation and multi-org test data pending
 
 **Deliverables:**
 
-- Supabase Auth configuration
-- Organization selection/creation on first login
-- Session management and context
-- Test with multiple organizations to verify data isolation
+- ✅ Supabase Auth configuration (60% complete from earlier work)
+- ✅ Organization selection/creation on first login
+- ✅ Session management and context
+- ⏳ Leads API migration to Supabase (14 TODOs)
+- ⏳ Opportunities API migration to Supabase (18 TODOs)
+- ⏳ Proposals API migration to Supabase (15 TODOs)
+- ⏳ Dashboard API migration to Supabase (25 TODOs)
+- ⏳ Database seeding for multi-tenant testing (2 orgs, 5 users)
+- ⏳ E2E test updates for real data (23 tests → 109 total)
+- ⏳ RLS verification (20 manual procedures)
+- ⏳ RBAC implementation (4 automated tests)
+- ⏳ Complete integration verification and documentation
 
 ### Phase 1.3: Accounts & Contacts UI
 

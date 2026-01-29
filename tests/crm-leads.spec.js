@@ -1,11 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { captureScreenshot } = require('./helpers/playwrightArtifacts');
-const { ROUTES } = require('./helpers/crm-test-data');
-
-// Local test data and helpers for Leads; these are not provided by crm-test-data.
-// TODO: When shared lead helpers are added to crm-test-data, replace these
-// local definitions with imports from that module.
-const TEST_LEADS = [];
+const { ROUTES, TEST_LEADS } = require('./helpers/crm-test-data');
 
 async function waitForLeadsTable(page) {
   // Wait for the main leads table to be visible.

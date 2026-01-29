@@ -1,53 +1,43 @@
 'use client';
 
+import createClient from 'lib/supabase/client';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { leads, getLeadsByStatus } from 'data/crm/leads';
-
-// TODO: Replace with Supabase after Phase 1.2 complete
-// import createClient from 'lib/supabase/client';
 
 /**
  * Fetcher function for all leads
  * Optionally filters by status
  *
- * TODO: Replace mock data with Supabase fetcher after Phase 1.2 complete
  * @param {string|null} status - Optional status filter ('new', 'contacted', 'qualified', 'unqualified', 'converted')
  * @returns {Promise<Array>} Array of lead objects filtered by organization_id (via RLS)
  */
 const leadsFetcher = async (status = null) => {
-  // TODO: Replace with Supabase implementation after Phase 1.2 complete
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  //
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // let query = supabase
-  //   .from('leads')
-  //   .select('*')
-  //   .order('created_at', { ascending: false });
-  //
-  // if (status) {
-  //   query = query.eq('status', status);
-  // }
-  //
-  // const { data, error } = await query;
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  //
-  // return data || [];
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // MOCK DATA - Remove after Phase 1.2 complete
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const filteredLeads = status ? getLeadsByStatus(status) : leads;
-      resolve(filteredLeads);
-    }, 100); // Simulate network delay
-  });
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
+  }
+
+  let query = supabase
+    .from('leads')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (status) {
+    query = query.eq('status', status);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data || [];
 };
 
 /**
@@ -81,42 +71,31 @@ export const useLeads = (status = null, config) => {
 /**
  * Fetcher function for a single lead by ID
  *
- * TODO: Replace mock data with Supabase fetcher after Phase 1.2 complete
  * @param {string} id - Lead ID
  * @returns {Promise<Object>} Lead object
  */
 const leadFetcher = async (id) => {
-  // TODO: Replace with Supabase implementation after Phase 1.2 complete
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  //
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // const { data, error } = await supabase
-  //   .from('leads')
-  //   .select('*')
-  //   .eq('id', id)
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  //
-  // return data;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // MOCK DATA - Remove after Phase 1.2 complete
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const lead = leads.find((l) => l.id === id);
-      if (lead) {
-        resolve(lead);
-      } else {
-        reject(new Error(`Lead with id ${id} not found`));
-      }
-    }, 100); // Simulate network delay
-  });
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
+  }
+
+  const { data, error } = await supabase
+    .from('leads')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**
@@ -147,46 +126,33 @@ export const useLead = (id, config) => {
 /**
  * Mutation function to create a new lead
  *
- * TODO: Replace console.log with Supabase mutation after Phase 1.2 complete
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
  * @param {Object} options.arg - Lead data to create
  * @returns {Promise<Object>} Created lead object
  */
 const createLeadMutation = async (url, { arg }) => {
-  // TODO: Replace with Supabase implementation after Phase 1.2 complete
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  //
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // const { data, error } = await supabase
-  //   .from('leads')
-  //   .insert([{ ...arg }])
-  //   .select()
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  //
-  // return data;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // MOCK IMPLEMENTATION - Remove after Phase 1.2 complete
-  console.log('useCreateLead mutation called with:', arg);
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newLead = {
-        id: `lead_${Date.now()}`,
-        ...arg,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      resolve(newLead);
-    }, 100);
-  });
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
+  }
+
+  const { data, error } = await supabase
+    .from('leads')
+    .insert([{ ...arg }])
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**
@@ -223,7 +189,6 @@ export const useCreateLead = () => {
 /**
  * Mutation function to update an existing lead
  *
- * TODO: Replace console.log with Supabase mutation after Phase 1.2 complete
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
  * @param {string} options.arg.id - Lead ID to update
@@ -232,40 +197,28 @@ export const useCreateLead = () => {
  */
 const updateLeadMutation = async (url, { arg }) => {
   const { id, updates } = arg;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // TODO: Replace with Supabase implementation after Phase 1.2 complete
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  //
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // const { data, error } = await supabase
-  //   .from('leads')
-  //   .update({ ...updates, updated_at: new Date().toISOString() })
-  //   .eq('id', id)
-  //   .select()
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  //
-  // return data;
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
+  }
 
-  // MOCK IMPLEMENTATION - Remove after Phase 1.2 complete
-  console.log('useUpdateLead mutation called with:', { id, updates });
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const updatedLead = {
-        id,
-        ...updates,
-        updated_at: new Date().toISOString(),
-      };
-      resolve(updatedLead);
-    }, 100);
-  });
+  const { data, error } = await supabase
+    .from('leads')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**
@@ -297,7 +250,6 @@ export const useUpdateLead = () => {
 /**
  * Mutation function to delete a lead (soft delete)
  *
- * TODO: Replace console.log with Supabase mutation after Phase 1.2 complete
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
  * @param {string} options.arg.id - Lead ID to delete
@@ -305,36 +257,29 @@ export const useUpdateLead = () => {
  */
 const deleteLeadMutation = async (url, { arg }) => {
   const { id } = arg;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // TODO: Replace with Supabase implementation after Phase 1.2 complete
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  //
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // // Soft delete: update deleted_at timestamp
-  // const { data, error } = await supabase
-  //   .from('leads')
-  //   .update({ deleted_at: new Date().toISOString() })
-  //   .eq('id', id)
-  //   .select()
-  //   .single();
-  //
-  // if (error) {
-  //   throw new Error(error.message);
-  // }
-  //
-  // return data;
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
+  }
 
-  // MOCK IMPLEMENTATION - Remove after Phase 1.2 complete
-  console.log('useDeleteLead mutation called with:', { id });
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ id, deleted_at: new Date().toISOString() });
-    }, 100);
-  });
+  // Soft delete: update deleted_at timestamp
+  const { data, error } = await supabase
+    .from('leads')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 /**
@@ -363,11 +308,12 @@ export const useDeleteLead = () => {
 /**
  * Mutation function to convert a lead to an opportunity
  * Multi-step operation:
- * 1. Create opportunity with pre-filled data (contact, company, source)
- * 2. Update lead status to 'converted'
- * 3. Link lead_id to opportunity
+ * 1. Fetch lead data
+ * 2. Create or find account from lead company
+ * 3. Create contact from lead
+ * 4. Create opportunity with references
+ * 5. Update lead status to 'converted'
  *
- * TODO: Replace console.log with Supabase mutation after Phase 1.2 complete
  * @param {string} url - Mutation key (unused in implementation)
  * @param {Object} options - Mutation options
  * @param {string} options.arg.leadId - Lead ID to convert
@@ -376,76 +322,119 @@ export const useDeleteLead = () => {
  */
 const convertLeadToOpportunityMutation = async (url, { arg }) => {
   const { leadId, opportunityData } = arg;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // TODO: Replace with Supabase implementation after Phase 1.2 complete
-  // const supabase = createClient();
-  // const { data: { user }, error: authError } = await supabase.auth.getUser();
-  //
-  // if (authError || !user) {
-  //   throw new Error(authError?.message || 'Not authenticated');
-  // }
-  //
-  // // Fetch lead data to pre-fill opportunity
-  // const { data: lead, error: leadError } = await supabase
-  //   .from('leads')
-  //   .select('*')
-  //   .eq('id', leadId)
-  //   .single();
-  //
-  // if (leadError) {
-  //   throw new Error(leadError.message);
-  // }
-  //
-  // // Create opportunity with lead data
-  // const { data: opportunity, error: opportunityError } = await supabase
-  //   .from('opportunities')
-  //   .insert([{
-  //     name: lead.company || lead.name,
-  //     contact_name: lead.name,
-  //     contact_email: lead.email,
-  //     contact_phone: lead.phone,
-  //     source: lead.source,
-  //     lead_id: leadId,
-  //     ...opportunityData,
-  //   }])
-  //   .select()
-  //   .single();
-  //
-  // if (opportunityError) {
-  //   throw new Error(opportunityError.message);
-  // }
-  //
-  // // Update lead status to 'converted'
-  // const { error: updateError } = await supabase
-  //   .from('leads')
-  //   .update({ status: 'converted', updated_at: new Date().toISOString() })
-  //   .eq('id', leadId);
-  //
-  // if (updateError) {
-  //   throw new Error(updateError.message);
-  // }
-  //
-  // return { opportunity, lead: { ...lead, status: 'converted' } };
+  if (authError || !user) {
+    throw new Error(authError?.message || 'Not authenticated');
+  }
 
-  // MOCK IMPLEMENTATION - Remove after Phase 1.2 complete
-  console.log('useConvertLeadToOpportunity mutation called with:', { leadId, opportunityData });
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const opportunity = {
-        id: `opportunity_${Date.now()}`,
+  // Step 1: Fetch lead data to pre-fill opportunity
+  const { data: lead, error: leadError } = await supabase
+    .from('leads')
+    .select('*')
+    .eq('id', leadId)
+    .single();
+
+  if (leadError) {
+    throw new Error(leadError.message);
+  }
+
+  // Step 2: Create or find account from lead company
+  let accountId = null;
+  if (lead.company) {
+    // Try to find existing account with same name
+    const { data: existingAccounts } = await supabase
+      .from('accounts')
+      .select('id')
+      .ilike('name', lead.company)
+      .limit(1);
+
+    if (existingAccounts && existingAccounts.length > 0) {
+      accountId = existingAccounts[0].id;
+    } else {
+      // Create new account from lead company
+      const { data: newAccount, error: accountError } = await supabase
+        .from('accounts')
+        .insert([
+          {
+            name: lead.company,
+            phone: lead.phone,
+            source: lead.source,
+          },
+        ])
+        .select()
+        .single();
+
+      if (accountError) {
+        throw new Error(`Failed to create account: ${accountError.message}`);
+      }
+
+      accountId = newAccount.id;
+    }
+  }
+
+  // Step 3: Create contact from lead
+  const { data: contact, error: contactError } = await supabase
+    .from('contacts')
+    .insert([
+      {
+        first_name: lead.name.split(' ')[0] || lead.name,
+        last_name: lead.name.split(' ').slice(1).join(' ') || '',
+        email: lead.email,
+        phone: lead.phone,
+        account_id: accountId,
+      },
+    ])
+    .select()
+    .single();
+
+  if (contactError) {
+    throw new Error(`Failed to create contact: ${contactError.message}`);
+  }
+
+  // Step 4: Create opportunity with lead data
+  const { data: opportunity, error: opportunityError } = await supabase
+    .from('opportunities')
+    .insert([
+      {
+        name: opportunityData.name || lead.company || lead.name,
+        account_id: accountId,
+        primary_contact_id: contact.id,
+        deal_value: opportunityData.deal_value || opportunityData.value,
+        stage: opportunityData.stage,
+        probability: opportunityData.probability,
+        expected_close_date: opportunityData.expected_close_date,
+        source: lead.source,
         lead_id: leadId,
-        ...opportunityData,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      const updatedLead = {
-        id: leadId,
-        status: 'converted',
-        updated_at: new Date().toISOString(),
-      };
-      resolve({ opportunity, lead: updatedLead });
-    }, 100);
-  });
+      },
+    ])
+    .select()
+    .single();
+
+  if (opportunityError) {
+    throw new Error(`Failed to create opportunity: ${opportunityError.message}`);
+  }
+
+  // Step 5: Update lead status to 'converted'
+  const { error: updateError } = await supabase
+    .from('leads')
+    .update({ status: 'converted', updated_at: new Date().toISOString() })
+    .eq('id', leadId);
+
+  if (updateError) {
+    throw new Error(`Failed to update lead status: ${updateError.message}`);
+  }
+
+  return {
+    opportunity,
+    lead: { ...lead, status: 'converted' },
+    account_id: accountId,
+    contact_id: contact.id,
+  };
 };
 
 /**
