@@ -37,9 +37,7 @@ This directory contains detailed user journey documentation for key roles within
 - Account & Contact Management (`/apps/crm/accounts`, `/apps/crm/contacts`)
 
 ## Planned User Journeys
-
 ### Service Desk Implementation
-- **Service Manager**: Service ticket management and SLA oversight
 - **Field Technician**: Mobile service delivery and reporting
 - **Customer Support Rep**: Ticket resolution and customer communication
 
@@ -102,7 +100,7 @@ Each user journey document follows a consistent structure:
 ### For Training and Onboarding
 - **Role-Based Training**: Create training programs based on actual user workflows
 - **Feature Introduction**: Introduce features in the context of user goals
-- **Success Metrics**: Set realistic expectations and success criteria
+- **Dispatch Manager**: Real-time operational command and routing optimization
 
 ### For Sales and Marketing
 - **Customer Demos**: Structure demos around real user scenarios
