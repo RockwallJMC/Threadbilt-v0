@@ -1,6 +1,14 @@
 # Skills Integration Guide
 
+**How skills and agents work together for consistent AI coding execution**
+
 This guide explains how Claude Code skills (`.claude/skills/`) integrate with agents (`.claude/agents/`) and the overall development workflow for PierceDesk.
+
+## Quick Navigation
+- [🚀 Quick Start](#standard-development-flow) - Standard workflow for any task
+- [🎯 Agent Patterns](#skill--agent-integration-patterns) - How skills integrate with specific agents
+- [⚡ Skills Reference](#available-skills) - When to use each skill
+- [🚫 Common Pitfalls](#common-pitfalls) - What to avoid
 
 ## CRITICAL: Development Server Constraints
 
@@ -12,11 +20,38 @@ This guide explains how Claude Code skills (`.claude/skills/`) integrate with ag
 
 ## Overview
 
+### The Skills + Agents Model
+
+```
+Skills (Quality Gates)     +     Agents (Execution)     =     Consistent Results
+├── TDD                           ├── react-mui-frontend-engineer
+├── VERIFY-BEFORE-COMPLETE        ├── wiring-agent
+├── software-architecture         ├── supabase-database-architect
+└── file-organizer               └── playwright-tester
+```
+
+**Key Principle**: Skills tell you HOW to work, agents do the ACTUAL work. Always use both together.
+
 **Skills** are reusable, enforced development practices that act as quality gates throughout your workflow. They ensure critical practices like TDD, verification before completion, and architectural standards are followed consistently.
 
 **Agents** are specialized sub-agents that handle specific types of work (frontend, backend, database, testing, documentation). Agents should invoke skills at appropriate checkpoints in their workflows.
 
 ## Available Skills
+
+### 🚀 using-superpowers (Foundation Skill)
+**Location:** `.claude/skills/using-superpowers/SKILL.md`
+**Invocation:** `/using-superpowers` or Skill tool
+
+**Purpose:** Establish workflow foundation and best practices
+
+**When to Invoke:**
+- **ALWAYS** at the start of ANY conversation or task
+- Before any other skills or work
+- When establishing context for complex work
+
+**Core Principle:** Foundation first - establishes the framework for all subsequent work
+
+---
 
 ### 1. TDD (Test-Driven Development)
 **Location:** `.claude/skills/TDD/SKILL.md`
@@ -110,6 +145,30 @@ This guide explains how Claude Code skills (`.claude/skills/`) integrate with ag
 
 ---
 
+## Mandatory Skills Workflow
+
+**Every task MUST follow this sequence:**
+
+```javascript
+1. Skill("using-superpowers")        // ALWAYS first - foundation
+2. Skill("TDD")                      // Before implementation
+3. Task(agent, "implement")          // Execution via agent
+4. Skill("VERIFY-BEFORE-COMPLETE")   // Before claiming done
+```
+
+**No exceptions** - even for simple tasks, clarifying questions, or "quick fixes".
+
+### Decision Tree for Skill Selection
+
+```
+Starting any work?
+├── Yes → using-superpowers (MANDATORY)
+├── Writing code? → TDD (MANDATORY)
+├── Making architectural decisions? → software-architecture
+├── Organizing files? → file-organizer
+└── Claiming completion? → VERIFY-BEFORE-COMPLETE (MANDATORY)
+```
+
 ## Skill + Agent Integration Patterns
 
 ### Pattern 1: Frontend Development (react-mui-frontend-engineer)
@@ -118,6 +177,7 @@ This guide explains how Claude Code skills (`.claude/skills/`) integrate with ag
 User Request: "Create a login form with email/password"
 
 Agent Workflow:
+1. INVOKE using-superpowers skill (foundation)
 1. Search Aurora templates (duplicate-first strategy)
 2. INVOKE software-architecture skill
    → Design component approach
