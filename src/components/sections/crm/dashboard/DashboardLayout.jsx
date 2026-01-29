@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid';
 import { Typography, Box } from '@mui/material';
 import DashboardHeader from './DashboardHeader';
 import DashboardWidgetContainer from './DashboardWidgetContainer';
+import DashboardControls from './DashboardControls';
 
 // KPI Widgets
 import TotalPipelineValueWidget from './widgets/kpis/TotalPipelineValueWidget';
@@ -42,8 +43,10 @@ const DashboardLayout = () => {
   return (
     <Box>
       <DashboardHeader />
+      <DashboardControls />
 
-      <Grid container spacing={3}>
+      <Box id="dashboard-content">
+        <Grid container spacing={3}>
         {/* Row 1: KPI Metrics - 4 columns on desktop, 2 on tablet, stack on mobile */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <TotalPipelineValueWidget />
@@ -182,7 +185,8 @@ const DashboardLayout = () => {
         <Grid size={{ xs: 12, md: 6 }}>
           <RecentProposalsWidget />
         </Grid>
-      </Grid>
+        </Grid>
+      </Box>
     </Box>
   );
 };
