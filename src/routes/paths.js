@@ -99,6 +99,7 @@ const paths = {
   createEvent: `/${rootPaths.appsRoot}/${rootPaths.eventsRoot}/create-event`,
   events: `/${rootPaths.appsRoot}/${rootPaths.eventsRoot}/event-detail`,
 
+  crmDashboard: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/dashboard`,
   crmLeads: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/leads`,
   crmLeadDetail: (id) => `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/leads/${id}`,
   leadDetails: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/lead-details`,

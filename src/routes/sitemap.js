@@ -245,6 +245,14 @@ const sitemap = [
         active: true,
         items: [
           {
+            name: 'Dashboard',
+            key: 'crm_dashboard',
+            path: paths.crmDashboard,
+            pathName: 'crm-dashboard',
+            icon: 'material-symbols:dashboard-outline',
+            active: true,
+          },
+          {
             name: 'Accounts',
             key: 'accounts',
             path: paths.crmAccounts,
