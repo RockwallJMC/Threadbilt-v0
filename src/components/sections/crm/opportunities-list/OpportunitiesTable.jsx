@@ -75,7 +75,7 @@ const OpportunitiesTable = ({ apiRef, filterButtonEl, selectedStage, onStageChan
 
   // Fetch opportunities based on current tab selection
   const stageFilter = getStageFilter(currentTab);
-  const { opportunities, error, isLoading } = useOpportunities({
+  const { data: opportunities, error, isLoading } = useOpportunities({
     stage: stageFilter,
   });
 
@@ -322,7 +322,7 @@ const OpportunitiesTable = ({ apiRef, filterButtonEl, selectedStage, onStageChan
           }}
           checkboxSelection
           onRowClick={(params) => {
-            router.push(paths.crmOpportunityDetail(params.row.id));
+            router.push(paths.opportunityDetail(params.row.id));
           }}
           slots={{
             basePagination: (props) => <DataGridPagination showFullPagination {...props} />,

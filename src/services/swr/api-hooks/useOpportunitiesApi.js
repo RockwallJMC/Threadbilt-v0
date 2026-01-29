@@ -96,7 +96,16 @@ const opportunitiesFetcher = async (filters = null) => {
         );
       }
 
-      resolve(filteredOpportunities);
+      // Transform data to match component expectations
+      const transformedOpportunities = filteredOpportunities.map(opp => ({
+        ...opp,
+        account_name: opp.company?.name,
+        account_logo: opp.company?.logo,
+        assigned_to_name: opp.owner?.name,
+        assigned_to_avatar: opp.owner?.avatar,
+      }));
+
+      resolve(transformedOpportunities);
     }, 100); // Simulate network delay
   });
 };
@@ -173,7 +182,15 @@ const opportunityFetcher = async (id) => {
 
       const opportunity = allOpportunities.find((opp) => opp.id === id);
       if (opportunity) {
-        resolve(opportunity);
+        // Transform data to match component expectations
+        const transformedOpportunity = {
+          ...opportunity,
+          account_name: opportunity.company?.name,
+          account_logo: opportunity.company?.logo,
+          assigned_to_name: opportunity.owner?.name,
+          assigned_to_avatar: opportunity.owner?.avatar,
+        };
+        resolve(transformedOpportunity);
       } else {
         reject(new Error(`Opportunity with id ${id} not found`));
       }
@@ -183,15 +200,6 @@ const opportunityFetcher = async (id) => {
 
 /**
  * Hook to fetch a single opportunity by ID
- *
- * @param {string} id - Opportunity ID
- * @param {Object} config - SWR configuration options
- * @returns {Object} SWR response with opportunity data
- *
- * @example
- * const { data: opportunity, error, isLoading } = useOpportunity('opportunity1');
- */
-export const useOpportunity = (id, config) => {
   const swr = useSWR(
     id ? ['opportunity', id] : null,
     () => opportunityFetcher(id),
