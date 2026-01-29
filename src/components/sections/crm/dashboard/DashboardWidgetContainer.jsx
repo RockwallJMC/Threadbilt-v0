@@ -10,7 +10,7 @@ import SectionHeader from 'components/common/SectionHeader';
  * @param {string} title - Widget title
  * @param {string} subtitle - Optional subtitle
  * @param {boolean} loading - Loading state
- * @param {string|null} error - Error message if any
+ * @param {string|Error|null} error - Error message or Error object
  * @param {React.ReactNode} menu - Optional action menu component
  * @param {number} minHeight - Minimum height in pixels (default: 200)
  * @param {React.ReactNode} children - Widget content
@@ -65,7 +65,7 @@ const DashboardWidgetContainer = ({
 
       {error && !loading && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {error?.message || error}
         </Alert>
       )}
 
