@@ -701,3 +701,255 @@ export const useTopAccounts = (limit = 5, config) => {
     ...config,
   });
 };
+
+/**
+ * Fetch sales velocity metrics - average time in each stage (last 30 days)
+ * @param {Object} config - SWR configuration options
+ * @returns {Object} SWR response with stage velocity data
+ */
+export const useDashboardSalesVelocity = (config) => {
+  const fetcher = async () => {
+    const supabase = createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      throw new Error(authError?.message || 'Not authenticated');
+    }
+
+    // Calculate date range (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Fetch all opportunities (last 30 days) with stage timestamps
+    const { data, error } = await supabase
+      .from('opportunities')
+      .select('stage, created_at, updated_at, close_date')
+      .is('deleted_at', null)
+      .gte('created_at', thirtyDaysAgo.toISOString());
+
+    if (error) throw new Error(error.message);
+
+    // Group by stage and calculate average time
+    // Note: Without stage_changed_at timestamps, we estimate using created_at and updated_at
+    const stageMetrics = {};
+    data.forEach((opp) => {
+      const stage = opp.stage;
+      if (!stageMetrics[stage]) {
+        stageMetrics[stage] = { stage, total_days: 0, count: 0 };
+      }
+
+      // Estimate time in stage based on available timestamps
+      let daysInStage = 0;
+      if (opp.close_date) {
+        // Closed opportunity: use close_date as end time
+        const created = new Date(opp.created_at);
+        const closed = new Date(opp.close_date);
+        daysInStage = (closed - created) / (1000 * 60 * 60 * 24);
+      } else {
+        // Active opportunity: use updated_at as proxy for time in current stage
+        const created = new Date(opp.created_at);
+        const updated = new Date(opp.updated_at);
+        daysInStage = (updated - created) / (1000 * 60 * 60 * 24);
+      }
+
+      stageMetrics[stage].total_days += daysInStage;
+      stageMetrics[stage].count += 1;
+    });
+
+    // Calculate averages and format response
+    const result = Object.values(stageMetrics).map((metric) => ({
+      stage: metric.stage,
+      avg_days: metric.count > 0 ? (metric.total_days / metric.count).toFixed(1) : 0,
+      count: metric.count,
+    }));
+
+    // Sort by predefined stage order
+    const stageOrder = {
+      Qualification: 1,
+      'Needs Analysis': 2,
+      Proposal: 3,
+      Negotiation: 4,
+      'Verbal Commit': 5,
+      Contracting: 6,
+      'Closed Won': 7,
+      'Closed Lost': 8,
+    };
+
+    return result.sort((a, b) => (stageOrder[a.stage] || 999) - (stageOrder[b.stage] || 999));
+  };
+
+  return useSWR('dashboard/sales-velocity', fetcher, {
+    suspense: false,
+    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    refreshInterval: 60000,
+    ...config,
+  });
+};
+
+/**
+ * Fetch win/loss analysis metrics (last 30 days)
+ * @param {Object} config - SWR configuration options
+ * @returns {Object} SWR response with win/loss data
+ */
+export const useDashboardWinLossAnalysis = (config) => {
+  const fetcher = async () => {
+    const supabase = createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      throw new Error(authError?.message || 'Not authenticated');
+    }
+
+    // Calculate date range (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Fetch closed opportunities (last 30 days)
+    const { data, error } = await supabase
+      .from('opportunities')
+      .select('stage, value, close_reason')
+      .is('deleted_at', null)
+      .in('stage', ['Closed Won', 'Closed Lost'])
+      .gte('created_at', thirtyDaysAgo.toISOString());
+
+    if (error) throw new Error(error.message);
+
+    // Calculate win/loss metrics
+    const won = data.filter((opp) => opp.stage === 'Closed Won');
+    const lost = data.filter((opp) => opp.stage === 'Closed Lost');
+
+    const wonCount = won.length;
+    const lostCount = lost.length;
+    const totalClosed = wonCount + lostCount;
+
+    const wonValue = won.reduce((sum, opp) => sum + (opp.value || 0), 0);
+    const lostValue = lost.reduce((sum, opp) => sum + (opp.value || 0), 0);
+
+    const winRate = totalClosed > 0 ? (wonCount / totalClosed) * 100 : 0;
+
+    // Group lost opportunities by close_reason (if field exists)
+    const lostReasons = {};
+    lost.forEach((opp) => {
+      const reason = opp.close_reason || 'Not Specified';
+      if (!lostReasons[reason]) {
+        lostReasons[reason] = { reason, count: 0, value: 0 };
+      }
+      lostReasons[reason].count += 1;
+      lostReasons[reason].value += opp.value || 0;
+    });
+
+    return {
+      won_count: wonCount,
+      lost_count: lostCount,
+      win_rate: winRate.toFixed(1),
+      won_value: wonValue,
+      lost_value: lostValue,
+      total_closed: totalClosed,
+      lost_reasons: Object.values(lostReasons).sort((a, b) => b.count - a.count),
+    };
+  };
+
+  return useSWR('dashboard/win-loss-analysis', fetcher, {
+    suspense: false,
+    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    refreshInterval: 60000,
+    ...config,
+  });
+};
+
+/**
+ * Fetch forecast accuracy metrics - compare forecasted vs actual close dates (last 30 days)
+ * @param {Object} config - SWR configuration options
+ * @returns {Object} SWR response with forecast accuracy data
+ */
+export const useDashboardForecastAccuracy = (config) => {
+  const fetcher = async () => {
+    const supabase = createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      throw new Error(authError?.message || 'Not authenticated');
+    }
+
+    // Calculate date range (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Fetch closed opportunities with expected and actual close dates
+    const { data, error } = await supabase
+      .from('opportunities')
+      .select('expected_close_date, close_date, value')
+      .is('deleted_at', null)
+      .eq('stage', 'Closed Won')
+      .not('expected_close_date', 'is', null)
+      .not('close_date', 'is', null)
+      .gte('created_at', thirtyDaysAgo.toISOString());
+
+    if (error) throw new Error(error.message);
+
+    // Calculate variance for each opportunity
+    const variances = data.map((opp) => {
+      const expected = new Date(opp.expected_close_date);
+      const actual = new Date(opp.close_date);
+      const variance = (actual - expected) / (1000 * 60 * 60 * 24); // Days difference
+      return {
+        variance,
+        value: opp.value || 0,
+        early: variance < 0,
+        on_time: Math.abs(variance) <= 7, // Within 1 week = on time
+      };
+    });
+
+    const totalOpportunities = variances.length;
+
+    if (totalOpportunities === 0) {
+      return {
+        total_opportunities: 0,
+        avg_variance_days: 0,
+        accuracy_percentage: 0,
+        early_count: 0,
+        late_count: 0,
+        on_time_count: 0,
+      };
+    }
+
+    // Calculate metrics
+    const avgVariance =
+      variances.reduce((sum, v) => sum + v.variance, 0) / totalOpportunities;
+
+    const earlyCount = variances.filter((v) => v.early).length;
+    const onTimeCount = variances.filter((v) => v.on_time).length;
+    const lateCount = variances.filter((v) => !v.early && !v.on_time).length;
+
+    // Accuracy = opportunities closed within 1 week of forecast
+    const accuracyPercentage = (onTimeCount / totalOpportunities) * 100;
+
+    return {
+      total_opportunities: totalOpportunities,
+      avg_variance_days: avgVariance.toFixed(1),
+      accuracy_percentage: accuracyPercentage.toFixed(1),
+      early_count: earlyCount,
+      late_count: lateCount,
+      on_time_count: onTimeCount,
+    };
+  };
+
+  return useSWR('dashboard/forecast-accuracy', fetcher, {
+    suspense: false,
+    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    refreshInterval: 60000,
+    ...config,
+  });
+};
