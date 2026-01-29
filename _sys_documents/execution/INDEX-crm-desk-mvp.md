@@ -211,20 +211,31 @@ Implement the complete CRM Desk as the MVP for PierceDesk - managing customer re
 
 ### Phase 1.8: Testing & Polish
 
-- **Doc**: `_sys_documents/execution/phase1.8-testing-polish.md`
+- **Doc**: `docs/plans/2026-01-29-phase1.8-testing-polish.md`
 - **Type**: Execution
-- **Status**: ⏳ Planned
-- **Assigned**: playwright-tester agent
+- **Status**: 🚧 In Progress
+- **GitHub Issue**: #28
+- **Feature Branch**: `feature/desk-testing-polish-phase1.8`
+- **Assigned**: Orchestrator → playwright-tester agents (parallel session)
 - **Progress**: 0%
 - **Target**: Week 7 (2026-03-10 - 2026-03-14)
+- **Started**: 2026-01-29
 
-**Testing:**
+**Deliverables:**
 
-- E2E tests (lead-to-proposal flow)
-- Multi-user testing (data isolation)
-- Mobile responsiveness verification
-- Performance benchmarks
-- Security audit (RLS, input validation)
+- Lead-to-Proposal E2E flow test (1 comprehensive test)
+- Multi-user data isolation tests (5 tests, marked .skip() pending Phase 1.2)
+- Mobile responsiveness tests (12 tests across 3 breakpoints: 375px, 768px, 1024px)
+- Performance benchmarks (Lighthouse audits for 5 pages)
+- Security audit (5 input validation tests + manual checklist)
+- RLS verification guide for Phase 1.2
+- Documentation updates
+
+**Total Tests:** 23 new tests (18 active, 5 pending Phase 1.2)
+
+**Integration Status:**
+- ✅ Uses mock data from Phases 1.3-1.6
+- ⏳ 5 multi-tenancy tests pending Phase 1.2 completion
 
 ## Current Status
 
