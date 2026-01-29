@@ -66,8 +66,10 @@
     "emoji-mart": "^5.6.0",
     "firebase": "^12.4.0",
     "gsap": "^3.13.0",
+    "html2canvas": "^1.4.1",
     "i18next": "^25.6.0",
     "i18next-browser-languagedetector": "^8.2.0",
+    "jspdf": "^2.5.2",
     "lodash.merge": "^4.6.2",
     "lottie-react": "^2.4.1",
     "mapbox-gl": "^3.15.0",
@@ -92,6 +94,7 @@
     "swr": "^2.3.6",
     "tiptap": "^1.32.2",
     "wavesurfer.js": "^7.11.0",
+    "xlsx": "^0.18.5",
     "yet-another-react-lightbox": "^3.25.0",
     "yup": "^1.7.1"
   },
