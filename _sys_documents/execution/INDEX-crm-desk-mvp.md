@@ -166,19 +166,30 @@ Implement the complete CRM Desk as the MVP for PierceDesk - managing customer re
 ### Phase 1.6: Proposals & PDF Export
 
 - **Doc**: `_sys_documents/execution/phase1.6-proposals.md`
+- **Design Doc**: `_sys_documents/design/phase1.6-proposals.md`
 - **Type**: Execution
-- **Status**: ⏳ Planned
-- **Assigned**: react-mui-frontend-engineer agent
+- **Status**: ⏳ In Progress
+- **GitHub Issue**: #11
+- **Feature Branch**: `feature/desk-proposals-phase1.6`
+- **Assigned**: Orchestrator (wiring-agent, react-mui-frontend-engineer, playwright-tester)
 - **Progress**: 0%
 - **Target**: Week 6 (2026-03-03 - 2026-03-07)
+- **Started**: 2026-01-29
 
-**Features:**
+**Deliverables:**
 
-- Proposal creation form
-- Line items management
-- Pricing calculations
-- PDF generation (React-PDF)
-- Professional proposal template
+- ProposalsTable & ProposalsListContainer (list view with status filters)
+- CreateProposalDialog, ProposalForm, LineItemsTable, ProposalSummary (creation flow)
+- ProposalDetail, ProposalHeader, ProposalOverview, ProposalPDF (detail view)
+- OpportunityHeader enhancement + OpportunityProposals tab
+- useProposalApi (7 SWR hooks with ~12-15 TODO markers for Supabase)
+- CRMProposalsProvider (state management)
+- 10 mock proposals across all statuses
+- 41 E2E tests (35 active, 6 multi-tenancy pending Phase 1.2)
+
+**Integration Status:**
+- ⏳ All components to be built with mock data
+- ⏳ ~12-15 TODO markers for Supabase integration after Phase 1.2
 
 ### Phase 1.7: CRM Dashboard & Reports
 
