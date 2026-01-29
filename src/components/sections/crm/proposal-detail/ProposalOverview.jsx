@@ -6,6 +6,18 @@ import { useRouter } from 'next/navigation';
 import paths from 'routes/paths';
 
 /**
+ * InfoCard - Reusable card component for proposal information sections
+ */
+const InfoCard = ({ title: cardTitle, children, ...props }) => (
+  <Paper background={1} sx={{ p: 2, height: '100%', ...props.sx }}>
+    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+      {cardTitle}
+    </Typography>
+    {children}
+  </Paper>
+);
+
+/**
  * ProposalOverview Component
  *
  * Grid layout displaying proposal overview information in cards.
@@ -52,15 +64,6 @@ const ProposalOverview = ({ proposal }) => {
       day: 'numeric',
     });
   };
-
-  const InfoCard = ({ title: cardTitle, children, ...props }) => (
-    <Paper background={1} sx={{ p: 2, height: '100%', ...props.sx }}>
-      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-        {cardTitle}
-      </Typography>
-      {children}
-    </Paper>
-  );
 
   return (
     <Grid container spacing={3}>

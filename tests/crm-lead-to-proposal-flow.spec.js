@@ -109,8 +109,8 @@ test.describe('Lead-to-Proposal Complete Flow', () => {
 
     // Verify proposal created (should redirect to proposal detail or list)
     await page.waitForTimeout(1000);
-    const currentUrl = page.url();
-    expect(currentUrl).toMatch(/\/apps\/crm\/proposals/);
+    const proposalUrl = page.url();
+    expect(proposalUrl).toMatch(/\/apps\/crm\/proposals/);
 
     // Verify proposal appears with number
     const proposalNumber = page.locator('text=/PROP-2026-/i');

@@ -18,7 +18,7 @@ const eslintConfig = [
 
   // Modern flat config additions
   {
-    ignores: ['.next', 'dist', 'coverage'],
+    ignores: ['.next', 'dist', 'coverage', 'prototypes', 'templates', '.claude'],
   },
   {
     files: ['**/*.{js,jsx}'],
