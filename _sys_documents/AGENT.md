@@ -458,6 +458,58 @@ find _sys_documents -type f \( -name "*.test.js" -o -name "*.spec.js" -o -name "
 
 ---
 
-**Last Updated:** 2026-01-27
-**Version:** 1.0
+## Cross-Referencing to docs/ (User-Facing Documentation)
+
+### Relationship Between _sys_documents/ and docs/
+
+**_sys_documents/** (this directory) is for **INTERNAL TRACKING**.
+**docs/** is for **USER-FACING DOCUMENTATION**.
+
+**Flow:**
+1. Planning happens here (`_sys_documents/` - INDEX, design, execution)
+2. Implementation creates code
+3. User-facing docs created in `docs/` after merge
+4. As-builts created here (`_sys_documents/as-builts/`) reflect deployed state
+
+### Cross-Reference Patterns
+
+**From _sys_documents/ → docs/**:
+```markdown
+See [User Guide](../../docs/features/CRM-DESK.md)
+See [API Reference](../../docs/api/REST-API.md)
+See [Implementation Plan](../../docs/plans/2026-01-29-feature.md)
+```
+
+**From docs/ → _sys_documents/**:
+```markdown
+See [As-Built Documentation](../_sys_documents/as-builts/feature-as-built.md)
+See [INDEX Document](../_sys_documents/execution/INDEX-feature.md)
+See [Design Document](../_sys_documents/design/phase1.1-feature.md)
+```
+
+### Required Cross-References
+
+**Every INDEX file MUST link to**:
+- Implementation plan in `docs/plans/`
+- User-facing feature guide in `docs/features/` (after creation)
+- GitHub issue and PR
+
+**Every as-built MUST link to**:
+- Original design documents (`_sys_documents/design/`)
+- User documentation (`docs/features/`)
+- Related as-builts
+
+**Every design document MUST link to**:
+- Parent INDEX file
+- Implementation plan in `docs/plans/`
+
+### Documentation Compliance
+
+See [Documentation Guide](../docs/guides/DOCUMENTATION-GUIDE.md) for complete framework.
+See [Documentation Compliance Audit](execution/DOCUMENTATION-COMPLIANCE-AUDIT-2026-01-29.md) for current state assessment.
+
+---
+
+**Last Updated:** 2026-01-29
+**Version:** 1.1
 **Status:** Active

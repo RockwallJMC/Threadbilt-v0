@@ -139,6 +139,10 @@ const UpcomingTasksWidget = ({
                       </Typography>
                     </Stack>
                   }
+                  slotProps={{
+                    primary: { component: 'div' },
+                    secondary: { component: 'div' },
+                  }}
                 />
               </ListItemButton>
             </ListItem>

@@ -2,6 +2,9 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
+**GitHub Issue:** #30
+**Sub-Issues:** #31 (2.1), #32 (2.2), #33 (2.3), #34 (2.4), #35 (2.5), #36 (2.6)
+
 **Goal:** Build Projects Desk and Service Desk to enable physical security integrators to manage construction projects and ongoing service operations, creating the bridge from sales (CRM) through project delivery to long-term maintenance.
 
 **Architecture:** Two interconnected desks with shared data models. Projects Desk handles construction project lifecycle (Gantt, Kanban, budget tracking, AIA billing). Service Desk manages post-installation operations (tickets, SLAs, recurring maintenance, warranty tracking). Bridge components enable seamless transitions: Opportunity → Project (CRM to Projects) and Project Closeout → Service Agreement (Projects to Service).
@@ -22,12 +25,12 @@ Phase 2 delivers two critical operational desks that transform PierceDesk from a
 
 **High-Level Phases:**
 
-- **Phase 2.1** (Weeks 1-2): Foundation & Database Schema
-- **Phase 2.2** (Weeks 3-4): Projects Desk - Core Project Management
-- **Phase 2.3** (Weeks 5-6): Projects Desk - Gantt, Budget, AIA Billing
-- **Phase 2.4** (Weeks 7-8): Service Desk - Tickets & SLA Management
-- **Phase 2.5** (Weeks 9-10): Service Desk - Recurring Service & Warranty
-- **Phase 2.6** (Weeks 11-12): Integration Bridges & Testing
+- **Phase 2.1** (Weeks 1-2): Foundation & Database Schema - Issue #31
+- **Phase 2.2** (Weeks 3-4): Projects Desk - Core Project Management - Issue #32
+- **Phase 2.3** (Weeks 5-6): Projects Desk - Gantt, Budget, AIA Billing - Issue #33
+- **Phase 2.4** (Weeks 7-8): Service Desk - Tickets & SLA Management - Issue #34
+- **Phase 2.5** (Weeks 9-10): Service Desk - Recurring Service & Warranty - Issue #35
+- **Phase 2.6** (Weeks 11-12): Integration Bridges & Testing - Issue #36
 
 **Success Metrics:**
 - Convert opportunities to projects with full data carryover

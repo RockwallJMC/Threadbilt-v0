@@ -1,3 +1,6 @@
+// Load test environment variables
+require('dotenv').config({ path: '.env.test' });
+
 const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({

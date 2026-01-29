@@ -12,8 +12,9 @@ import OpportunitiesHeader from 'components/sections/crm/opportunities/page-head
 
 const index = () => {
   return (
+    <OpportunitiesKanbanProvider>
       <Opportunities />
-      <Opportunities />
+    </OpportunitiesKanbanProvider>
   );
 };
 
