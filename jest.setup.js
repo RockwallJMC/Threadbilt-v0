@@ -46,16 +46,28 @@ global.testUsers = {
 global.signInTestUser = async (userType = 'singleOrg') => {
   const user = global.testUsers[userType];
 
-  const { data, error } = await global.supabaseClient.auth.signInWithPassword({
-    email: user.email,
-    password: user.password,
-  });
-
-  if (error) {
-    throw new Error(`Failed to sign in test user: ${error.message}`);
+  if (!user) {
+    throw new Error(`Invalid user type: ${userType}`);
   }
 
-  return data;
+  try {
+    const { data, error } = await global.supabaseClient.auth.signInWithPassword({
+      email: user.email,
+      password: user.password,
+    });
+
+    if (error) {
+      throw new Error(`Failed to sign in test user: ${error.message}`);
+    }
+
+    if (!data.session || !data.user) {
+      throw new Error('Sign in succeeded but session or user data is missing');
+    }
+
+    return data;
+  } catch (err) {
+    throw new Error(`Authentication failed for ${userType}: ${err.message}`);
+  }
 };
 
 // Helper function to sign out
