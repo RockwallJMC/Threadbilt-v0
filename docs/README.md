@@ -31,6 +31,15 @@ Feature documentation for each operational desk:
 - **BUSINESS-DESK.md** - Invoicing, P&L, QuickBooks integration
 
 ### 📚 [Guides](guides/)
+### 👥 [User Journeys](user-journeys/)
+
+User journey documentation for key roles and workflows:
+
+- [**Sales Manager - Phase 1 CRM**](user-journeys/sales-manager-phase1-crm.md) - Daily and weekly workflows for sales management
+- [**Sales Account Manager - Phase 1 CRM**](user-journeys/sales-account-manager-phase1-crm.md) - Lead-to-close sales process workflows
+- **Service Manager - Service Desk** - Service ticket and SLA management (planned)
+- **Project Manager - Projects Desk** - Project lifecycle management (planned)
+
 
 How-to guides and best practices:
 
@@ -62,6 +71,7 @@ API and integration documentation:
 ### For Feature Development
 1. Review [Documentation Guide](guides/DOCUMENTATION-GUIDE.md) for the complete workflow
 2. Check relevant [Feature Documentation](features/) for the desk you're working on
+1. Review relevant [User Journeys](user-journeys/) to understand user workflows
 3. Reference [API Documentation](api/) for integration patterns
 4. Follow [Testing Guide](guides/TESTING-GUIDE.md) for test requirements
 
@@ -104,6 +114,7 @@ See [CONTRIBUTING.md](guides/CONTRIBUTING.md) and [DOCUMENTATION-GUIDE.md](guide
 |---------|--------|--------------|
 | Architecture | 🚧 In Progress | 2026-01-27 |
 | Features | ⏳ Planned | - |
+| User Journeys | ✅ Phase 1 CRM Complete | 2026-01-27 |
 | Guides | 🚧 In Progress | 2026-01-27 |
 | API | ⏳ Planned | - |
 
