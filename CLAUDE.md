@@ -67,11 +67,14 @@ Follow the documentation framework end-to-end. This is the minimal required flow
 
 1. **Initiate** → Create GitHub issue + feature branch
 2. **Plan** → Create INDEX + phase design docs
-3. **Execute** → Implement with phase execution doc updates
-4. **Verify** → Run lint/build/tests and capture evidence
-5. **Review** → Code review (agent + GitHub)
-6. **PR** → Create PR with links to INDEX/design and evidence
-7. **Merge** → Merge to main, generate as-built, update user docs
+3. **Execute Task** → Implement one task with phase execution doc updates
+4. **Verify Task** → Run lint/build/tests and capture evidence
+5. **PR Task** → Create PR for TASK with links to issue/INDEX/design (**NEW: PR per task, not per phase**)
+6. **Merge Task** → Merge task PR to main
+7. **Repeat** → Continue to next task (steps 3-6) until phase complete
+8. **Phase Complete** → Generate as-built, update user docs
+
+**Critical Change:** PRs are now created **after EVERY task completion**, not just phase completion. This enables continuous integration and smaller, focused code reviews.
 
 For full details, see [docs/guides/DOCUMENTATION-GUIDE.md](docs/guides/DOCUMENTATION-GUIDE.md).
 
@@ -195,10 +198,20 @@ Task(playwright-tester, "Create auth test suite")
 Sub-agents MUST post progress updates to the GitHub issue at these checkpoints:
 
 1. **Phase start**: Announce phase beginning and agent assignment
-2. **Progress milestones**: Update every 30-40% with completed tasks
-3. **TDD checkpoint**: After invoking /TDD skill
+2. **Task completion**: Post task results with verification evidence
+3. **TDD checkpoint**: After invoking /TDD skill (RED → GREEN cycle)
 4. **Playwright completion**: Post test results WITH SCREENSHOTS
-5. **Phase completion**: Post verification evidence
+5. **PR creation** (**MANDATORY AFTER EVERY TASK**): Link PR to issue
+6. **PR merge**: Post merge confirmation and next task announcement
+7. **Phase completion**: Post final verification evidence
+
+**CRITICAL:** After completing EVERY task, agents MUST:
+1. Verify task (build, lint, tests)
+2. Create PR with `gh pr create`
+3. Link PR to issue with `gh issue comment`
+4. Wait for merge
+5. Post merge confirmation
+6. Continue to next task
 
 Use `gh issue comment {issue-number}` for all updates. See templates in DOCUMENTATION-GUIDE.md.
 
