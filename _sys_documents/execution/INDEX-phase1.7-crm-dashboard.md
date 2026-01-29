@@ -2,7 +2,7 @@
 feature: 'CRM Dashboard & Reports - Phase 1.7'
 github_issue: '#15'
 feature_branch: 'feature/desk-crm-dashboard-phase1.7'
-pr_number: ''
+pr_number: '#24'
 status: 'completed'
 started: '2026-01-29'
 target_completion: '2026-03-07' # Week 6 target from CRM MVP INDEX
@@ -44,7 +44,7 @@ Implement comprehensive CRM Dashboard and reporting views that provide executive
 
 - **Issue**: #15 - [View Issue](https://github.com/RockwallJMC/piercedesk6/issues/15)
 - **Feature Branch**: `feature/desk-crm-dashboard-phase1.7`
-- **Pull Request**: TBD - [View PR](https://github.com/RockwallJMC/piercedesk6/pull/{number}) (after PR creation)
+- **Pull Request**: #24 - [View PR](https://github.com/RockwallJMC/piercedesk6/pull/24)
 
 All phase progress updates are posted to the GitHub issue for external coordination and visibility.
 
