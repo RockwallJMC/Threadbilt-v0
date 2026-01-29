@@ -1,5 +1,6 @@
 const { test } = require('@playwright/test');
 const { captureScreenshot } = require('./helpers/playwrightArtifacts');
+const {
   ROUTES,
   MULTI_TENANT_TEST_DATA,
 } = require('./helpers/crm-test-data');

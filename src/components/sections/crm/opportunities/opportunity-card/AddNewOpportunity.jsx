@@ -1,11 +1,11 @@
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { useDealsContext } from 'providers/DealsProvider';
-import { SET_CREATE_DEAL_DIALOG } from 'reducers/DealsReducer';
+import { useOpportunitiesContext } from 'providers/OpportunitiesProvider';
+import { SET_CREATE_OPPORTUNITY_DIALOG } from 'reducers/OpportunitiesReducer';
 import IconifyIcon from 'components/base/IconifyIcon';
 
 const AddNewDeal = ({ listId }) => {
-  const { dealsDispatch } = useDealsContext();
+  const { opportunitiesDispatch } = useOpportunitiesContext();
 
   return (
     <Box sx={{ p: 1, borderRadius: 4, bgcolor: 'background.elevation1' }}>
@@ -13,14 +13,14 @@ const AddNewDeal = ({ listId }) => {
         variant="text"
         color="neutral"
         onClick={() =>
-          dealsDispatch({ type: SET_CREATE_DEAL_DIALOG, payload: { isOpen: true, listId } })
+          opportunitiesDispatch({ type: SET_CREATE_OPPORTUNITY_DIALOG, payload: { isOpen: true, listId } })
         }
         startIcon={
           <IconifyIcon icon="material-symbols:add-2-rounded" sx={{ fontSize: '20px !important' }} />
         }
         fullWidth
       >
-        Add new Deal
+        Add new Opportunity
       </Button>
     </Box>
   );

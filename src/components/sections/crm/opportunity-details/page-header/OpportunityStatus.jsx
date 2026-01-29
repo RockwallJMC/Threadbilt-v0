@@ -16,7 +16,7 @@ const getButtonColor = (status) => {
   }
 };
 
-const DealStatus = () => {
+const OpportunityStatus = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [status, setStatus] = useState('Won');
   const { up } = useBreakpoints();
@@ -40,8 +40,8 @@ const DealStatus = () => {
   return (
     <>
       <Button
-        id="deal-status-menu"
-        aria-controls={open ? 'deal-status-menu' : undefined}
+        id="opportunity-status-menu"
+        aria-controls={open ? 'opportunity-status-menu' : undefined}
         aria-expanded={open ? 'true' : undefined}
         aria-haspopup="true"
         variant="soft"
@@ -59,7 +59,7 @@ const DealStatus = () => {
         {upSm ? `Status: ${status}` : status}
       </Button>
       <Menu
-        id="deal-status"
+        id="opportunity-status"
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
@@ -67,7 +67,7 @@ const DealStatus = () => {
         anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
         slotProps={{
           list: {
-            'aria-labelledby': 'deal-status',
+            'aria-labelledby': 'opportunity-status',
           },
         }}
         sx={{
@@ -92,4 +92,4 @@ const DealStatus = () => {
   );
 };
 
-export default DealStatus;
+export default OpportunityStatus;

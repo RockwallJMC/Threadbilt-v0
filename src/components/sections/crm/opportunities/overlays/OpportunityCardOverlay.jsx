@@ -1,12 +1,12 @@
 import Box from '@mui/material/Box';
-import DealCard from 'components/sections/crm/deals/deal-card/DealCard';
+import OpportunityCard from 'components/sections/crm/opportunities/opportunity-card/OpportunityCard';
 
-const DealCardOverlay = ({ deal }) => {
+const OpportunityCardOverlay = ({ opportunity }) => {
   return (
     <Box sx={{ cursor: 'grabbing', borderRadius: 4, boxShadow: (theme) => theme.vars.shadows[5] }}>
-      <DealCard deal={deal} />
+      <OpportunityCard opportunity={opportunity} />
     </Box>
   );
 };
 
-export default DealCardOverlay;
+export default OpportunityCardOverlay;

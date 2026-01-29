@@ -11,12 +11,12 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { useDealsContext } from 'providers/DealsProvider';
-import { ADD_NEW_LIST } from 'reducers/DealsReducer';
+import { useOpportunitiesContext } from 'providers/OpportunitiesProvider';
+import { ADD_NEW_LIST } from 'reducers/OpportunitiesReducer';
 import IconifyIcon from 'components/base/IconifyIcon';
 
 const AddNewListDialog = ({ isDialogOpen, handleDialogClose }) => {
-  const { listItems, dealsDispatch } = useDealsContext();
+  const { listItems, opportunitiesDispatch } = useOpportunitiesContext();
   const [newList, setNewList] = useState({ title: '', columnNo: 0 });
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const AddNewListDialog = ({ isDialogOpen, handleDialogClose }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    dealsDispatch({ type: ADD_NEW_LIST, payload: newList });
+    opportunitiesDispatch({ type: ADD_NEW_LIST, payload: newList });
     setNewList({ title: '', columnNo: listItems.length + 1 });
     handleDialogClose();
   };
@@ -58,7 +58,7 @@ const AddNewListDialog = ({ isDialogOpen, handleDialogClose }) => {
           id="dialog-description"
           sx={{ mb: 2, color: 'text.secondary', typography: 'body2' }}
         >
-          Create a new list to organize your deals.
+          Create a new list to organize your opportunities.
         </DialogContentText>
 
         <Stack direction={{ xs: 'column', sm: 'row' }} sx={{ gap: 2 }}>

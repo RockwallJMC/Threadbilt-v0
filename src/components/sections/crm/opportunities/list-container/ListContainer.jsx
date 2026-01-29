@@ -5,11 +5,11 @@ import Badge, { badgeClasses } from '@mui/material/Badge';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import DealItems from './DealItems';
+import OpportunityItems from './OpportunityItems';
 import ListHeader from './ListHeader';
 
-const ListContainer = memo(({ dealList, listeners }) => {
-  const { id, title, deals, compactMode } = dealList;
+const ListContainer = memo(({ opportunityList, listeners }) => {
+  const { id, title, opportunities, compactMode } = opportunityList;
   const theme = useTheme();
 
   return (
@@ -23,8 +23,8 @@ const ListContainer = memo(({ dealList, listeners }) => {
       <ListHeader
         listId={id}
         title={title}
-        totalBudget={deals.reduce((acc, curr) => acc + curr.amount, 0)}
-        dealCount={deals.length}
+        totalBudget={opportunities.reduce((acc, curr) => acc + curr.amount, 0)}
+        opportunityCount={opportunities.length}
         compactMode={compactMode}
       />
       {compactMode ? (
@@ -39,7 +39,7 @@ const ListContainer = memo(({ dealList, listeners }) => {
           }}
         >
           <Badge
-            badgeContent={`${deals.length}`}
+            badgeContent={`${opportunities.length}`}
             color="primary"
             sx={{
               mr: 3.5,
@@ -76,7 +76,7 @@ const ListContainer = memo(({ dealList, listeners }) => {
             }),
           }}
         >
-          <DealItems listId={id} deals={deals} />
+          <OpportunityItems listId={id} opportunities={opportunities} />
         </Stack>
       )}
     </Paper>

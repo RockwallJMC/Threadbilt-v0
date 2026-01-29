@@ -1,7 +1,7 @@
-import Deals from 'components/sections/crm/deals';
+import Opportunities from 'components/sections/crm/opportunities';
 
 const Page = () => {
-  return <Deals />;
+  return <Opportunities />;
 };
 
 export default Page;

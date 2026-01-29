@@ -1,16 +1,16 @@
 import Stack from '@mui/material/Stack';
-import AddNewDeal from 'components/sections/crm/deals/deal-card/AddNewDeal';
-import SortableDealItem from 'components/sections/crm/deals/deal-card/SortableDealItem';
+import AddNewOpportunity from 'components/sections/crm/opportunities/opportunity-card/AddNewOpportunity';
+import SortableOpportunityItem from 'components/sections/crm/opportunities/opportunity-card/SortableOpportunityItem';
 
-const DealItems = ({ listId, deals }) => {
+const OpportunityItems = ({ listId, opportunities }) => {
   return (
     <Stack direction="column" sx={{ gap: 2, p: 2, pb: 3 }}>
-      {deals.map((item) => (
-        <SortableDealItem key={item.id} deal={item} />
+      {opportunities.map((item) => (
+        <SortableOpportunityItem key={item.id} opportunity={item} />
       ))}
-      <AddNewDeal listId={listId} />
+      <AddNewOpportunity listId={listId} />
     </Stack>
   );
 };
 
-export default DealItems;
+export default OpportunityItems;

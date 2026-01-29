@@ -27,16 +27,16 @@ import {
   dialogClasses,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { companies } from 'data/crm/deals';
+import { companies } from 'data/crm/opportunities';
 import { users } from 'data/users';
 import dayjs from 'dayjs';
-import { useDealsContext } from 'providers/DealsProvider';
-import { ADD_NEW_DEAL, SET_CREATE_DEAL_DIALOG } from 'reducers/DealsReducer';
+import { useOpportunitiesContext } from 'providers/OpportunitiesProvider';
+import { ADD_NEW_OPPORTUNITY, SET_CREATE_OPPORTUNITY_DIALOG } from 'reducers/OpportunitiesReducer';
 import * as yup from 'yup';
 import IconifyIcon from 'components/base/IconifyIcon';
 
 const validationSchema = yup.object().shape({
-  name: yup.string().required('Deal name is required'),
+  name: yup.string().required('Opportunity name is required'),
   stage: yup.string().required('Stage is required'),
   amount: yup.number().typeError('Amount must be a number').required('Amount is required'),
   lastUpdate: yup.string().required('Last update is required'),
@@ -50,7 +50,7 @@ const validationSchema = yup.object().shape({
 });
 
 const CreateDealDialog = () => {
-  const { listItems, createDealDialog, dealsDispatch } = useDealsContext();
+  const { listItems, createDealDialog, opportunitiesDispatch } = useOpportunitiesContext();
   const listTitle = listItems.find((list) => list.id === createDealDialog.listId)?.title;
 
   const initialData = useMemo(
@@ -90,20 +90,20 @@ const CreateDealDialog = () => {
 
   const onSubmit = (data) => {
     console.log(data);
-    dealsDispatch({ type: ADD_NEW_DEAL, payload: { listName: data.stage, deal: data } });
-    dealsDispatch({ type: SET_CREATE_DEAL_DIALOG, payload: { isOpen: false } });
+    opportunitiesDispatch({ type: ADD_NEW_OPPORTUNITY, payload: { listName: data.stage, opportunity: data } });
+    opportunitiesDispatch({ type: SET_CREATE_OPPORTUNITY_DIALOG, payload: { isOpen: false } });
     reset();
   };
 
   const handleDiscardChanges = () => {
-    dealsDispatch({ type: SET_CREATE_DEAL_DIALOG, payload: { isOpen: false } });
+    opportunitiesDispatch({ type: SET_CREATE_OPPORTUNITY_DIALOG, payload: { isOpen: false } });
     reset();
   };
 
   return (
     <Dialog
       open={createDealDialog.isOpen}
-      onClose={() => dealsDispatch({ type: SET_CREATE_DEAL_DIALOG, payload: { isOpen: false } })}
+      onClose={() => opportunitiesDispatch({ type: SET_CREATE_OPPORTUNITY_DIALOG, payload: { isOpen: false } })}
       aria-labelledby="dialog-title"
       aria-describedby="dialog-description"
       component="form"
@@ -128,7 +128,7 @@ const CreateDealDialog = () => {
         }}
       >
         <DialogTitle id="dialog-title" sx={{ p: 0, typography: 'h6' }}>
-          Create Deal
+          Create Opportunity
         </DialogTitle>
         <Button
           shape="square"
@@ -136,7 +136,7 @@ const CreateDealDialog = () => {
           size="small"
           color="neutral"
           onClick={() =>
-            dealsDispatch({ type: SET_CREATE_DEAL_DIALOG, payload: { isOpen: false } })
+            opportunitiesDispatch({ type: SET_CREATE_OPPORTUNITY_DIALOG, payload: { isOpen: false } })
           }
         >
           <IconifyIcon
@@ -155,8 +155,8 @@ const CreateDealDialog = () => {
               render={({ field, fieldState }) => (
                 <TextField
                   {...field}
-                  id="deal-name"
-                  label="Deal name"
+                  id="opportunity-name"
+                  label="Opportunity name"
                   variant="filled"
                   fullWidth
                   error={!!fieldState.error}
@@ -173,8 +173,8 @@ const CreateDealDialog = () => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  id="deal-description"
-                  label="Deal description"
+                  id="opportunity-description"
+                  label="Opportunity description"
                   variant="filled"
                   size="small"
                   rows={3}
@@ -233,12 +233,12 @@ const CreateDealDialog = () => {
               control={control}
               render={({ field, fieldState }) => (
                 <FormControl variant="filled" fullWidth>
-                  <InputLabel htmlFor="deal-amount" error={!!fieldState.error}>
+                  <InputLabel htmlFor="opportunity-amount" error={!!fieldState.error}>
                     Amount
                   </InputLabel>
                   <FilledInput
                     {...field}
-                    id="deal-amount"
+                    id="opportunity-amount"
                     error={!!fieldState.error}
                     type="number"
                     startAdornment={
@@ -314,8 +314,8 @@ const CreateDealDialog = () => {
               control={control}
               render={({ field: { value, onChange }, fieldState }) => (
                 <FormControl fullWidth>
-                  <InputLabel id="deal-owner-label" error={!!fieldState.error}>
-                    Deal owner
+                  <InputLabel id="opportunity-owner-label" error={!!fieldState.error}>
+                    Opportunity owner
                   </InputLabel>
                   <Select
                     value={value?.name || ''}
@@ -324,7 +324,7 @@ const CreateDealDialog = () => {
                       const selectedUser = users.find((user) => user.name === event.target.value);
                       onChange(selectedUser);
                     }}
-                    label="deal-owner"
+                    label="opportunity-owner"
                   >
                     {users.slice(0, 10).map((user) => (
                       <MenuItem key={user.id} value={user.name}>
@@ -365,7 +365,7 @@ const CreateDealDialog = () => {
               render={({ field: { value, onChange }, fieldState }) => (
                 <FormControl fullWidth>
                   <InputLabel id="company-label" error={!!fieldState.error}>
-                    Associate deal with
+                    Associate opportunity with
                   </InputLabel>
                   <Select
                     label="company"

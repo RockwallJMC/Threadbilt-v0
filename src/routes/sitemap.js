@@ -269,6 +269,37 @@ const sitemap = [
             active: true,
           },
           {
+            name: 'Opportunities',
+            key: 'opportunities',
+            path: paths.opportunities,
+            pathName: 'opportunities',
+            icon: 'material-symbols:trending-up',
+            active: true,
+            items: [
+              {
+                name: 'Pipeline',
+                key: 'opportunities_pipeline',
+                path: paths.opportunities,
+                pathName: 'opportunities',
+                active: true,
+              },
+              {
+                name: 'List View',
+                key: 'opportunities_list',
+                path: paths.opportunityList,
+                pathName: 'opportunity-list',
+                active: true,
+              },
+              {
+                name: 'Forecast',
+                key: 'opportunities_forecast',
+                path: paths.opportunityForecast,
+                pathName: 'opportunity-forecast',
+                active: true,
+              },
+            ],
+          },
+          {
             name: 'Deals',
             key: 'deals',
             path: paths.deals,

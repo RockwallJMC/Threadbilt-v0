@@ -4,28 +4,28 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import { useNavContext } from 'layouts/main-layout/NavProvider';
 import { useBreakpoints } from 'providers/BreakpointsProvider';
-import DealsKanbanProvider from 'providers/DealsProvider';
+import OpportunitiesKanbanProvider from 'providers/OpportunitiesProvider';
 import SimpleBar from 'components/base/SimpleBar';
-import DealsKanban from 'components/sections/crm/deals/DealsKanban';
-import CreateDealDialog from 'components/sections/crm/deals/deal-card/CreateDealDialog';
-import DealsHeader from 'components/sections/crm/deals/page-header/DealsHeader';
+import OpportunitiesKanban from 'components/sections/crm/opportunities/OpportunitiesKanban';
+import CreateOpportunityDialog from 'components/sections/crm/opportunities/opportunity-card/CreateOpportunityDialog';
+import OpportunitiesHeader from 'components/sections/crm/opportunities/page-header/OpportunitiesHeader';
 
 const index = () => {
   return (
-    <DealsKanbanProvider>
-      <Deals />
-    </DealsKanbanProvider>
+    <OpportunitiesKanbanProvider>
+      <Opportunities />
+    </OpportunitiesKanbanProvider>
   );
 };
 
-const Deals = () => {
+const Opportunities = () => {
   const { topbarHeight } = useNavContext();
   const { up } = useBreakpoints();
   const upSm = up('sm');
 
   return (
     <Paper>
-      <DealsHeader />
+      <OpportunitiesHeader />
       <Paper
         sx={{
           height: ({ mixins }) =>
@@ -37,11 +37,11 @@ const Deals = () => {
       >
         <SimpleBar>
           <Stack sx={{ height: 1 }}>
-            <DealsKanban />
+            <OpportunitiesKanban />
           </Stack>
         </SimpleBar>
       </Paper>
-      <CreateDealDialog />
+      <CreateOpportunityDialog />
     </Paper>
   );
 };

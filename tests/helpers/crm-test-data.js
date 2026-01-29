@@ -149,6 +149,11 @@ const ROUTES = {
     detail: (id) => `/apps/crm/leads/${id}`,
     create: '/apps/crm/leads/create', // TODO: Update when route exists
   },
+  opportunities: {
+    list: '/apps/crm/opportunities',
+    detail: (id) => `/apps/crm/opportunities/${id}`,
+    create: '/apps/crm/opportunities/create', // TODO: Update when route exists
+  },
 };
 
 /**
@@ -278,6 +283,136 @@ const TEST_LEADS = {
 };
 
 /**
+ * Test Opportunities
+ * Selected from mock data for predictable testing
+ */
+const TEST_OPPORTUNITIES = {
+  // QUALIFICATION stage
+  qualification: {
+    id: 'opp_001',
+    name: 'Enterprise Software License',
+    accountId: 'acc_001',
+    accountName: 'TechVision Solutions Inc.',
+    value: 250000,
+    probability: 25,
+    stage: 'Qualification',
+    expectedCloseDate: '2026-03-31',
+  },
+  // PROPOSAL stage
+  proposal: {
+    id: 'opp_002',
+    name: 'Cloud Migration Project',
+    accountId: 'acc_002',
+    accountName: 'HealthFirst Medical Group',
+    value: 500000,
+    probability: 50,
+    stage: 'Proposal',
+    expectedCloseDate: '2026-04-15',
+  },
+  // NEGOTIATION stage
+  negotiation: {
+    id: 'opp_003',
+    name: 'Annual Support Contract',
+    accountId: 'acc_003',
+    accountName: 'Global Financial Partners LLC',
+    value: 120000,
+    probability: 75,
+    stage: 'Negotiation',
+    expectedCloseDate: '2026-02-28',
+  },
+  // CLOSED WON
+  closedWon: {
+    id: 'opp_004',
+    name: 'Security Audit Services',
+    accountId: 'acc_001',
+    accountName: 'TechVision Solutions Inc.',
+    value: 75000,
+    probability: 100,
+    stage: 'Closed Won',
+    expectedCloseDate: '2026-01-15',
+  },
+  // CLOSED LOST
+  closedLost: {
+    id: 'opp_005',
+    name: 'Custom Integration',
+    accountId: 'acc_003',
+    accountName: 'Small Business Consulting',
+    value: 30000,
+    probability: 0,
+    stage: 'Closed Lost',
+    expectedCloseDate: '2025-12-31',
+  },
+  // Converted from lead
+  convertedFromLead: {
+    id: 'opp_006',
+    name: 'Financial Services Platform',
+    accountId: 'acc_003',
+    accountName: 'Financial Services Group',
+    value: 180000,
+    probability: 50,
+    stage: 'Proposal',
+    expectedCloseDate: '2026-05-01',
+    convertedFromLeadId: 'lead_007',
+  },
+};
+
+/**
+ * Helper: Get opportunity by ID
+ */
+const getOpportunityById = (opportunityId) => {
+  return Object.values(TEST_OPPORTUNITIES).find((opp) => opp.id === opportunityId);
+};
+
+/**
+ * Helper: Get opportunities by stage
+ */
+const getOpportunitiesByStage = (stage) => {
+  return Object.values(TEST_OPPORTUNITIES).filter((opp) => opp.stage === stage);
+};
+
+/**
+ * Helper: Get opportunities for an account
+ */
+const getOpportunitiesForAccount = (accountId) => {
+  return Object.values(TEST_OPPORTUNITIES).filter((opp) => opp.accountId === accountId);
+};
+
+/**
+ * Helper: Calculate weighted value for an opportunity
+ */
+const calculateWeightedValue = (opportunity) => {
+  return Math.floor((opportunity.value * opportunity.probability) / 100);
+};
+
+/**
+ * Wait for opportunities kanban to load
+ */
+const waitForOpportunitiesKanban = async (page) => {
+  // Wait for kanban board stages to appear
+  await page.waitForSelector('text=Qualification', { timeout: 5000 });
+  await page.waitForSelector('text=Proposal', { timeout: 5000 });
+};
+
+/**
+ * Wait for opportunities table to load
+ */
+const waitForOpportunitiesTable = async (page) => {
+  await page.waitForSelector('[role="grid"]', { timeout: 5000 });
+  // Wait for at least one row to appear
+  await page.waitForSelector('[role="row"][data-id]', { timeout: 5000 });
+};
+
+/**
+ * Wait for opportunity detail page to load
+ */
+const waitForOpportunityDetail = async (page) => {
+  // Wait for opportunity name heading
+  await page.waitForSelector('h4, h5, h6', { timeout: 5000 });
+  // Wait for forecasting widget or tabs
+  await page.waitForTimeout(500);
+};
+
+/**
  * Multi-Tenancy Test Data (for future Phase 1.2 integration)
  *
  * TODO: Enable when Phase 1.2 completes
@@ -296,6 +431,9 @@ const MULTI_TENANT_TEST_DATA = {
     leads: [
       // Leads belonging to Org A
     ],
+    opportunities: [
+      // Opportunities belonging to Org A
+    ],
   },
   organizationB: {
     id: 'org_beta',
@@ -309,6 +447,9 @@ const MULTI_TENANT_TEST_DATA = {
     leads: [
       // Leads belonging to Org B
     ],
+    opportunities: [
+      // Opportunities belonging to Org B
+    ],
   },
 };
 
@@ -316,17 +457,25 @@ module.exports = {
   TEST_ACCOUNTS,
   TEST_CONTACTS,
   TEST_LEADS,
+  TEST_OPPORTUNITIES,
   ROUTES,
   getAccountById,
   getContactById,
   getContactsForAccount,
   getIndependentContacts,
   getContactsWithAccounts,
+  getOpportunityById,
+  getOpportunitiesByStage,
+  getOpportunitiesForAccount,
+  calculateWeightedValue,
   waitForAccountsTable,
   waitForContactsTable,
   waitForAccountDetail,
   waitForContactDetail,
   waitForLeadsTable,
   waitForLeadDetail,
+  waitForOpportunitiesKanban,
+  waitForOpportunitiesTable,
+  waitForOpportunityDetail,
   MULTI_TENANT_TEST_DATA,
 };

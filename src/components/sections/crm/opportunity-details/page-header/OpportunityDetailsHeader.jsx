@@ -9,9 +9,9 @@ import IconifyIcon from 'components/base/IconifyIcon';
 import PageBreadcrumb from 'components/sections/common/PageBreadcrumb';
 import CRMDropdownMenu from 'components/sections/crm/common/CRMDropdownMenu';
 import AccessToggle from './AccessToggle';
-import DealStatus from './DealStatus';
+import OpportunityStatus from './OpportunityStatus';
 
-const DealDetailsHeader = ({ title }) => {
+const OpportunityDetailsHeader = ({ title }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const { down } = useBreakpoints();
 
@@ -23,7 +23,7 @@ const DealDetailsHeader = ({ title }) => {
         <PageBreadcrumb
           items={[
             { label: 'Home', url: paths.crm },
-            { label: 'Deal Details', active: true },
+            { label: 'Opportunity Details', active: true },
           ]}
           sx={{ mb: 1 }}
         />
@@ -37,7 +37,7 @@ const DealDetailsHeader = ({ title }) => {
           <Stack gap={2} sx={{ justifyContent: 'space-between', flexGrow: 1 }}>
             <Stack gap={{ xs: 1, sm: 2 }}>
               <AccessToggle />
-              <DealStatus />
+              <OpportunityStatus />
             </Stack>
             <Button shape="square" color="neutral" onClick={(e) => setAnchorEl(e.currentTarget)}>
               <IconifyIcon icon="material-symbols:more-vert" sx={{ fontSize: 20 }} />
@@ -54,4 +54,4 @@ const DealDetailsHeader = ({ title }) => {
   );
 };
 
-export default DealDetailsHeader;
+export default OpportunityDetailsHeader;

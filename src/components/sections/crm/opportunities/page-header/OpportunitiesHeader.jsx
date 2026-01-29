@@ -3,8 +3,8 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { useDealsContext } from 'providers/DealsProvider';
-import { SET_CREATE_DEAL_DIALOG } from 'reducers/DealsReducer';
+import { useOpportunitiesContext } from 'providers/OpportunitiesProvider';
+import { SET_CREATE_OPPORTUNITY_DIALOG } from 'reducers/OpportunitiesReducer';
 import paths from 'routes/paths';
 import IconifyIcon from 'components/base/IconifyIcon';
 import PageBreadcrumb from 'components/sections/common/PageBreadcrumb';
@@ -20,14 +20,14 @@ const breadcrumbItems = [
     url: paths.crm,
   },
   {
-    label: 'Deals',
+    label: 'Opportunities',
     url: '#!',
     active: true,
   },
 ];
 
 const DealsHeader = () => {
-  const { dealsDispatch } = useDealsContext();
+  const { opportunitiesDispatch } = useOpportunitiesContext();
   const handleSearch = (e) => {
     console.log(e.target.value);
   };
@@ -36,7 +36,7 @@ const DealsHeader = () => {
     <Box sx={{ px: { xs: 3, md: 5 }, py: 2 }}>
       <PageBreadcrumb items={breadcrumbItems} sx={{ mb: 2 }} />
       <Stack spacing={1} sx={{ alignItems: 'center', flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
-        <Typography variant="h4">Deals</Typography>
+        <Typography variant="h4">Opportunities</Typography>
         <StyledTextField
           id="search-box"
           type="search"
@@ -75,10 +75,10 @@ const DealsHeader = () => {
               sx={{ fontSize: '18px !important' }}
             />
           }
-          onClick={() => dealsDispatch({ type: SET_CREATE_DEAL_DIALOG, payload: { isOpen: true } })}
+          onClick={() => opportunitiesDispatch({ type: SET_CREATE_OPPORTUNITY_DIALOG, payload: { isOpen: true } })}
           sx={{ flexShrink: 0 }}
         >
-          New Deal
+          New Opportunity
         </Button>
       </Stack>
     </Box>

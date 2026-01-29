@@ -1,10 +1,10 @@
 import Box from '@mui/material/Box';
-import ListContainer from 'components/sections/crm/deals/list-container/ListContainer';
+import ListContainer from 'components/sections/crm/opportunities/list-container/ListContainer';
 
-const ListContainerOverlay = ({ dealList }) => {
+const ListContainerOverlay = ({ opportunityList }) => {
   return (
     <Box sx={{ cursor: 'grabbing', height: 1, boxShadow: (theme) => theme.vars.shadows[5] }}>
-      <ListContainer dealList={dealList} />
+      <ListContainer opportunityList={opportunityList} />
     </Box>
   );
 };

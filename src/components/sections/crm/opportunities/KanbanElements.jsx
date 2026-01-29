@@ -1,27 +1,27 @@
 import { createPortal } from 'react-dom';
 import { DragOverlay } from '@dnd-kit/core';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
-import { useDealsContext } from 'providers/DealsProvider';
+import { useOpportunitiesContext } from 'providers/OpportunitiesProvider';
 import AddNewList from './list-container/AddNewList';
 import SortableListItem from './list-container/SortableListItem';
-import DealCardOverlay from './overlays/DealCardOverlay';
+import OpportunityCardOverlay from './overlays/OpportunityCardOverlay';
 import ListContainerOverlay from './overlays/ListContainerOverlay';
 
 const KanbanElements = () => {
-  const { listItems, draggedList, draggedDeal } = useDealsContext();
+  const { listItems, draggedList, draggedOpportunity } = useOpportunitiesContext();
 
   return (
     <>
       <SortableContext items={listItems} strategy={horizontalListSortingStrategy}>
         {listItems.map((item) => (
-          <SortableListItem key={item.id} dealList={item} />
+          <SortableListItem key={item.id} opportunityList={item} />
         ))}
         <AddNewList />
       </SortableContext>
       {createPortal(
         <DragOverlay>
-          {draggedList && <ListContainerOverlay dealList={draggedList} />}
-          {draggedDeal && <DealCardOverlay deal={draggedDeal} />}
+          {draggedList && <ListContainerOverlay opportunityList={draggedList} />}
+          {draggedOpportunity && <OpportunityCardOverlay opportunity={draggedOpportunity} />}
         </DragOverlay>,
         document.body,
       )}

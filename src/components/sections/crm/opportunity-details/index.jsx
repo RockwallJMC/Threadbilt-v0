@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Paper } from '@mui/material';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
 import Grid from '@mui/material/Grid';
@@ -13,24 +14,26 @@ import {
   analyticsData,
   assignedToData,
   associatedContactData,
-  dealInformation,
+  opportunityInformation,
   salesPipelineData,
-} from 'data/crm/deal-details';
+} from 'data/crm/opportunities';
 import { useNavContext } from 'layouts/main-layout/NavProvider';
 import IconifyIcon from 'components/base/IconifyIcon';
 import SimpleBar from 'components/base/SimpleBar';
-import AssignedTo from 'components/sections/crm/deal-details/AssignedTo';
-import FloatingBar from 'components/sections/crm/deal-details/FloatingBar';
-import SalesPipeline from 'components/sections/crm/deal-details/SalesPipeline';
-import Account from 'components/sections/crm/deal-details/account';
-import ActivityMonitoring from 'components/sections/crm/deal-details/activity-monitoring';
-import ActivitySummary from 'components/sections/crm/deal-details/activity-summary';
-import Analytics from 'components/sections/crm/deal-details/analytics';
-import AssociatedContact from 'components/sections/crm/deal-details/associated-contact';
-import DealInformation from 'components/sections/crm/deal-details/deal-information';
-import DealDetailsHeader from 'components/sections/crm/deal-details/page-header/DealDetailsHeader';
+import AssignedTo from 'components/sections/crm/opportunity-details/AssignedTo';
+import FloatingBar from 'components/sections/crm/opportunity-details/FloatingBar';
+import SalesPipeline from 'components/sections/crm/opportunity-details/SalesPipeline';
+import Account from 'components/sections/crm/opportunity-details/account';
+import ActivityMonitoring from 'components/sections/crm/opportunity-details/activity-monitoring';
+import ActivitySummary from 'components/sections/crm/opportunity-details/activity-summary';
+import Analytics from 'components/sections/crm/opportunity-details/analytics';
+import AssociatedContact from 'components/sections/crm/opportunity-details/associated-contact';
+import OpportunityInformation from 'components/sections/crm/opportunity-details/opportunity-information';
+import OpportunityDetailsHeader from 'components/sections/crm/opportunity-details/page-header/OpportunityDetailsHeader';
+import ForecastingWidget from 'components/sections/crm/opportunity-details/ForecastingWidget';
+import ConvertedFromLead from 'components/sections/crm/opportunity-details/ConvertedFromLead';
 
-const DealDetails = () => {
+const OpportunityDetails = ({ id }) => {
   const { topbarHeight } = useNavContext();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -38,9 +41,29 @@ const DealDetails = () => {
 
   const handleDrawerClose = () => setDrawerOpen(false);
 
+  // Mock data for now - will be replaced with actual data from API
+  const opportunityData = {
+    value: 150000,
+    probability: 75,
+    expectedCloseDate: '2026-03-15',
+    convertedFromLeadId: id === '456e7890-f12b-34c5-d678-901234567890' ? '987fcdeb-51a2-43d1-b123-456789abcdef' : null,
+    leadName: 'Sarah Mitchell',
+  };
+
   const drawerContent = (
-    <Stack direction="column" sx={{ height: 1 }}>
-      <DealInformation dealInformation={dealInformation} />
+    <Stack direction="column" sx={{ height: 1, gap: 2 }}>
+      {opportunityData.convertedFromLeadId && (
+        <ConvertedFromLead
+          convertedFromLeadId={opportunityData.convertedFromLeadId}
+          leadName={opportunityData.leadName}
+        />
+      )}
+      <ForecastingWidget
+        value={opportunityData.value}
+        probability={opportunityData.probability}
+        expectedCloseDate={opportunityData.expectedCloseDate}
+      />
+      <OpportunityInformation opportunityInformation={opportunityInformation} />
       <ActivitySummary activitySummary={activitySummary} />
       <Analytics analyticsData={analyticsData} />
     </Stack>
@@ -48,7 +71,7 @@ const DealDetails = () => {
 
   return (
     <Stack direction="column">
-      <DealDetailsHeader title="Replica Badidas Futbol" />
+      <OpportunityDetailsHeader title="Replica Badidas Futbol" />
 
       <Grid container>
         <Drawer
@@ -135,4 +158,8 @@ const DealDetails = () => {
   );
 };
 
-export default DealDetails;
+OpportunityDetails.propTypes = {
+  id: PropTypes.string.isRequired,
+};
+
+export default OpportunityDetails;

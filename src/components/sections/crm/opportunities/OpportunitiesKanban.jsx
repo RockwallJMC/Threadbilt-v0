@@ -7,11 +7,11 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { useBreakpoints } from 'providers/BreakpointsProvider';
-import { useDealsContext } from 'providers/DealsProvider';
+import { useOpportunitiesContext } from 'providers/OpportunitiesProvider';
 import KanbanElements from './KanbanElements';
 
-const DealsKanban = () => {
-  const { handleDragStart, handleDragOver, handleDragEnd } = useDealsContext();
+const OpportunitiesKanban = () => {
+  const { handleDragStart, handleDragOver, handleDragEnd } = useOpportunitiesContext();
   const { up } = useBreakpoints();
   const upMd = up('md');
 
@@ -45,4 +45,4 @@ const DealsKanban = () => {
   );
 };
 
-export default DealsKanban;
+export default OpportunitiesKanban;

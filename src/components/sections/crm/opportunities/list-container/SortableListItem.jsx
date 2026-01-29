@@ -2,13 +2,13 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import ListContainer from './ListContainer';
 
-const SortableListItem = ({ dealList }) => {
-  const { id, deals } = dealList;
+const SortableListItem = ({ opportunityList }) => {
+  const { id, opportunities } = opportunityList;
   const { setNodeRef, attributes, listeners, transition, transform, isDragging } = useSortable({
     id: id,
     data: {
       type: 'list',
-      list: dealList,
+      list: opportunityList,
     },
   });
 
@@ -20,9 +20,9 @@ const SortableListItem = ({ dealList }) => {
   };
 
   return (
-    <SortableContext id={id} items={deals} strategy={verticalListSortingStrategy}>
+    <SortableContext id={id} items={opportunities} strategy={verticalListSortingStrategy}>
       <div ref={setNodeRef} {...attributes} style={style}>
-        <ListContainer dealList={dealList} listeners={listeners} />
+        <ListContainer opportunityList={opportunityList} listeners={listeners} />
       </div>
     </SortableContext>
   );

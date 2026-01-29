@@ -1,13 +1,13 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import DealCard from './DealCard';
+import OpportunityCard from './OpportunityCard';
 
-const SortableDealItem = ({ deal }) => {
+const SortableOpportunityItem = ({ opportunity }) => {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
-    id: deal.id,
+    id: opportunity.id,
     data: {
-      type: 'deal',
-      deal: deal,
+      type: 'opportunity',
+      opportunity: opportunity,
     },
   });
 
@@ -20,9 +20,9 @@ const SortableDealItem = ({ deal }) => {
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <DealCard deal={deal} />
+      <OpportunityCard opportunity={opportunity} />
     </div>
   );
 };
 
-export default SortableDealItem;
+export default SortableOpportunityItem;

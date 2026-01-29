@@ -1,4 +1,4 @@
-import DealDetails from 'components/sections/crm/deal-details';
+import DealDetails from 'components/sections/crm/opportunity-details';
 
 const Page = () => {
   return <DealDetails />;

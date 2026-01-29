@@ -21,8 +21,8 @@ import {
 } from '@mui/material';
 import dayjs from 'dayjs';
 import useNumberFormat from 'hooks/useNumberFormat';
-import { useDealsContext } from 'providers/DealsProvider';
-import { TOGGLE_DEAL_EXPAND } from 'reducers/DealsReducer';
+import { useOpportunitiesContext } from 'providers/OpportunitiesProvider';
+import { TOGGLE_OPPORTUNITY_EXPAND } from 'reducers/OpportunitiesReducer';
 import paths from 'routes/paths';
 import IconifyIcon from 'components/base/IconifyIcon';
 import Image from 'components/base/Image';
@@ -50,18 +50,18 @@ const contactLinks = [
   },
 ];
 
-const DealCard = memo(({ deal }) => {
-  const { dealsDispatch } = useDealsContext();
+const DealCard = memo(({ opportunity }) => {
+  const { opportunitiesDispatch } = useOpportunitiesContext();
   const { currencyFormat } = useNumberFormat();
 
   const handleExpandClick = () => {
-    dealsDispatch({ type: TOGGLE_DEAL_EXPAND, payload: { id: deal.id } });
+    opportunitiesDispatch({ type: TOGGLE_OPPORTUNITY_EXPAND, payload: { id: opportunity.id } });
   };
 
   return (
     <Card sx={{ borderRadius: 4, bgcolor: 'background.elevation1', outline: 'none' }}>
       <CardHeader
-        avatar={<Image src={deal.company.logo} width={48} height={48} sx={{ borderRadius: 2 }} />}
+        avatar={<Image src={opportunity.company.logo} width={48} height={48} sx={{ borderRadius: 2 }} />}
         title={
           <Typography
             variant="subtitle2"
@@ -78,12 +78,12 @@ const DealCard = memo(({ deal }) => {
               fontWeight: 600,
             }}
           >
-            {deal.name}
+            {opportunity.name}
           </Typography>
         }
         subheader={
-          <Typography variant="body2" component={Link} href={deal.company.link}>
-            {deal.company.name}
+          <Typography variant="body2" component={Link} href={opportunity.company.link}>
+            {opportunity.company.name}
           </Typography>
         }
         action={
@@ -92,7 +92,7 @@ const DealCard = memo(({ deal }) => {
               icon="material-symbols:stat-minus-1-rounded"
               sx={(theme) => ({
                 color: 'text.primary',
-                transform: deal.expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                transform: opportunity.expanded ? 'rotate(180deg)' : 'rotate(0deg)',
                 transition: theme.transitions.create('transform', {
                   duration: theme.transitions.duration.shortest,
                 }),
@@ -102,12 +102,12 @@ const DealCard = memo(({ deal }) => {
         }
         sx={{ p: 3 }}
       />
-      {!deal.expanded && (
+      {!opportunity.expanded && (
         <CardContent sx={{ p: 3, pt: 0 }}>
           <Typography variant="body2" sx={{ mb: 2 }}>
             Budget:{' '}
             <Typography variant="body2" component="strong" sx={{ fontWeight: 600 }}>
-              {currencyFormat(deal.amount, { minimumFractionDigits: 0 })}
+              {currencyFormat(opportunity.amount, { minimumFractionDigits: 0 })}
             </Typography>
           </Typography>
 
@@ -126,7 +126,7 @@ const DealCard = memo(({ deal }) => {
                 },
               }}
             >
-              {deal.collaborators?.map((user) => (
+              {opportunity.collaborators?.map((user) => (
                 <Tooltip key={user.id} title={user.name}>
                   <Avatar alt={user.name} src={user.avatar} />
                 </Tooltip>
@@ -135,26 +135,26 @@ const DealCard = memo(({ deal }) => {
 
             <Chip
               icon={<IconifyIcon icon="material-symbols:timer-outline-rounded" />}
-              label={dayjs(deal.closeDate).format('DD.MM.YY')}
+              label={dayjs(opportunity.closeDate).format('DD.MM.YY')}
               color="info"
             />
           </Stack>
 
           <LinearProgress
             variant="determinate"
-            color={deal.progress === 100 ? 'success' : 'primary'}
-            value={deal.progress}
+            color={opportunity.progress === 100 ? 'success' : 'primary'}
+            value={opportunity.progress}
           />
         </CardContent>
       )}
-      <Collapse in={deal.expanded} timeout="auto" unmountOnExit>
+      <Collapse in={opportunity.expanded} timeout="auto" unmountOnExit>
         <CardContent sx={{ p: 3, pt: 0 }}>
           <Box sx={{ mb: 2 }}>
             <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
               Budget:
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              {currencyFormat(deal.amount, { minimumFractionDigits: 0 })}
+              {currencyFormat(opportunity.amount, { minimumFractionDigits: 0 })}
             </Typography>
           </Box>
 
@@ -163,7 +163,7 @@ const DealCard = memo(({ deal }) => {
               Last update:
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              {dayjs(deal.lastUpdate).format('DD MMM, YYYY')}
+              {dayjs(opportunity.lastUpdate).format('DD MMM, YYYY')}
             </Typography>
           </Box>
 
@@ -172,7 +172,7 @@ const DealCard = memo(({ deal }) => {
               Stage:
             </Typography>
             <Stack>
-              <Chip label={deal.stage} color="warning" />
+              <Chip label={opportunity.stage} color="warning" />
             </Stack>
           </Box>
 
@@ -186,7 +186,7 @@ const DealCard = memo(({ deal }) => {
                 variant="body2"
                 sx={{ alignItems: 'center', fontWeight: 600, mr: 1.5 }}
               >
-                {deal.client.name}
+                {opportunity.client.name}
               </Typography>
 
               {contactLinks.map((item) => (
@@ -209,7 +209,7 @@ const DealCard = memo(({ deal }) => {
               Agents:
             </Typography>
 
-            {deal.collaborators?.map((user) => (
+            {opportunity.collaborators?.map((user) => (
               <Chip
                 key={user.id}
                 avatar={
@@ -241,14 +241,14 @@ const DealCard = memo(({ deal }) => {
               Closing:
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              {dayjs(deal.closeDate).format('DD MMM, YYYY')}
+              {dayjs(opportunity.closeDate).format('DD MMM, YYYY')}
             </Typography>
           </Box>
 
           <LinearProgress
             variant="determinate"
-            color={deal.progress === 100 ? 'success' : 'primary'}
-            value={deal.progress}
+            color={opportunity.progress === 100 ? 'success' : 'primary'}
+            value={opportunity.progress}
           />
         </CardContent>
       </Collapse>

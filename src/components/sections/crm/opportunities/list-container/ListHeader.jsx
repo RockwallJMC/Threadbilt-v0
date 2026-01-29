@@ -6,15 +6,15 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import useNumberFormat from 'hooks/useNumberFormat';
-import { useDealsContext } from 'providers/DealsProvider';
-import { TOGGLE_COMPACT_MODE, UPDATE_LIST_TITLE } from 'reducers/DealsReducer';
+import { useOpportunitiesContext } from 'providers/OpportunitiesProvider';
+import { TOGGLE_COMPACT_MODE, UPDATE_LIST_TITLE } from 'reducers/OpportunitiesReducer';
 import IconifyIcon from 'components/base/IconifyIcon';
 import StyledTextField from 'components/styled/StyledTextField';
 import ListMenu from './ListMenu';
 
-const ListHeader = ({ listId, title, totalBudget, compactMode, dealCount }) => {
+const ListHeader = ({ listId, title, totalBudget, compactMode, opportunityCount }) => {
   const [listTitle, setListTitle] = useState({ isEditing: false, value: title });
-  const { listItems, dealsDispatch } = useDealsContext();
+  const { listItems, opportunitiesDispatch } = useOpportunitiesContext();
   const { currencyFormat } = useNumberFormat();
 
   const handleBlur = () => {
@@ -25,7 +25,7 @@ const ListHeader = ({ listId, title, totalBudget, compactMode, dealCount }) => {
     if (listTitle.value === '' || isTitleExist) {
       setListTitle({ isEditing: false, value: title });
     } else {
-      dealsDispatch({
+      opportunitiesDispatch({
         type: UPDATE_LIST_TITLE,
         payload: { id: listId, title: listTitle.value },
       });
@@ -49,7 +49,7 @@ const ListHeader = ({ listId, title, totalBudget, compactMode, dealCount }) => {
       {!compactMode && (
         <>
           <Badge
-            badgeContent={`${dealCount}`}
+            badgeContent={`${opportunityCount}`}
             color="primary"
             sx={{
               mr: 3.5,
@@ -105,7 +105,7 @@ const ListHeader = ({ listId, title, totalBudget, compactMode, dealCount }) => {
         color="neutral"
         size="small"
         shape="square"
-        onClick={() => dealsDispatch({ type: TOGGLE_COMPACT_MODE, payload: { id: listId } })}
+        onClick={() => opportunitiesDispatch({ type: TOGGLE_COMPACT_MODE, payload: { id: listId } })}
         onPointerDown={(e) => e.stopPropagation()}
         sx={[compactMode && { mx: 'auto' }]}
       >

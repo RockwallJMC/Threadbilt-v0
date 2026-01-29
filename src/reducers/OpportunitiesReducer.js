@@ -3,12 +3,13 @@ import { arrayMove } from '@dnd-kit/sortable';
 export const DRAG_START = 'DRAG_START';
 export const DRAG_OVER = 'DRAG_OVER';
 export const DRAG_END = 'DRAG_END';
-export const ADD_NEW_DEAL = 'ADD_NEW_DEAL';
+export const ADD_NEW_OPPORTUNITY = 'ADD_NEW_OPPORTUNITY';
 export const ADD_NEW_LIST = 'ADD_NEW_LIST';
-export const SET_CREATE_DEAL_DIALOG = 'SET_CREATE_DEAL_DIALOG';
+export const SET_CREATE_OPPORTUNITY_DIALOG = 'SET_CREATE_OPPORTUNITY_DIALOG';
 export const TOGGLE_COMPACT_MODE = 'TOGGLE_COMPACT_MODE';
-export const TOGGLE_DEAL_EXPAND = 'TOGGLE_DEAL_EXPAND';
+export const TOGGLE_OPPORTUNITY_EXPAND = 'TOGGLE_OPPORTUNITY_EXPAND';
 export const UPDATE_LIST_TITLE = 'UPDATE_LIST_TITLE';
+export const SET_LIST_ITEMS = 'SET_LIST_ITEMS';
 
 const findList = (id, listItems) => {
   if (!id) {
@@ -21,17 +22,17 @@ const findList = (id, listItems) => {
   }
 
   const listId = listItems
-    .flatMap((list) => list.deals.map((deal) => ({ dealId: deal.id, listId: list.id })))
-    .find((item) => item.dealId === id)?.listId;
+    .flatMap((list) => list.opportunities.map((opportunity) => ({ opportunityId: opportunity.id, listId: list.id })))
+    .find((item) => item.opportunityId === id)?.listId;
 
   return listItems.find((list) => list.id === listId) ?? null;
 };
 
-export const dealsReducer = (state, action) => {
+export const opportunitiesReducer = (state, action) => {
   switch (action.type) {
     case DRAG_START: {
-      if (action.payload.type === 'deal')
-        return { ...state, draggedDeal: action.payload.item.deal };
+      if (action.payload.type === 'opportunity')
+        return { ...state, draggedOpportunity: action.payload.item.opportunity };
       if (action.payload.type === 'list')
         return { ...state, draggedList: action.payload.item.list };
 
@@ -47,11 +48,11 @@ export const dealsReducer = (state, action) => {
         return state;
       }
 
-      const activeDeals = activeList.deals;
-      const overDeals = overList.deals;
+      const activeDeals = activeList.opportunities;
+      const overDeals = overList.opportunities;
 
-      const activeIndex = activeDeals.findIndex((deal) => deal.id === activeId);
-      const overIndex = overDeals.findIndex((deal) => deal.id === overId);
+      const activeIndex = activeDeals.findIndex((opportunity) => opportunity.id === activeId);
+      const overIndex = overDeals.findIndex((opportunity) => opportunity.id === overId);
 
       if (activeIndex === -1) {
         return state;
@@ -64,11 +65,11 @@ export const dealsReducer = (state, action) => {
         ...state,
         listItems: state.listItems.map((item) => {
           if (item.id === activeList.id) {
-            return { ...item, deals: activeDeals.filter((item) => item.id !== activeId) };
+            return { ...item, opportunities: activeDeals.filter((item) => item.id !== activeId) };
           } else if (item.id === overList.id) {
             return {
               ...item,
-              deals: [
+              opportunities: [
                 ...overDeals.slice(0, newIndex),
                 { ...activeDeals[activeIndex], stage: item.title },
                 ...overDeals.slice(newIndex),
@@ -86,20 +87,20 @@ export const dealsReducer = (state, action) => {
       const activeList = findList(activeId, state.listItems);
       const overList = findList(overId, state.listItems);
 
-      if (!activeList || !overList) return { ...state, draggedDeal: null, draggedList: null };
+      if (!activeList || !overList) return { ...state, draggedOpportunity: null, draggedList: null };
 
-      if (state.draggedDeal && activeList.id === overList.id) {
-        const activeIndex = activeList.deals.findIndex((deal) => deal.id === activeId);
-        const overIndex = activeList.deals.findIndex((deal) => deal.id === overId);
+      if (state.draggedOpportunity && activeList.id === overList.id) {
+        const activeIndex = activeList.opportunities.findIndex((opportunity) => opportunity.id === activeId);
+        const overIndex = activeList.opportunities.findIndex((opportunity) => opportunity.id === overId);
         if (activeIndex !== overIndex) {
-          const sortedDeals = arrayMove(activeList.deals, activeIndex, overIndex);
+          const sortedDeals = arrayMove(activeList.opportunities, activeIndex, overIndex);
 
           return {
             ...state,
             listItems: state.listItems.map((list) =>
-              list.id === activeList.id ? { ...list, deals: sortedDeals } : list,
+              list.id === activeList.id ? { ...list, opportunities: sortedDeals } : list,
             ),
-            draggedDeal: null,
+            draggedOpportunity: null,
             draggedList: null,
           };
         }
@@ -113,13 +114,13 @@ export const dealsReducer = (state, action) => {
           return {
             ...state,
             listItems: sortedListItems,
-            draggedDeal: null,
+            draggedOpportunity: null,
             draggedList: null,
           };
         }
       }
 
-      return { ...state, draggedDeal: null, draggedList: null };
+      return { ...state, draggedOpportunity: null, draggedList: null };
     }
 
     case ADD_NEW_LIST: {
@@ -131,46 +132,46 @@ export const dealsReducer = (state, action) => {
             id: Date.now().toString(),
             title: action.payload.title,
             compactMode: false,
-            deals: [],
+            opportunities: [],
           },
           ...state.listItems.slice(action.payload.columnNo - 1),
         ],
       };
     }
 
-    case SET_CREATE_DEAL_DIALOG: {
+    case SET_CREATE_OPPORTUNITY_DIALOG: {
       return {
         ...state,
-        createDealDialog: {
-          isOpen: !state.createDealDialog.isOpen,
+        createOpportunityDialog: {
+          isOpen: !state.createOpportunityDialog.isOpen,
           listId: action.payload.listId,
         },
       };
     }
 
-    case ADD_NEW_DEAL: {
+    case ADD_NEW_OPPORTUNITY: {
       return {
         ...state,
         listItems: state.listItems.map((list) =>
           list.title === action.payload.listName
             ? {
                 ...list,
-                deals: [...list.deals, { ...action.payload.deal, id: Date.now().toString() }],
+                opportunities: [...list.opportunities, { ...action.payload.opportunity, id: Date.now().toString() }],
               }
             : list,
         ),
       };
     }
 
-    case TOGGLE_DEAL_EXPAND: {
+    case TOGGLE_OPPORTUNITY_EXPAND: {
       const listId = findList(action.payload.id, state.listItems)?.id;
       if (listId) {
         const newListItems = state.listItems.map((list) =>
           list.id === listId
             ? {
                 ...list,
-                deals: list.deals.map((deal) =>
-                  deal.id === action.payload.id ? { ...deal, expanded: !deal.expanded } : deal,
+                opportunities: list.opportunities.map((opportunity) =>
+                  opportunity.id === action.payload.id ? { ...opportunity, expanded: !opportunity.expanded } : opportunity,
                 ),
               }
             : list,
@@ -197,6 +198,13 @@ export const dealsReducer = (state, action) => {
         listItems: state.listItems.map((item) =>
           item.id === action.payload.id ? { ...item, title: action.payload.title } : item,
         ),
+      };
+    }
+
+    case SET_LIST_ITEMS: {
+      return {
+        ...state,
+        listItems: action.payload,
       };
     }
 
