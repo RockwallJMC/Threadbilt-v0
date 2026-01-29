@@ -15,9 +15,28 @@ import AverageSalesCycleWidget from './widgets/kpis/AverageSalesCycleWidget';
 import ProposalsAcceptanceRateWidget from './widgets/kpis/ProposalsAcceptanceRateWidget';
 import TotalActiveAccountsWidget from './widgets/kpis/TotalActiveAccountsWidget';
 
+// Activity Widgets (Phase 1.7.5)
+import RecentActivitiesWidget from './widgets/activities/RecentActivitiesWidget';
+import UpcomingTasksWidget from './widgets/activities/UpcomingTasksWidget';
+import RecentProposalsWidget from './widgets/activities/RecentProposalsWidget';
+
+// Lead Analytics Widgets (Phase 1.7.4)
+import {
+  LeadsBySourceWidget,
+  TopPerformingAccountsWidget,
+  LeadEngagementTrendWidget,
+} from './widgets/leads';
+
+// Pipeline Visualization Widgets (Phase 1.7.3)
+import PipelineStageBreakdownWidget from './widgets/pipeline/PipelineStageBreakdownWidget';
+import ConversionRateByStageWidget from './widgets/pipeline/ConversionRateByStageWidget';
+import DealVelocityTrendWidget from './widgets/pipeline/DealVelocityTrendWidget';
+import WinLossAnalysisWidget from './widgets/pipeline/WinLossAnalysisWidget';
+
 /**
  * Main CRM Dashboard layout with responsive Grid
  * Phase 1.7.2: KPI Metrics widgets integrated
+ * Phase 1.7.4: Lead Analytics widgets integrated
  */
 const DashboardLayout = () => {
   return (
@@ -59,33 +78,27 @@ const DashboardLayout = () => {
           <TotalActiveAccountsWidget />
         </Grid>
 
-        {/* Row 2: Main Charts - 2 columns */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <DashboardWidgetContainer
-            title="Pipeline by Stage"
-            subtitle="Opportunity value breakdown"
-            minHeight={350}
-          >
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 8 }}>
-              Chart widget placeholder
-              <br />
-              Phase 1.7.3 will add ECharts visualization
-            </Typography>
-          </DashboardWidgetContainer>
+        {/* Row 3: Pipeline Visualization (Phase 1.7.3) */}
+        <Grid size={{ xs: 12 }}>
+          <Typography variant="h6" sx={{ mb: 2, mt: 2 }}>
+            Pipeline Visualization
+          </Typography>
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
-          <DashboardWidgetContainer
-            title="Opportunity Trend"
-            subtitle="30-day pipeline movement"
-            minHeight={350}
-          >
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 8 }}>
-              Chart widget placeholder
-              <br />
-              Phase 1.7.3 will add ECharts visualization
-            </Typography>
-          </DashboardWidgetContainer>
+          <PipelineStageBreakdownWidget />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <ConversionRateByStageWidget />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <DealVelocityTrendWidget />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <WinLossAnalysisWidget />
         </Grid>
 
         {/* Row 3: Lead Sources and Recent Activities */}
@@ -104,17 +117,7 @@ const DashboardLayout = () => {
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
-          <DashboardWidgetContainer
-            title="Recent Activities"
-            subtitle="Last 10 activities"
-            minHeight={300}
-          >
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 6 }}>
-              Timeline widget placeholder
-              <br />
-              Phase 1.7.5 will add activity timeline
-            </Typography>
-          </DashboardWidgetContainer>
+          <RecentActivitiesWidget />
         </Grid>
 
         {/* Row 4: Proposals and Top Opportunities */}
@@ -144,6 +147,40 @@ const DashboardLayout = () => {
               Phase 1.7.4 will add data table
             </Typography>
           </DashboardWidgetContainer>
+        </Grid>
+
+        {/* Row 5: Lead Analytics (Phase 1.7.4) */}
+        <Grid size={{ xs: 12 }}>
+          <Typography variant="h6" sx={{ mb: 2, mt: 2 }}>
+            Lead Analytics
+          </Typography>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <LeadsBySourceWidget />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <TopPerformingAccountsWidget />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <LeadEngagementTrendWidget />
+        </Grid>
+
+        {/* Row 6: Activity & Task Management (Phase 1.7.5) */}
+        <Grid size={{ xs: 12 }}>
+          <Typography variant="h6" sx={{ mb: 2, mt: 2 }}>
+            Activity & Task Management
+          </Typography>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <UpcomingTasksWidget />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <RecentProposalsWidget />
         </Grid>
       </Grid>
     </Box>

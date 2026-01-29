@@ -1,2 +1,2 @@
 // Jest setup for Route Handler tests and React component tests
-import '@testing-library/jest-dom';
+// require('@testing-library/jest-dom'); // Temporarily disabled until testing libraries are properly installed

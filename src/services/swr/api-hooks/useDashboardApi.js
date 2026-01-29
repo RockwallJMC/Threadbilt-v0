@@ -8,6 +8,8 @@ import {
   proposalStatusBreakdown,
   topOpportunities,
   conversionFunnel,
+  dashboardLeadMetrics,
+  dashboardTopAccounts,
 } from 'data/crm/dashboard-metrics';
 
 // Mock delay to simulate API call
@@ -258,5 +260,46 @@ export const useConversionFunnel = (dateRange) => {
 
     await mockDelay();
     return conversionFunnel;
+  });
+};
+
+/**
+ * Fetch lead analytics metrics (Phase 1.7.4)
+ * @param {Object} dateRange - { start: Date, end: Date, preset: string }
+ * @returns {Object} SWR response with lead metrics data
+ */
+export const useLeadMetrics = (dateRange) => {
+  return useSWR(dateRange ? ['dashboard/lead-metrics', dateRange] : null, async () => {
+    // TODO: [SUPABASE] Replace with Supabase aggregate queries for lead analytics
+    await mockDelay();
+    return dashboardLeadMetrics;
+  });
+};
+
+/**
+ * Fetch top performing accounts by opportunity value (Phase 1.7.4)
+ * @param {number} limit - Number of accounts to return (default: 5)
+ * @returns {Object} SWR response with top accounts data
+ */
+export const useTopAccounts = (limit = 5) => {
+  return useSWR(['dashboard/top-accounts', limit], async () => {
+    // TODO: [SUPABASE] Replace with Supabase aggregate query:
+    // SELECT
+    //   a.id,
+    //   a.name,
+    //   COUNT(DISTINCT o.id) as opportunity_count,
+    //   SUM(o.value) as total_value,
+    //   MAX(act.created_at) as latest_activity
+    // FROM accounts a
+    // JOIN opportunities o ON a.id = o.account_id
+    // LEFT JOIN activities act ON a.id = act.account_id
+    // WHERE o.status = 'active'
+    //   AND a.tenant_id = $1
+    // GROUP BY a.id, a.name
+    // ORDER BY total_value DESC
+    // LIMIT $2;
+
+    await mockDelay();
+    return dashboardTopAccounts.slice(0, limit);
   });
 };
