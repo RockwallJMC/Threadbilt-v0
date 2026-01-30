@@ -1,13 +1,9 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase/client'
 
-const AuthContext = createContext({
-  session: null,
-  user: null,
-  loading: true,
-})
+const AuthContext = createContext(undefined)
 
 export const SupabaseAuthProvider = ({ children, initialSession }) => {
   const [session, setSession] = useState(initialSession)
@@ -15,6 +11,17 @@ export const SupabaseAuthProvider = ({ children, initialSession }) => {
   const [loading, setLoading] = useState(!initialSession)
 
   useEffect(() => {
+    // Validate initial session if provided
+    if (initialSession) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (!session) {
+          setSession(null)
+          setUser(null)
+          setLoading(false)
+        }
+      })
+    }
+
     // Set up auth state listener
     const {
       data: { subscription },
@@ -27,13 +34,16 @@ export const SupabaseAuthProvider = ({ children, initialSession }) => {
     return () => {
       subscription.unsubscribe()
     }
-  }, [])
+  }, [initialSession])
 
-  const value = {
-    session,
-    user,
-    loading,
-  }
+  const value = useMemo(
+    () => ({
+      session,
+      user,
+      loading,
+    }),
+    [session, user, loading]
+  )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
