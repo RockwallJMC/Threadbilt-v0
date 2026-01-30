@@ -16,6 +16,7 @@ import ProjectTeam from './ProjectTeam';
 
 const ProjectDetail = ({ projectId }) => {
   const [activeTab, setActiveTab] = useState(0);
+import ProjectAIABilling from '../aia-billing/ProjectAIABilling';
   
   // Find project by ID (in real app, this would be an API call)
   const project = projectsData.find(p => p.id === parseInt(projectId)) || projectsData[0];
@@ -34,7 +35,7 @@ const ProjectDetail = ({ projectId }) => {
     { label: 'Team', component: <ProjectTeam project={project} /> },
   ];
 
-  return (
+    { label: 'AIA Billing', component: <ProjectAIABilling project={project} /> },
     <Paper sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <ProjectDetailHeader project={project} />
       

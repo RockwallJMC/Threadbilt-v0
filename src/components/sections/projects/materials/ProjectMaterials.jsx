@@ -8,13 +8,11 @@ import {
   Tab,
   Typography
 } from '@mui/material';
-import BudgetOverview from '../budget/BudgetOverview';
-import BudgetVsActual from '../budget/BudgetVsActual';
-import LaborCostBreakdown from '../budget/LaborCostBreakdown';
-import MaterialCostBreakdown from '../budget/MaterialCostBreakdown';
-import BudgetAlerts from '../budget/BudgetAlerts';
+import MaterialPurchaseEntry from './MaterialPurchaseEntry';
+import MaterialsList from './MaterialsList';
+import MaterialsSummary from './MaterialsSummary';
 
-const ProjectBudget = ({ project }) => {
+const ProjectMaterials = ({ project }) => {
   const [activeTab, setActiveTab] = useState(0);
 
   const handleTabChange = (event, newValue) => {
@@ -22,11 +20,9 @@ const ProjectBudget = ({ project }) => {
   };
 
   const tabs = [
-    { label: 'Overview', component: <BudgetOverview project={project} /> },
-    { label: 'Budget vs Actual', component: <BudgetVsActual project={project} /> },
-    { label: 'Labor Costs', component: <LaborCostBreakdown project={project} /> },
-    { label: 'Material Costs', component: <MaterialCostBreakdown project={project} /> },
-    { label: 'Alerts', component: <BudgetAlerts project={project} /> }
+    { label: 'Add Purchase', component: <MaterialPurchaseEntry project={project} /> },
+    { label: 'Materials List', component: <MaterialsList project={project} /> },
+    { label: 'Summary', component: <MaterialsSummary project={project} /> }
   ];
 
   return (
@@ -38,7 +34,7 @@ const ProjectBudget = ({ project }) => {
           ))}
         </Tabs>
       </Box>
-
+      
       <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
         {tabs[activeTab]?.component}
       </Box>
@@ -46,4 +42,4 @@ const ProjectBudget = ({ project }) => {
   );
 };
 
-export default ProjectBudget;
+export default ProjectMaterials;
