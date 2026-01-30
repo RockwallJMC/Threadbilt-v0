@@ -1,7 +1,7 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import { supabase } from '@/lib/supabase/client';
 import { rootPaths } from 'routes/paths';
 import Auth0Login from 'components/sections/authentications/default/Auth0Login';
 
@@ -11,8 +11,13 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const res = await signIn('auth0', { callbackUrl: callbackUrl || rootPaths.root });
-      console.log({ res });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'azure',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?callbackUrl=${encodeURIComponent(callbackUrl || rootPaths.root)}`,
+        },
+      });
+      if (error) throw error;
     } catch (error) {
       console.error(error);
     }
@@ -20,14 +25,16 @@ const Login = () => {
 
   const handleSignUp = async () => {
     try {
-      const res = await signIn(
-        'auth0',
-        { callbackUrl: callbackUrl || rootPaths.root },
-        {
-          screen_hint: 'signup',
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'azure',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?callbackUrl=${encodeURIComponent(callbackUrl || rootPaths.root)}`,
+          queryParams: {
+            screen_hint: 'signup',
+          },
         },
-      );
-      console.log({ res });
+      });
+      if (error) throw error;
     } catch (error) {
       console.error(error);
     }

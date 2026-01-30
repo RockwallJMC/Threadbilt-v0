@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 import Menu from '@mui/material/Menu';
 import { useThemeMode } from 'hooks/useThemeMode';
-import { demoUser } from 'lib/next-auth/nextAuthOptions';
+import { demoUser } from 'lib/demoUser';
 import { useBreakpoints } from 'providers/BreakpointsProvider';
 import { useSettingsContext } from 'providers/SettingsProvider';
 import paths, { authPaths } from 'routes/paths';

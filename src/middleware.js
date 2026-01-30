@@ -1,9 +1,81 @@
-import { NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse } from 'next/server'
 
-export function middleware(request) {
-  // Middleware placeholder for future auth checks
-  // Currently no routes are protected (matcher is empty)
-  return NextResponse.next();
+export async function middleware(request) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        get(name) {
+          return request.cookies.get(name)?.value
+        },
+        set(name, value, options) {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name, options) {
+          request.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+        },
+      },
+    }
+  )
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  // Protect dashboard routes - redirect to login if not authenticated
+  if (request.nextUrl.pathname.startsWith('/dashboards') && !user) {
+    const loginUrl = new URL('/authentication/default/jwt/login', request.url)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  // Redirect authenticated users away from auth pages
+  if (request.nextUrl.pathname.startsWith('/authentication') && user) {
+    const dashboardUrl = new URL('/dashboards/default', request.url)
+    return NextResponse.redirect(dashboardUrl)
+  }
+
+  return response
 }
 
-export const config = { matcher: [] };
+export const config = {
+  matcher: [
+    '/dashboards/:path*',
+    '/authentication/:path*',
+  ],
+}

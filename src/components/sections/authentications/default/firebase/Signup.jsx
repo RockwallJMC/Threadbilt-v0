@@ -1,6 +1,6 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
+import { supabase } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import SignupForm from 'components/sections/authentications/default/SignupForm';
 
@@ -8,13 +8,22 @@ const SignUp = () => {
   const router = useRouter();
 
   const handleSignup = async (data) => {
-    const res = await signIn('firebase-signup', {
+    const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
-      name: data.name,
-      redirect: false,
-      callbackUrl: '/',
+      options: {
+        data: {
+          full_name: data.name,
+        },
+      },
     });
+
+    const res = {
+      ok: !error,
+      error: error?.message,
+      url: error ? null : '/',
+    };
+
     if (res?.ok && res?.url) {
       router.push(res.url);
     }

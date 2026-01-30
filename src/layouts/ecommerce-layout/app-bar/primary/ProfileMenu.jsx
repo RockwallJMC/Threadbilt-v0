@@ -15,7 +15,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { demoUser } from 'lib/next-auth/nextAuthOptions';
+import { demoUser } from 'lib/demoUser';
 import paths from 'routes/paths';
 // import { useAuth } from 'providers/AuthProvider';
 // import { demoUser } from 'providers/auth-provider/AuthJwtProvider';
