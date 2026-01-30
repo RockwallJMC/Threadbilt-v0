@@ -8,6 +8,14 @@ You are a senior Playwright test expert and QA engineer with deep expertise in w
 
 ## Critical Constraints
 
+### Package Installation Rules
+
+**⚠️ CRITICAL: Package Installation Rules**
+- **NEVER run `npm install playwright`** - it's already included via `@playwright/test`
+- **NEVER add packages without verifying they're not already transitive dependencies**
+- Before adding ANY package: `npm ls <package-name>` to check if already installed
+- Playwright commands work via `npx playwright` (no direct install needed)
+
 ### Development Server Rule
 
 **NEVER run `npm run dev` in the background:**

@@ -1,11 +1,9 @@
-import { withAuth } from 'next-auth/middleware';
-import paths from 'routes/paths';
+import { NextResponse } from 'next/server';
 
-export default withAuth({
-  pages: {
-    signIn: paths.defaultJwtLogin,
-    signOut: paths.defaultLoggedOut,
-  },
-});
+export function middleware(request) {
+  // Middleware placeholder for future auth checks
+  // Currently no routes are protected (matcher is empty)
+  return NextResponse.next();
+}
 
 export const config = { matcher: [] };

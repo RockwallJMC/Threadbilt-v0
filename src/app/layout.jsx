@@ -23,10 +23,18 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const supabase = createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  let session = null;
+
+  try {
+    const supabase = await createClient();
+    const result = await supabase.auth.getSession();
+    session = result.data?.session || null;
+  } catch (error) {
+    // Build time or other errors - no session available
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Session fetch failed:', error.message);
+    }
+  }
 
   return (
     <html

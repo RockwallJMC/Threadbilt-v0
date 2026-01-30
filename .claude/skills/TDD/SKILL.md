@@ -13,6 +13,14 @@ Write the test first. Watch it fail. Write minimal code to pass.
 
 **Violating the letter of the rules is violating the spirit of the rules.**
 
+## Package Installation Rules
+
+**⚠️ CRITICAL: Package Installation Rules**
+- **NEVER run `npm install playwright`** - it's already included via `@playwright/test`
+- **NEVER add packages without verifying they're not already transitive dependencies**
+- Before adding ANY package: `npm ls <package-name>` to check if already installed
+- Playwright commands work via `npx playwright` (no direct install needed)
+
 ## When to Use
 
 **Always:**

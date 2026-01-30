@@ -1,8 +1,9 @@
 'use client';
 
-import { signOut, useSession } from 'next-auth/react';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase/client';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import {
   Box,
   Button,
@@ -39,9 +40,9 @@ const ProfileMenu = ({ type = 'default' }) => {
 
   const { isDark, setThemeMode } = useThemeMode();
 
-  const { data } = useSession();
+  const { session, user: authUser } = useSupabaseAuth();
   // Use demoUser as fallback if no session user
-  const user = useMemo(() => data?.user || demoUser, [data?.user]);
+  const user = useMemo(() => authUser || demoUser, [authUser]);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -190,17 +191,11 @@ const ProfileMenu = ({ type = 'default' }) => {
         </Box>
         <Divider />
         <Box sx={{ py: 1 }}>
-          {data?.user ? (
+          {authUser ? (
             <ProfileMenuItem
               onClick={async () => {
-                const res = await signOut({
-                  redirect: false,
-                  callbackUrl: paths.defaultLoggedOut,
-                });
-
-                if (res.url) {
-                  router.push(res.url);
-                }
+                await supabase.auth.signOut();
+                router.push(paths.defaultLoggedOut);
               }}
               icon="material-symbols:logout-rounded"
             >
