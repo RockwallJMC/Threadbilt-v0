@@ -3,7 +3,7 @@ import { TEST_USERS, TEST_ORGS } from './helpers/crm-test-data.js';
 
 test.describe('Supabase Authentication', () => {
   test('should login with valid credentials', async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/authentication/default/jwt/login');
 
     await page.getByLabel('Email').fill(TEST_USERS.salesManager.email);
     await page.getByLabel('Password').fill(TEST_USERS.salesManager.password);
@@ -14,7 +14,7 @@ test.describe('Supabase Authentication', () => {
   });
 
   test('should reject invalid credentials', async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/authentication/default/jwt/login');
 
     await page.getByLabel('Email').fill('invalid@example.com');
     await page.getByLabel('Password').fill('WrongPassword123!');
@@ -26,7 +26,7 @@ test.describe('Supabase Authentication', () => {
 
   test('should create new organization on first login', async ({ page }) => {
     // Login as new user without organization
-    await page.goto('/auth/login');
+    await page.goto('/authentication/default/jwt/login');
     await page.getByLabel('Email').fill(TEST_USERS.salesRep.email);
     await page.getByLabel('Password').fill(TEST_USERS.salesRep.password);
     await page.getByRole('button', { name: 'Sign In' }).click();
@@ -45,7 +45,7 @@ test.describe('Supabase Authentication', () => {
 
   test('should switch between organizations', async ({ page }) => {
     // Login and select first org
-    await page.goto('/auth/login');
+    await page.goto('/authentication/default/jwt/login');
     await page.getByLabel('Email').fill(TEST_USERS.salesManager.email);
     await page.getByLabel('Password').fill(TEST_USERS.salesManager.password);
     await page.getByRole('button', { name: 'Sign In' }).click();
@@ -62,7 +62,7 @@ test.describe('Supabase Authentication', () => {
   });
 
   test('should logout and clear session', async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/authentication/default/jwt/login');
     await page.getByLabel('Email').fill(TEST_USERS.salesManager.email);
     await page.getByLabel('Password').fill(TEST_USERS.salesManager.password);
     await page.getByRole('button', { name: 'Sign In' }).click();
