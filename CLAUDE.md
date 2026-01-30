@@ -46,6 +46,7 @@ You are the conductor, not the musician. You coordinate skilled specialists to e
 - Before implementation → Skill("TDD")
 - Before architectural decisions → Skill("software-architecture")
 - Before claiming completion → Skill("VERIFY-BEFORE-COMPLETE")
+- Before PR/merge → Skill("code-review:code-review")
 - Multi-step features → Skill("writing-plans")
 - Bug/failure → Skill("systematic-debugging")
 - GitHub work → Skill("github-workflow")
@@ -83,6 +84,9 @@ You are the conductor, not the musician. You coordinate skilled specialists to e
 6. Mark todos complete ONLY after agent finishes
 7. Invoke Skill("VERIFY-BEFORE-COMPLETE") before claiming done
 8. Show verification evidence (test output, build output)
+9. Invoke Skill("code-review:code-review") for final code review
+10. Skill("github-workflow") to create PR with code review summary
+11. Update GitHub issue with implementation summary
 ```
 
 **Example - Feature Request:**
@@ -99,6 +103,9 @@ Orchestrator Actions:
 → Task(playwright-tester, "Create profile tests")
 → Skill("VERIFY-BEFORE-COMPLETE")
 → Show verification evidence
+→ Skill("code-review:code-review") for final review
+→ Skill("github-workflow") to create PR
+→ Update GitHub issue with summary
 ```
 
 ## Documentation Framework (MANDATORY)
@@ -112,10 +119,11 @@ Orchestrator Actions:
 2. Plan → INDEX + phase design docs
 3. Execute Task → Implement with phase execution doc updates
 4. Verify Task → Run lint/build/tests, capture evidence
-5. PR Task → Create PR (after EVERY task completion)
-6. Merge Task → Merge task PR
-7. Repeat → Next task (steps 3-6) until phase complete
-8. Phase Complete → Generate as-built, update user docs
+5. Code Review → Skill("code-review:code-review") for quality assurance
+6. PR Task → Create PR with code review summary
+7. Merge Task → Merge task PR
+8. Repeat → Next task (steps 3-7) until phase complete
+9. Phase Complete → Generate as-built, update user docs, update GitHub issue
 ```
 
 ### Documentation Structure
@@ -237,6 +245,8 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 → Task(wiring-agent, "Wire Supabase auth integration")
 → Task(playwright-tester, "Create auth E2E tests")
 → Skill("VERIFY-BEFORE-COMPLETE")
+→ Skill("code-review:code-review") for final review
+→ Skill("github-workflow") to create PR + update issue
 ```
 
 **Scenario: "Fix bug in checkout"**
@@ -247,6 +257,8 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 → Task(playwright-tester, "Create failing test")
 → Task(react-mui-frontend-engineer, "Fix checkout component")
 → Skill("VERIFY-BEFORE-COMPLETE")
+→ Skill("code-review:code-review") for final review
+→ Skill("github-workflow") to create PR + update issue
 ```
 
 **Scenario: "Optimize database queries"**
@@ -254,6 +266,8 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 → Skill("using-superpowers")
 → Task(supabase-database-architect, "Analyze and optimize queries")
 → Skill("VERIFY-BEFORE-COMPLETE")
+→ Skill("code-review:code-review") for final review
+→ Skill("github-workflow") to create PR + update issue
 ```
 
 **Scenario: "Convert section to live database" (Sequential Operation)**
@@ -280,7 +294,9 @@ For each page type (List → Create → Interaction → Dashboard):
     → Task(playwright-tester, "E2E integration test") → Fix if FAIL
 
   → Verify: npm run build && npm run lint
-  → Skill("github-workflow") to create PR with "/q review"
+  → Skill("code-review:code-review") for final code review
+  → Skill("github-workflow") to create PR with code review summary
+  → Skill("github-workflow") to update issue with implementation summary
   → WAIT for human merge
   → Archive plan.md as phase{X.Y.Z}-{date}-{section}-{type}.md
   → Update section INDEX

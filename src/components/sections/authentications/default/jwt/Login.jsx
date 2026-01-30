@@ -1,17 +1,26 @@
 'use client';
 
-import { signIn as nextAuthSignIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase/client';
 import { defaultJwtAuthCredentials } from 'config';
 import paths from 'routes/paths';
 import LoginForm from 'components/sections/authentications/default/LoginForm';
 
 const Login = () => {
+  const router = useRouter();
+
   const handleLogin = async (data) => {
-    return await nextAuthSignIn('credentials', {
+    const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
-      redirect: false,
     });
+
+    if (error) {
+      return { error: { message: error.message }, ok: false };
+    }
+
+    router.push('/dashboards/default');
+    return { ok: true };
   };
 
   return (

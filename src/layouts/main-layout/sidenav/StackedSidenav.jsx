@@ -1,8 +1,8 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import {
   Backdrop,
   IconButton,
@@ -45,8 +45,7 @@ const StackedSidenav = () => {
   const { currentBreakpoint } = useBreakpoints();
   const { isDark } = useThemeMode();
 
-  const { data } = useSession();
-  const user = data?.user;
+  const { user } = useSupabaseAuth();
 
   const isMenuActive = (item) => {
     const checkLink = (subMenuItem) => {

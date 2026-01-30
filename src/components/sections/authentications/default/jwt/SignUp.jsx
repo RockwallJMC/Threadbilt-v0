@@ -1,25 +1,34 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase/client';
 import SignupForm from 'components/sections/authentications/default/SignupForm';
 
 const SignUp = () => {
   const router = useRouter();
 
   const handleSignup = async (data) => {
-    const res = await signIn('jwt-signup', {
+    const { data: authData, error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
-      name: data.name,
-      redirect: false,
+      options: {
+        data: {
+          name: data.name,
+        },
+      },
     });
 
-    if (res?.ok) {
-      router.push('/');
+    if (error) {
+      return { error: { message: error.message }, ok: false };
     }
 
-    return res;
+    if (authData.user && !authData.session) {
+      // Email confirmation required
+      return { ok: true, message: 'Check your email to confirm your account' };
+    }
+
+    router.push('/dashboards/default');
+    return { ok: true };
   };
 
   return <SignupForm handleSignup={handleSignup} />;
