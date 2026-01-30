@@ -1,10 +1,4 @@
 const { defineConfig, devices } = require('@playwright/test');
-const path = require('path');
-
-// Load test environment variables
-// This loads .env.test for test-specific configuration
-// Temporarily commented out until dotenv dependency is resolved
-// require('dotenv').config({ path: path.resolve(__dirname, '.env.test') });
 
 module.exports = defineConfig({
   testDir: './tests',
@@ -19,24 +13,52 @@ module.exports = defineConfig({
   expect: {
     timeout: 5000,
   },
-  fullyParallel: true,
+  fullyParallel: false, // Sequential for database state
+  forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  reporter: process.env.CI ? 'github' : 'list',
+  workers: 1, // Single worker for database isolation
+  reporter: [
+    ['html'],
+    ['list'],
+    ['json', { outputFile: 'test-results/results.json' }]
+  ],
   use: {
     baseURL: 'http://localhost:4000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    actionTimeout: 10000,
+    navigationTimeout: 30000
   },
+  projects: [
+    // Setup project - runs first
+    {
+      name: 'setup',
+      testMatch: /.*\.setup\.js/,
+    },
+    // Desktop Chrome
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
+    },
+    // Mobile Safari
+    {
+      name: 'mobile-safari',
+      use: { ...devices['iPhone 13'] },
+      dependencies: ['setup'],
+    },
+    // Tablet iPad
+    {
+      name: 'tablet-ipad',
+      use: { ...devices['iPad Pro'] },
+      dependencies: ['setup'],
+    }
+  ],
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:4000',
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 120000,
   },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-  ],
 });
