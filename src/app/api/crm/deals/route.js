@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createApiClient } from 'lib/supabase/api-server';
+import { createApiClient } from '@/lib/supabase/api-server';
 
 // Helper: Format decimal fields as strings with 2 decimal places
 function formatDealDecimals(deal) {
