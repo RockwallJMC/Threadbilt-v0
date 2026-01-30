@@ -36,3 +36,7 @@ The workflow requests:
 ## Safety
 
 Auto-merge is gated by AUTO_MERGE_ENABLED and will skip draft PRs.
+
+## Notes
+
+This workflow requires all configured reviewers to complete before proceeding to merge.
