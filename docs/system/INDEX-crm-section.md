@@ -1,9 +1,9 @@
 ---
 feature: "CRM Section - Database Wiring (Phase 1.1)"
-github_issue: "TBD"
+github_issue: "#49"
 feature_branch: "feature/desk-crm-database-wiring"
 pr_number: "TBD"
-status: "planned"
+status: "in-progress"
 started: "2026-01-30"
 target_completion: "TBD"
 actual_completion: "TBD"
