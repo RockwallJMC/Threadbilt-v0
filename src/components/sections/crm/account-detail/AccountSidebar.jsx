@@ -12,6 +12,35 @@ const industryColors = {
   Education: 'error',
 };
 
+const formatAddress = (address) => {
+  if (!address) {
+    return '';
+  }
+
+  if (typeof address === 'string') {
+    return address;
+  }
+
+  if (Array.isArray(address)) {
+    return address.filter(Boolean).join(', ');
+  }
+
+  if (typeof address === 'object') {
+    return [
+      address.line1,
+      address.line2,
+      address.city,
+      address.state,
+      address.postal_code,
+      address.country,
+    ]
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  return String(address);
+};
+
 const AccountSidebar = ({ account }) => {
   const handleEdit = () => {
     console.log('Edit account:', account.id);
@@ -77,7 +106,7 @@ const AccountSidebar = ({ account }) => {
             <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
               Billing Address
             </Typography>
-            <Typography variant="body2">{account.billing_address}</Typography>
+            <Typography variant="body2">{formatAddress(account.billing_address)}</Typography>
           </Stack>
         )}
 
@@ -87,7 +116,7 @@ const AccountSidebar = ({ account }) => {
             <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
               Shipping Address
             </Typography>
-            <Typography variant="body2">{account.shipping_address}</Typography>
+            <Typography variant="body2">{formatAddress(account.shipping_address)}</Typography>
           </Stack>
         )}
 

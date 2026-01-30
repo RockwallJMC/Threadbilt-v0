@@ -3,6 +3,35 @@
 import { Paper, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
+const formatAddress = (address) => {
+  if (!address) {
+    return '';
+  }
+
+  if (typeof address === 'string') {
+    return address;
+  }
+
+  if (Array.isArray(address)) {
+    return address.filter(Boolean).join(', ');
+  }
+
+  if (typeof address === 'object') {
+    return [
+      address.line1,
+      address.line2,
+      address.city,
+      address.state,
+      address.postal_code,
+      address.country,
+    ]
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  return String(address);
+};
+
 const OverviewTab = ({ account }) => {
   return (
     <Stack spacing={3}>
@@ -101,7 +130,7 @@ const OverviewTab = ({ account }) => {
               <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
                 Billing Address
               </Typography>
-              <Typography variant="body1">{account.billing_address}</Typography>
+              <Typography variant="body1">{formatAddress(account.billing_address)}</Typography>
             </Stack>
           </Grid>
 
@@ -110,7 +139,7 @@ const OverviewTab = ({ account }) => {
               <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
                 Shipping Address
               </Typography>
-              <Typography variant="body1">{account.shipping_address}</Typography>
+              <Typography variant="body1">{formatAddress(account.shipping_address)}</Typography>
             </Stack>
           </Grid>
 

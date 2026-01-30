@@ -9,6 +9,11 @@ const StyledNextImage = styled(NextImage)({});
 const Image = ({ src, alt = '', sx, ...props }) => {
   const { isDark } = useThemeMode();
 
+  // Handle null/undefined src
+  if (!src) {
+    return null;
+  }
+
   let imageSrc;
 
   if (typeof src === 'string' || src?.src) {

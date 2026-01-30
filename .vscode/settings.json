@@ -22,5 +22,7 @@
     "**/.next": true,
     "**/node_modules": false
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "jest.enable": false,
+  "jest.autoRun": "off"
 }

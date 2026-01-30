@@ -88,9 +88,9 @@ export async function updateSession(request) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // If user is authenticated and trying to access auth pages, redirect to dashboard
+  // If user is authenticated and trying to access auth pages, redirect to CRM dashboard
   if (user && pathname.startsWith('/authentication') && !pathname.includes('/callback')) {
-    const dashboardUrl = new URL('/dashboard', request.nextUrl.origin);
+    const dashboardUrl = new URL('/dashboard/crm', request.nextUrl.origin);
     return NextResponse.redirect(dashboardUrl);
   }
 

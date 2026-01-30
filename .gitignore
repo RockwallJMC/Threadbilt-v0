@@ -33,6 +33,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# development logs
+/logs/
+*.log
+
 # local env
 .env.local
 

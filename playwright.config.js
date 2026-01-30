@@ -8,6 +8,13 @@ const path = require('path');
 
 module.exports = defineConfig({
   testDir: './tests',
+  testMatch: /.*\.spec\.js/,
+  testIgnore: [
+    '**/providers/**',
+    '**/utils/**',
+    '**/__tests__/**',
+    '**/components/**',
+  ],
   timeout: 30 * 1000,
   expect: {
     timeout: 5000,

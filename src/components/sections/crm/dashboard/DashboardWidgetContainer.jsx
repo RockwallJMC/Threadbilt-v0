@@ -65,7 +65,7 @@ const DashboardWidgetContainer = ({
 
       {error && !loading && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error?.message || error}
+          {error?.message || String(error) || 'An error occurred'}
         </Alert>
       )}
 

@@ -1,5 +1,5 @@
 import Grid from '@mui/material/Grid';
-import { dealsData, kpisData } from 'data/crm/dashboard';
+import { greetingMetricsData, kpisData } from 'data/crm/dashboard';
 import CRMGreeting from 'components/sections/dashboards/crm/CRMGreeting';
 import AcquisitionCost from 'components/sections/dashboards/crm/acquisition-cost/AcquisitionCost';
 import ActiveUsers from 'components/sections/dashboards/crm/active-users/ActiveUsers';
@@ -14,7 +14,7 @@ const CRM = () => {
   return (
     <Grid container>
       <Grid size={12}>
-        <CRMGreeting data={dealsData} />
+        <CRMGreeting data={greetingMetricsData} />
       </Grid>
 
       <Grid container size={12}>

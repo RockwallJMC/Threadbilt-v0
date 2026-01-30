@@ -2,6 +2,18 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "firefox",
+      "request": "launch",
+      "reAttach": true,
+      "name": "Launch add-on",
+      "addonPath": "${workspaceFolder}"
+    },
+    {
+      "type": "firefox",
+      "request": "attach",
+      "name": "Attach"
+    },
+    {
       "name": "Next.js: debug server-side",
       "type": "node-terminal",
       "request": "launch",

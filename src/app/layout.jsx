@@ -25,11 +25,15 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  // Fetch session from Supabase on the server
+  // Fetch authenticated user from Supabase on the server
+  // Using getUser() instead of getSession() for security - validates with Supabase servers
   const supabase = await createClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Get session if user is authenticated
+  const session = user ? (await supabase.auth.getSession()).data.session : null;
 
   return (
     <html
