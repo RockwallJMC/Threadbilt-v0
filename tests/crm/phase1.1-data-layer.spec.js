@@ -566,10 +566,14 @@ test.describe('CRM Phase 1.1 - Data Layer Tests', () => {
 
       expect(error).toBeNull();
       expect(deals).toBeDefined();
-      expect(deals.length).toBeGreaterThanOrEqual(15);
+      
+      // Filter out test deals created during test execution
+      const seedDeals = deals.filter(d => !d.name.includes('Test'));
+      
+      expect(seedDeals.length).toBeGreaterThanOrEqual(15);
 
-      // Group by stage
-      const stageDistribution = deals.reduce((acc, deal) => {
+      // Group by stage (seed deals only)
+      const stageDistribution = seedDeals.reduce((acc, deal) => {
         acc[deal.stage] = (acc[deal.stage] || 0) + 1;
         return acc;
       }, {});
@@ -973,18 +977,21 @@ test.describe('CRM Phase 1.1 - Data Layer Tests', () => {
     test('should verify deals in "Contact" stage have stage_order 0-3', async () => {
       // RED PHASE: Test will fail if seed data doesn't have correct stage_order
 
-      const { data: contactDeals, error } = await serviceRoleClient
+      const { data: contactDeals, error} = await serviceRoleClient
         .from('deals')
-        .select('id, stage, stage_order')
+        .select('id, name, stage, stage_order')
         .eq('stage', 'Contact')
         .order('stage_order');
 
       expect(error).toBeNull();
       expect(contactDeals).toBeDefined();
-      expect(contactDeals.length).toBe(4);
+      
+      // Filter out test deals
+      const seedContactDeals = contactDeals.filter(d => !d.name.includes('Test'));
+      expect(seedContactDeals.length).toBe(4);
 
       // Verify stage_order is 0, 1, 2, 3
-      contactDeals.forEach((deal, index) => {
+      seedContactDeals.forEach((deal, index) => {
         expect(deal.stage_order).toBe(index);
       });
     });

@@ -1,6 +1,7 @@
 import { Box, useTheme } from '@mui/material';
-import sidebarVibrant from 'assets/images/background/6.webp';
-import topVibrant from 'assets/images/background/7.webp';
+// Temporarily disabled during CRM Phase 1.1 testing - asset files not available
+// import sidebarVibrant from 'assets/images/background/6.webp';
+// import topVibrant from 'assets/images/background/7.webp';
 
 const VibrantBackground = ({ position }) => {
   const theme = useTheme();
@@ -27,12 +28,13 @@ const VibrantBackground = ({ position }) => {
             opacity: 0.8,
           },
         },
-        position === 'top' && {
-          backgroundImage: `url(${topVibrant.src})`,
-        },
-        position === 'side' && {
-          backgroundImage: `url(${sidebarVibrant.src})`,
-        },
+        // Temporarily disabled - asset files not available
+        // position === 'top' && {
+        //   backgroundImage: `url(${topVibrant.src})`,
+        // },
+        // position === 'side' && {
+        //   backgroundImage: `url(${sidebarVibrant.src})`,
+        // },
       ]}
     />
   );
