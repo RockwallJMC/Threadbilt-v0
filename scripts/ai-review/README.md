@@ -6,6 +6,8 @@ This workflow gates on Amazon Q's check, optionally waits for comment-based revi
 
 The AI review chain automates code reviews by coordinating multiple AI reviewers in sequence, ensuring thorough quality checks before merge.
 
+This workflow will automatically approve and merge PRs when all AI reviewers have completed their checks successfully.
+
 ## Required Secrets
 
 Create the following repository secrets:
