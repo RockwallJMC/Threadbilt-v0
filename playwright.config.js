@@ -1,8 +1,24 @@
 const { defineConfig, devices } = require('@playwright/test');
+const fs = require('fs');
+const path = require('path');
+
+// Manually load environment variables from .env.test
+const envPath = path.resolve(__dirname, '.env.test');
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf-8');
+  envContent.split('\n').forEach(line => {
+    const match = line.match(/^([^#=]+)=(.*)$/);
+    if (match) {
+      const key = match[1].trim();
+      const value = match[2].trim().replace(/^["']|["']$/g, '');
+      process.env[key] = value;
+    }
+  });
+}
 
 module.exports = defineConfig({
   testDir: './tests',
-  testMatch: /.*\.spec\.js/,
+  testMatch: /.*\.spec\.(js|ts)/,
   testIgnore: [
     '**/providers/**',
     '**/utils/**',

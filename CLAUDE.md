@@ -21,6 +21,12 @@ npm run build
 npm run lint
 ```
 
+**⚠️ CRITICAL: Package Installation Rules**
+- **NEVER run `npm install playwright`** - it's already included via `@playwright/test`
+- **NEVER add packages without verifying they're not already transitive dependencies**
+- Before adding ANY package: `npm ls <package-name>` to check if already installed
+- Playwright commands work via `npx playwright` (no direct install needed)
+
 ## Role: Orchestrator, Not Implementer
 
 <EXTREMELY_IMPORTANT>
