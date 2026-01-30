@@ -250,7 +250,7 @@ test.describe('CRM Phase 1.1 - Data Layer Tests', () => {
       const tables = ['companies', 'crm_contacts', 'deals', 'deal_collaborators'];
 
       for (const tableName of tables) {
-        const { data, error } = await serviceRoleClient.rpc('check_rls_enabled', {
+        const { error } = await serviceRoleClient.rpc('check_rls_enabled', {
           table_name: tableName
         }).single();
 
@@ -457,7 +457,7 @@ test.describe('CRM Phase 1.1 - Data Layer Tests', () => {
           password: TEST_USERS.multiOrg.password,
         });
 
-        const { data: checkDeal } = await supabase
+        await supabase
           .from('deals')
           .select('stage')
           .eq('id', userBDealId)
@@ -496,7 +496,7 @@ test.describe('CRM Phase 1.1 - Data Layer Tests', () => {
         password: TEST_USERS.singleOrg.password,
       });
 
-      const { error: deleteError } = await supabase
+      await supabase
         .from('crm_contacts')
         .delete()
         .eq('id', userBContactId);

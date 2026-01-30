@@ -10,7 +10,7 @@ const Login = () => {
   const router = useRouter();
 
   const handleLogin = async (data) => {
-    const { data: authData, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });

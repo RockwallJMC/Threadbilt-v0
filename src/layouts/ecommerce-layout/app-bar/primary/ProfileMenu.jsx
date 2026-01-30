@@ -26,7 +26,7 @@ const ProfileMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const router = useRouter();
 
-  const { session, user: authUser } = useSupabaseAuth();
+  const { user: authUser } = useSupabaseAuth();
   // Use demoUser as fallback if no session user
   const user = useMemo(() => authUser || demoUser, [authUser]);
 

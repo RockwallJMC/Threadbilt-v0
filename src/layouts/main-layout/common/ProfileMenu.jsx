@@ -40,7 +40,7 @@ const ProfileMenu = ({ type = 'default' }) => {
 
   const { isDark, setThemeMode } = useThemeMode();
 
-  const { session, user: authUser } = useSupabaseAuth();
+  const { user: authUser } = useSupabaseAuth();
   // Use demoUser as fallback if no session user
   const user = useMemo(() => authUser || demoUser, [authUser]);
   const open = Boolean(anchorEl);
