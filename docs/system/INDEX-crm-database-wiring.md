@@ -1,9 +1,9 @@
 ---
 feature: "CRM Section - Complete Database Wiring"
-github_issue: "TBD"
+github_issue: "#57"
 feature_branch: "feature/desk-crm-database-wiring"
 pr_number: "TBD"
-status: "planned"
+status: "in-progress"
 started: "2026-01-30"
 target_completion: "TBD"
 actual_completion: ""
@@ -36,7 +36,7 @@ Convert the entire CRM section from mock data to live Supabase database integrat
 
 ## GitHub Tracking
 
-- **Issue**: TBD - Issue will be created after INDEX is committed
+- **Issue**: #57 - [View Issue](https://github.com/RockwallJMC/piercedesk6/issues/57)
 - **Feature Branch**: `feature/desk-crm-database-wiring`
 - **Pull Requests**: Task-level PRs created after each task completion (List page → Create page → Interaction pages → Dashboard)
 
