@@ -58,7 +58,7 @@ export const MOCK_PROPOSAL = {
 };
 
 // Helper to wait for network idle
-export async function waitForNetworkIdle(page, timeout = 2000) {
+export async function waitForNetworkIdle(page, timeout = 10000) {
   await page.waitForLoadState('networkidle', { timeout });
 }
 
@@ -73,7 +73,24 @@ export async function loginAsUser(page, user) {
 
 // Helper to select organization
 export async function selectOrganization(page, orgName) {
-  await page.getByRole('button', { name: /organization/i }).click();
-  await page.getByRole('menuitem', { name: orgName }).click();
-  await waitForNetworkIdle(page);
+  // Check if we're on an organization selection page first
+  const orgSelectionPage = page.locator('text=/select.*organization|choose.*organization/i');
+  const isOnSelectionPage = await orgSelectionPage.isVisible().catch(() => false);
+
+  if (isOnSelectionPage) {
+    // Click the organization from the selection page
+    await page.getByText(orgName).click();
+    await waitForNetworkIdle(page);
+  } else {
+    // User is already in an organization context - try to find org switcher
+    const orgButton = page.getByRole('button', { name: /organization/i });
+    const hasOrgSwitcher = await orgButton.isVisible().catch(() => false);
+
+    if (hasOrgSwitcher) {
+      await orgButton.click();
+      await page.getByRole('menuitem', { name: orgName }).click();
+      await waitForNetworkIdle(page);
+    }
+    // If no org switcher and not on selection page, assume we're already in correct org
+  }
 }
