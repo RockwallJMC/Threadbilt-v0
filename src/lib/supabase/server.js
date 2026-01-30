@@ -16,14 +16,29 @@ export const createClient = () => {
           try {
             cookieStore.set({ name, value, ...options })
           } catch (error) {
-            // Handle cookie setting in middleware
+            // Cookie setting fails in Server Components during render
+            // This is expected - cookies can only be set in:
+            // - Server Actions
+            // - Route Handlers
+            // - Middleware
+            if (process.env.NODE_ENV === 'development') {
+              console.warn(
+                `Failed to set cookie "${name}". This is expected in Server Components.`,
+                error.message
+              )
+            }
           }
         },
         remove(name, options) {
           try {
             cookieStore.delete({ name, ...options })
           } catch (error) {
-            // Handle cookie removal in middleware
+            if (process.env.NODE_ENV === 'development') {
+              console.warn(
+                `Failed to delete cookie "${name}". This is expected in Server Components.`,
+                error.message
+              )
+            }
           }
         },
       },
