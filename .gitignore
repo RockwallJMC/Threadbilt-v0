@@ -52,3 +52,6 @@ public/assets
 
 # docs
 /docs/system/execution/testing/playwright/screenshots/
+
+# React Component Preview
+previewConfig.json

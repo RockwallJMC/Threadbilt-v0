@@ -26,7 +26,7 @@ const CRMGreeting = () => {
 
   if (isLoading) {
     return (
-      <Paper background={1} sx={{ px: { xs: 3, md: 5 }, py: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+      <Paper background={1} sx={{ px: { xs: 3, md: 5 }, py: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
         <CircularProgress />
       </Paper>
     );
@@ -34,7 +34,7 @@ const CRMGreeting = () => {
 
   if (hasError || !dealsMetrics) {
     return (
-      <Paper background={1} sx={{ px: { xs: 3, md: 5 }, py: 3 }}>
+      <Paper background={1} sx={{ px: { xs: 3, md: 5 }, py: 2 }}>
         <Alert severity="error">Failed to load deals metrics</Alert>
       </Paper>
     );
@@ -59,29 +59,54 @@ const CRMGreeting = () => {
   ];
 
   return (
-    <Paper background={1} sx={{ px: { xs: 3, md: 5 }, py: 3 }}>
+    <Paper background={1} sx={{ px: { xs: 3, md: 5 }, py: 2 }}>
       <Stack
-        divider={<Divider orientation="vertical" flexItem />}
-        sx={{ columnGap: { lg: 3, xl: 5 }, rowGap: 1, flexDirection: { xs: 'column', lg: 'row' } }}
+        direction="row"
+        sx={{
+          flexDirection: { xs: 'column', lg: 'row' },
+          gap: { xs: 3, lg: 2 },
+        }}
       >
-        <div>
-          <Typography variant="h4" sx={{ mb: 1 }}>
-            Good Evening, Captain!
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary" sx={{ pb: 1 }}>
-            See what's happening in real-time
-          </Typography>
-        </div>
+        {/* Left section: Date Range Picker */}
+        <Stack sx={{ flex: 1, justifyContent: 'flex-start' }}>
+          <DateRangePicker
+            dateFormat="d MMM, yy"
+            isClearable
+            placeholderText="Select Date Range"
+            defaultStartDate={dayjs().subtract(7, 'day').toDate()}
+            defaultEndDate={dayjs().toDate()}
+            customInput={
+              <StyledTextField
+                size="large"
+                fullWidth
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <IconifyIcon
+                          icon="material-symbols:calendar-month-outline-rounded"
+                          sx={{ color: 'text.secondary' }}
+                        />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            }
+            sx={{
+              width: 1,
+              maxWidth: { lg: 352 },
+            }}
+          />
+        </Stack>
 
-        <Stack
-          sx={{
-            flex: 1,
-            gap: 4,
-            alignItems: { sm: 'flex-end' },
-            justifyContent: 'space-between',
-            flexDirection: { xs: 'column', sm: 'row' },
-          }}
-        >
+        {/* Center section: Reserved for future expansion */}
+        <Stack sx={{ flex: 1, justifyContent: 'center' }}>
+          {/* Empty for future use */}
+        </Stack>
+
+        {/* Right section: KPI cards */}
+        <Stack sx={{ flex: 1, justifyContent: 'flex-end' }}>
           <List
             disablePadding
             sx={{
@@ -89,6 +114,7 @@ const CRMGreeting = () => {
               rowGap: 1,
               columnGap: { xs: 2, lg: 6 },
               flexWrap: 'wrap',
+              justifyContent: { xs: 'flex-start', lg: 'flex-end' },
             }}
           >
             {data.map(({ label, icon, count, percentage, trend }) => (
@@ -150,36 +176,6 @@ const CRMGreeting = () => {
               </ListItem>
             ))}
           </List>
-
-          <DateRangePicker
-            dateFormat="d MMM, yy"
-            isClearable
-            placeholderText="Select Date Range"
-            defaultStartDate={dayjs().subtract(7, 'day').toDate()}
-            defaultEndDate={dayjs().toDate()}
-            customInput={
-              <StyledTextField
-                size="large"
-                fullWidth
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <IconifyIcon
-                          icon="material-symbols:calendar-month-outline-rounded"
-                          sx={{ color: 'text.secondary' }}
-                        />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            }
-            sx={{
-              width: 1,
-              maxWidth: { sm: 352 },
-            }}
-          />
         </Stack>
       </Stack>
     </Paper>

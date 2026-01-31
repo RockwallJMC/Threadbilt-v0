@@ -14,6 +14,7 @@ const PageBreadcrumb = ({ items, sx }) => {
           sx={{
             color: active ? 'text.primary' : 'primary.main',
             fontWeight: 'medium',
+            fontSize: '0.85em',
           }}
         >
           {label}

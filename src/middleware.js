@@ -36,6 +36,12 @@ export async function middleware(request) {
     return NextResponse.redirect(loginUrl)
   }
 
+  // Redirect authenticated users from root to CRM app
+  if (request.nextUrl.pathname === '/' && user) {
+    const crmUrl = new URL('/apps/crm', request.url)
+    return NextResponse.redirect(crmUrl)
+  }
+
   // Redirect authenticated users away from auth pages
   if (request.nextUrl.pathname.startsWith('/authentication') && user) {
     const dashboardUrl = new URL('/apps/crm', request.url)
@@ -47,6 +53,7 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
+    '/',
     '/dashboard/:path*',
     '/dashboards/:path*',
     '/authentication/:path*',

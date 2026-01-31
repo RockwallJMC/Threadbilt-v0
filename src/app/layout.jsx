@@ -4,6 +4,7 @@ import 'locales/i18n';
 import BreakpointsProvider from 'providers/BreakpointsProvider';
 import LocalizationProvider from 'providers/LocalizationProvider';
 import NotistackProvider from 'providers/NotistackProvider';
+import PageContextProvider from 'providers/PageContext';
 import SettingsProvider from 'providers/SettingsProvider';
 import ThemeProvider from 'providers/ThemeProvider';
 import { plusJakartaSans, splineSansMono } from 'theme/typography';
@@ -62,7 +63,9 @@ export default async function RootLayout({ children }) {
                 <ThemeProvider>
                   <NotistackProvider>
                     <BreakpointsProvider>
-                      <App>{children}</App>
+                      <PageContextProvider>
+                        <App>{children}</App>
+                      </PageContextProvider>
                     </BreakpointsProvider>
                   </NotistackProvider>
                 </ThemeProvider>

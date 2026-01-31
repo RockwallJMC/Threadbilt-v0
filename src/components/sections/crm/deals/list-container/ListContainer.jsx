@@ -16,7 +16,13 @@ const ListContainer = memo(({ dealList, listeners }) => {
     <Paper
       {...listeners}
       sx={[
-        { height: 1, width: { xs: 375, sm: 464 }, flexShrink: 0 },
+        {
+          height: 1,
+          width: { xs: '85vw', sm: 360, md: 400, lg: 420 },
+          maxWidth: 460,
+          minWidth: { xs: 280, sm: 320 },
+          flexShrink: 0,
+        },
         compactMode && { width: { xs: 72 }, bgcolor: 'background.elevation1' },
       ]}
     >

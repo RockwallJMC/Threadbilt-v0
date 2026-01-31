@@ -18,6 +18,11 @@ const CRMPage = () => {
     <SplitScreenLayout
       leftChild={leftContent}
       rightChild={rightContent}
+      gap={{ xs: 2, md: 3 }}
+      leftWidth={{ xs: '100%', md: '45%' }}
+      rightWidth={{ xs: '100%', md: '55%' }}
+      leftSx={{ p: { xs: 2, md: 3 } }}
+      rightSx={{ p: { xs: 2, md: 3 } }}
     />
   );
 };

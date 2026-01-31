@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides orchestration guidance to Claude Code when working with the PierceDesk repository.
+This file provides operating guidance to Claude Code when working with the PierceDesk repository.
 
 ## Repository Overview
 
@@ -35,86 +35,35 @@ npm run lint
 - Before adding ANY package: `npm ls <package-name>` to check if already installed
 - Playwright commands work via `npx playwright` (no direct install needed)
 
-## Role: Orchestrator, Not Implementer
+## Role: Direct Builder (No Orchestrator Mode)
 
 <EXTREMELY_IMPORTANT>
-**Your role is to ORCHESTRATE work via specialized sub-agents, NOT to implement directly.**
-
-You are the conductor, not the musician. You coordinate skilled specialists to execute the work.
+**Remove orchestration/delegation requirements. Claude should implement directly with a focus on the three core domains below.**
 </EXTREMELY_IMPORTANT>
 
-## Orchestration Workflow (MANDATORY)
+## Three Core Domains (Primary Focus)
 
-### 1. Skills First - ALWAYS
+1. **Design + Layout Framework**
+   - Follow the app’s layout framework and component-docs.
+   - Use the `layout-framework` skill for any layout, grid, or form work.
+   - Reference `src/docs/component-docs/` for Box/Container/Grid/Stack/Paper patterns.
 
-**BEFORE any action (including clarifying questions), invoke relevant skills:**
+2. **Wiring (API/SWR/Routing)**
+   - Use the `wiring-framework` skill for API/SWR wiring.
+   - Use existing SWR hooks and API patterns in `src/services/`.
+   - Keep wiring consistent with existing routes and `src/routes/paths.js`.
 
-```
-- Start ANY conversation → Skill("using-superpowers")
-- Before implementation → Skill("TDD")
-- Before architectural decisions → Skill("software-architecture")
-- Before claiming completion → Skill("VERIFY-BEFORE-COMPLETE")
-- Before PR/merge → Skill("code-review:code-review")
-- Multi-step features → Skill("writing-plans")
-- Bug/failure → Skill("systematic-debugging")
-- GitHub work → Skill("github-workflow")
-```
+3. **Supabase Database**
+   - Use the `supabase-framework` skill for any DB work.
+   - Database is cloud-hosted; use Supabase MCP tools for schema/query work.
+   - Follow existing patterns in `database/` and the documentation.
 
-**If even 1% chance a skill applies, YOU MUST invoke it. This is non-negotiable.**
+## Agent Behavior (AVOID)
 
-### 2. Delegate to Specialized Sub-Agents
+❌ **Orchestrator-only behavior** → Implement directly for requested work
+❌ **Hardcoded layout sizes** → Use Grid/Stack/Paper per component-docs
+❌ **Local DB connections** → Supabase MCP tools only
 
-**NEVER execute implementation work directly. ALWAYS use Task tool:**
-
-| Agent                         | Delegation Pattern                                          |
-| ----------------------------- | ----------------------------------------------------------- |
-| `Explore`                     | Task(Explore, "Find auth patterns", thoroughness: "medium") |
-| `react-mui-frontend-engineer` | Task(react-mui-frontend-engineer, "Build profile page")     |
-| `wiring-agent`                | Task(wiring-agent, "Wire profile API integration")          |
-| `supabase-database-architect` | Task(supabase-database-architect, "Create users table")     |
-| `playwright-tester`           | Task(playwright-tester, "Create login tests")               |
-| `documentation-expert`        | Task(documentation-expert, "Document auth API")             |
-| `superpowers:code-reviewer`   | Task(superpowers:code-reviewer, "Review auth code")         |
-
-**Critical:**
-
-- TodoWrite = TRACKING tasks only
-- Task tool = EXECUTING tasks
-- Independent tasks = Launch multiple agents IN PARALLEL (single message, multiple Task calls)
-
-### 3. Standard Orchestration Flow
-
-```
-1. User requests feature
-2. Invoke Skill("using-superpowers") FIRST
-3. Invoke relevant skills (brainstorming, TDD, software-architecture)
-4. Use TodoWrite to TRACK task breakdown
-5. Use Task tool to EXECUTE each task via specialized agent
-6. Mark todos complete ONLY after agent finishes
-7. Invoke Skill("VERIFY-BEFORE-COMPLETE") before claiming done
-8. Show verification evidence (test output, build output)
-9. Invoke Skill("code-review:code-review") for final code review
-10. Update GitHub issue or local tracking docs with implementation summary
-```
-
-**Example - Feature Request:**
-
-```
-User: "Add user profile settings page"
-
-Orchestrator Actions:
-→ Skill("using-superpowers")
-→ Skill("brainstorming")
-→ TodoWrite: Track tasks (research, design, implement, test, verify)
-→ Task(Explore, "Find Aurora profile components")
-→ Task(react-mui-frontend-engineer, "Build profile UI")
-→ Task(wiring-agent, "Wire profile API")
-→ Task(playwright-tester, "Create profile tests")
-→ Skill("VERIFY-BEFORE-COMPLETE")
-→ Show verification evidence
-→ Skill("code-review:code-review") for final review
-→ Update GitHub issue or local tracking docs with summary
-```
 
 ## Documentation Framework (MANDATORY)
 
@@ -228,109 +177,10 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 **Skills:**
 
 - `.claude/skills/` - All available skills
+- Prefer `layout-framework` for layout/grid/form changes
+- Prefer `wiring-framework` for API/SWR wiring work
+- Prefer `supabase-framework` for database/schema work
 - Invoke with Skill tool, NEVER read directly
-
-## Orchestrator Anti-Patterns (AVOID)
-
-❌ **Direct implementation** → Delegate to Task tool with specialized agent
-❌ **Skipping skills** → Skills are MANDATORY, not optional
-❌ **TodoWrite for execution** → TodoWrite tracks, Task executes
-❌ **Sequential when parallel possible** → Launch independent agents in single message
-❌ **Claiming completion without verification** → Invoke VERIFY-BEFORE-COMPLETE first
-❌ **Suggesting local DB connections** → Database is cloud-hosted (Supabase MCP tools)
-❌ **Reading skill files directly** → Use Skill tool to invoke
-
-## Orchestrator Best Practices (DO)
-
-✅ **Invoke skills BEFORE any action** → Even 1% chance = invoke
-✅ **Delegate all execution** → Task tool with specialized agents
-✅ **Track with TodoWrite** → Planning and progress tracking only
-✅ **Launch parallel agents** → Independent tasks in single message
-✅ **Verify before claiming** → Show command output evidence
-✅ **Document all work** → INDEX + phase docs + execution logs
-✅ **GitHub as hub** → Issues/PRs/updates with agent identification
-
-## Common Delegation Scenarios
-
-**Scenario: "Add authentication"**
-
-```
-→ Skill("using-superpowers")
-→ Skill("brainstorming")
-→ Task(Explore, "Find Aurora auth components")
-→ Task(react-mui-frontend-engineer, "Build login/signup UI")
-→ Task(supabase-database-architect, "Create auth schema")
-→ Task(wiring-agent, "Wire Supabase auth integration")
-→ Task(playwright-tester, "Create auth E2E tests")
-→ Skill("VERIFY-BEFORE-COMPLETE")
-→ Skill("code-review:code-review") for final review
-→ Update GitHub issue or local tracking docs
-```
-
-**Scenario: "Fix bug in checkout"**
-
-```
-→ Skill("using-superpowers")
-→ Skill("systematic-debugging")
-→ Task(Explore, "Investigate checkout flow")
-→ Task(playwright-tester, "Create failing test")
-→ Task(react-mui-frontend-engineer, "Fix checkout component")
-→ Skill("VERIFY-BEFORE-COMPLETE")
-→ Skill("code-review:code-review") for final review
-→ Update GitHub issue or local tracking docs
-```
-
-**Scenario: "Optimize database queries"**
-
-```
-→ Skill("using-superpowers")
-→ Task(supabase-database-architect, "Analyze and optimize queries")
-→ Skill("VERIFY-BEFORE-COMPLETE")
-→ Skill("code-review:code-review") for final review
-→ Update GitHub issue or local tracking docs
-```
-
-**Scenario: "Convert section to live database" (Sequential Operation)**
-
-```
-→ Skill("using-superpowers")
-→ Skill("brainstorming")  # Analyze section, categorize pages (List/Create/Interaction/Dashboard)
-
-→ Create section INDEX + shared brainstorm doc
-→ Commit docs
-
-For each page type (List → Create → Interaction → Dashboard):
-  → Create plan.md (phase-execution-template)
-  → Skill("github-workflow") to create GitHub issue
-  → Commit plan.md with issue number
-
-  For each page in type (one complete page at a time):
-    → Task(supabase-database-architect, "Create schema/migrations/RLS/seeds")
-    → Task(playwright-tester, "Test data layer") → Fix if FAIL, repeat until PASS
-    → Task(wiring-agent, "Create API endpoints/SWR hooks")
-    → Task(playwright-tester, "Test API layer") → Fix if FAIL, repeat until PASS
-    → Task(react-mui-frontend-engineer, "Wire UI to live APIs, remove mocks")
-    → Task(playwright-tester, "Test UI layer") → Fix if FAIL, repeat until PASS
-    → Task(playwright-tester, "E2E integration test") → Fix if FAIL
-
-  → Verify: npm run build && npm run lint
-  → Skill("code-review:code-review") for final code review
-  → Update GitHub issue or local tracking docs with implementation summary
-  → Archive plan.md as phase{X.Y.Z}-{date}-{section}-{type}.md
-  → Update section INDEX
-  → Close issue if applicable
-  → AUTO-TRANSITION to next page type
-
-After all page types complete:
-  → Update section INDEX with completion
-  → WAIT for user to specify next section
-
-Critical:
-- Bottom-up per page: supabase → wiring → react-mui
-- Sequential testing: data → API → UI → E2E
-- Human review required (no auto-merge)
-- Auto-transition between page types
-```
 
 ## Agent SDK Context
 
