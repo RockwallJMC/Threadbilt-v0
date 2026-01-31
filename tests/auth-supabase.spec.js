@@ -10,7 +10,7 @@ test.describe('Supabase Authentication', () => {
     await page.getByRole('button', { name: 'Log in' }).click();
 
     // Should redirect to CRM dashboard
-    await expect(page).toHaveURL(/\/dashboard\/crm/);
+    await expect(page).toHaveURL(/\/apps\/crm/);
   });
 
   test('should reject invalid credentials', async ({ page }) => {
