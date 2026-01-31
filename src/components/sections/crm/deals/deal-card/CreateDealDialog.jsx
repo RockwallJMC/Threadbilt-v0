@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
@@ -36,6 +36,8 @@ import { ADD_NEW_DEAL, SET_CREATE_DEAL_DIALOG } from 'reducers/DealsReducer';
 import * as yup from 'yup';
 import IconifyIcon from 'components/base/IconifyIcon';
 import { useContacts } from '@/services/swr/api-hooks/useCRMContactApi';
+import { useCreateDeal } from '@/services/swr/api-hooks/useCRMDealsApi';
+import { mutate } from 'swr';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required('Deal name is required'),
@@ -55,6 +57,8 @@ const CreateDealDialog = () => {
   const { listItems, createDealDialog, dealsDispatch } = useDealsContext();
   const listTitle = listItems.find((list) => list.id === createDealDialog.listId)?.title;
   const { data: contacts, isLoading: contactsLoading } = useContacts();
+  const { trigger: createDeal, isMutating } = useCreateDeal();
+  const [submitError, setSubmitError] = useState(null);
 
   const initialData = useMemo(
     () => ({
@@ -81,7 +85,7 @@ const CreateDealDialog = () => {
     resolver: yupResolver(validationSchema),
   });
 
-  const { handleSubmit, control, reset, setValue } = methods;
+  const { handleSubmit, control, reset, setValue, setError, formState: { errors } } = methods;
 
   useEffect(() => {
     reset(initialData);
