@@ -2,6 +2,78 @@ import { NextResponse } from 'next/server';
 import { createApiClient } from '@/lib/supabase/api-server';
 
 // ============================================================================
+// GET /api/crm/contacts
+// Fetch all contacts for authenticated user's organization
+// ============================================================================
+export async function GET(request) {
+  try {
+    const supabase = createApiClient(request);
+
+    // Validate JWT token server-side (more secure than getSession)
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Get user's organization_id from organization_members
+    const { data: membership, error: membershipError } = await supabase
+      .from('organization_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (membershipError) {
+      console.error('Error fetching organization membership:', membershipError);
+      return NextResponse.json(
+        { error: 'Failed to fetch organization membership' },
+        { status: 500 }
+      );
+    }
+
+    if (!membership || !membership.organization_id) {
+      return NextResponse.json(
+        { error: 'User is not a member of any active organization' },
+        { status: 400 }
+      );
+    }
+
+    const organizationId = membership.organization_id;
+
+    // Fetch contacts with multi-tenant isolation and account join
+    const { data: contacts, error } = await supabase
+      .from('contacts')
+      .select(`
+        *,
+        account:accounts(*)
+      `)
+      .eq('organization_id', organizationId)
+      .order('first_name', { ascending: true })
+      .order('last_name', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching contacts:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch contacts' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(contacts);
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// ============================================================================
 // POST /api/crm/contacts
 // Create new contact with comprehensive form data
 // ============================================================================
