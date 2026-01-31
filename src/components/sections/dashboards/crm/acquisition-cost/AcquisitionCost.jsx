@@ -1,12 +1,12 @@
 'use client';
 
 import { useRef } from 'react';
-import { Paper, Stack, Typography, boxClasses } from '@mui/material';
-import { acquisitionCostData } from 'data/crm/dashboard';
+import { CircularProgress, Alert, Paper, Stack, Typography, boxClasses } from '@mui/material';
 import useToggleChartLegends from 'hooks/useToggleChartLegends';
 import ChartLegend from 'components/common/ChartLegend';
 import DashboardMenu from 'components/common/DashboardMenu';
 import AcquisitionCostChart from './AcquisitionCostChart';
+import { useCRMDashboardApi } from '@/services/swr/api-hooks/useCRMDashboardApi';
 
 const chartLegends = [
   { label: 'Allotted', color: 'chBlue.300' },
@@ -16,6 +16,34 @@ const chartLegends = [
 const AcquisitionCost = () => {
   const chartRef = useRef(null);
   const { legendState, handleLegendToggle } = useToggleChartLegends(chartRef);
+  const { acquisitionCost, isLoading, hasError } = useCRMDashboardApi();
+
+  if (isLoading) {
+    return (
+      <Paper sx={{ height: 1, p: { xs: 3, md: 5 }, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+        <CircularProgress />
+      </Paper>
+    );
+  }
+
+  if (hasError || !acquisitionCost) {
+    return (
+      <Paper sx={{ height: 1, p: { xs: 3, md: 5 } }}>
+        <Alert severity="error">Failed to load acquisition cost</Alert>
+      </Paper>
+    );
+  }
+
+  // Generate simple chart data from API metrics (placeholder visualization)
+  // API returns: {costPerAcquisition, totalCost, totalAcquisitions, trend}
+  // Chart expects: {allotted: [...], used: [...]}
+  const avgCost = acquisitionCost.costPerAcquisition;
+  const totalCost = acquisitionCost.totalCost;
+
+  const acquisitionCostData = {
+    allotted: Array(7).fill(totalCost * 1.2), // 20% above actual as "allotted"
+    used: Array(7).fill(avgCost * acquisitionCost.totalAcquisitions / 7) // Distribute across week
+  };
 
   return (
     <Paper sx={{ height: 1, p: { xs: 3, md: 5 } }}>
