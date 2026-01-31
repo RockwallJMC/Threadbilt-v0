@@ -21,7 +21,7 @@ import {
   Archive as ArchiveIcon,
 } from '@mui/icons-material';
 import { useCRMContacts, useUpdateCRMContact, useArchiveContact } from '@/services/swr/api-hooks/useCRMContactApi';
-import { paths } from '@/routes/paths';
+import paths from '@/routes/paths';
 
 export default function ContactsDataGrid() {
   const router = useRouter();
@@ -193,7 +193,7 @@ export default function ContactsDataGrid() {
   // Handle view contact
   const handleView = useCallback(
     (contactId) => {
-      router.push(paths.apps.crm.contactDetails(contactId));
+      router.push(paths.contactDetails(contactId));
     },
     [router]
   );
@@ -201,7 +201,7 @@ export default function ContactsDataGrid() {
   // Handle row double-click
   const handleRowDoubleClick = useCallback(
     (params) => {
-      router.push(paths.apps.crm.contactDetails(params.id));
+      router.push(paths.contactDetails(params.id));
     },
     [router]
   );
