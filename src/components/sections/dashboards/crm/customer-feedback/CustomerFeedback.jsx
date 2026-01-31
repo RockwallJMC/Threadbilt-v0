@@ -2,7 +2,8 @@
 
 import { useRef } from 'react';
 import { Paper, Stack } from '@mui/material';
-import { customerFeedbackData } from 'data/crm/dashboard';
+// Temporary static data - customer feedback API endpoint not part of Phase 1.5
+const customerFeedbackData = [];
 import useToggleChartLegends from 'hooks/useToggleChartLegends';
 import ChartLegend from 'components/common/ChartLegend';
 import DashboardMenu from 'components/common/DashboardMenu';
