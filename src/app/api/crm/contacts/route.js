@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createApiClient } from '@/lib/supabase/api-server';
+import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 
 // ============================================================================
 // GET /api/crm/contacts
@@ -7,7 +8,8 @@ import { createApiClient } from '@/lib/supabase/api-server';
 // ============================================================================
 export async function GET(request) {
   try {
-    const supabase = createApiClient(request);
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
 
     // Validate JWT token server-side (more secure than getSession)
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -48,8 +50,12 @@ export async function GET(request) {
     const { data: contacts, error } = await supabase
       .from('contacts')
       .select(`
-        *,
-        account:accounts(*)
+        id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        account:accounts(id, name)
       `)
       .eq('organization_id', organizationId)
       .order('first_name', { ascending: true })
@@ -63,7 +69,7 @@ export async function GET(request) {
       );
     }
 
-    return NextResponse.json(contacts);
+    return NextResponse.json(contacts, { status: 200 });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json(
@@ -79,7 +85,8 @@ export async function GET(request) {
 // ============================================================================
 export async function POST(request) {
   try {
-    const supabase = createApiClient(request);
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
 
     // Validate JWT token server-side (more secure than getSession)
     const { data: { user }, error: authError } = await supabase.auth.getUser();
