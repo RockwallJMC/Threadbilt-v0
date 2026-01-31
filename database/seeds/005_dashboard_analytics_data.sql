@@ -14,11 +14,11 @@ BEGIN
   -- Get test user and organization
   SELECT id INTO v_test_user_id
   FROM auth.users
-  WHERE email = 'test-existing@piercedesk.test'
+  WHERE email = 'alice.owner@seedtest.com'
   LIMIT 1;
 
   IF v_test_user_id IS NULL THEN
-    RAISE EXCEPTION 'Test user not found: test-existing@piercedesk.test';
+    RAISE EXCEPTION 'Test user not found: alice.owner@seedtest.com';
   END IF;
 
   SELECT organization_id INTO v_test_org_id

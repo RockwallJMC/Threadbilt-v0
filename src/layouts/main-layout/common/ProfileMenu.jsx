@@ -28,6 +28,7 @@ import { useSettingsContext } from 'providers/SettingsProvider';
 import paths, { authPaths } from 'routes/paths';
 import IconifyIcon from 'components/base/IconifyIcon';
 import StatusAvatar from 'components/base/StatusAvatar';
+import useSWR from 'swr';
 
 const ProfileMenu = ({ type = 'default' }) => {
   const router = useRouter();
@@ -42,7 +43,65 @@ const ProfileMenu = ({ type = 'default' }) => {
 
   const { user: authUser } = useSupabaseAuth();
   // Use demoUser as fallback if no session user
-  const user = useMemo(() => authUser || demoUser, [authUser]);
+  const user = useMemo(() => {
+    if (!authUser) return demoUser;
+    // Map Supabase auth user to expected format
+    return {
+      name: authUser.user_metadata?.display_name || authUser.email,
+      email: authUser.email,
+      image: authUser.user_metadata?.avatar_url,
+      designation: authUser.user_metadata?.designation,
+    };
+  }, [authUser]);
+
+  // Fetch user organizations (only when authenticated)
+  const { data: organizations } = useSWR(
+    authUser ? 'user-organizations' : null,
+    async () => {
+      const { data, error } = await supabase
+        .from('organization_members')
+        .select(
+          `
+          id,
+          role,
+          is_active,
+          joined_at,
+          organizations (
+            id,
+            name,
+            slug,
+            created_at
+          )
+        `
+        )
+        .eq('user_id', authUser.id)
+        .order('joined_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Flatten the structure
+      return (data || []).map((membership) => ({
+        membershipId: membership.id,
+        id: membership.organizations.id,
+        name: membership.organizations.name,
+        slug: membership.organizations.slug,
+        role: membership.role,
+        isActive: membership.is_active,
+        joinedAt: membership.joined_at,
+        createdAt: membership.organizations.created_at,
+      }));
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+    }
+  );
+
+  // Get active organization
+  const activeOrganization = useMemo(() => {
+    return organizations?.find((org) => org.isActive);
+  }, [organizations]);
+
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -51,7 +110,40 @@ const ProfileMenu = ({ type = 'default' }) => {
     setAnchorEl(null);
   };
 
-  const menuButton = (
+  const menuButton = upSm ? (
+    <Button
+      color="neutral"
+      variant="text"
+      onClick={handleClick}
+      sx={{
+        height: 44,
+        gap: 1.5,
+        px: 1,
+      }}
+    >
+      <Stack direction="column" alignItems="flex-end" spacing={0.25}>
+        <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+          {user?.name}
+        </Typography>
+        {activeOrganization && (
+          <Typography variant="caption" sx={{ color: 'text.secondary', lineHeight: 1 }}>
+            {activeOrganization.name}
+          </Typography>
+        )}
+      </Stack>
+      <StatusAvatar
+        alt={user?.name}
+        status="online"
+        src={user?.image || undefined}
+        sx={{
+          width: 32,
+          height: 32,
+          border: 2,
+          borderColor: 'background.paper',
+        }}
+      />
+    </Button>
+  ) : (
     <Button
       color="neutral"
       variant="text"
@@ -127,7 +219,7 @@ const ProfileMenu = ({ type = 'default' }) => {
             src={user?.image || undefined}
             sx={{ width: 48, height: 48 }}
           />
-          <Box>
+          <Box sx={{ textAlign: 'center' }}>
             <Typography
               variant="subtitle1"
               sx={{
@@ -137,6 +229,17 @@ const ProfileMenu = ({ type = 'default' }) => {
             >
               {user?.name}
             </Typography>
+            {activeOrganization && (
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                  mb: user?.designation ? 0.5 : 0,
+                }}
+              >
+                {activeOrganization.name}
+              </Typography>
+            )}
             {user?.designation && (
               <Typography
                 variant="subtitle2"

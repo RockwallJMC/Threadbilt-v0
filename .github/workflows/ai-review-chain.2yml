@@ -1,0 +1,70 @@
+name: ai-review-chain
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: read
+
+concurrency:
+  group: ai-review-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wait_for_optional_reviews:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Wait for comment-based reviews from AI assistants
+        run: node scripts/ai-review/wait-for-reviews.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REVIEWER_LOGINS: ${{ vars.OPTIONAL_REVIEWERS || '' }}
+          TIMEOUT_MINUTES: ${{ vars.REVIEW_WAIT_TIMEOUT_MINUTES || '30' }}
+          POLL_INTERVAL_SECONDS: ${{ vars.REVIEW_POLL_INTERVAL_SECONDS || '20' }}
+
+  wait_for_q_check:
+    needs: wait_for_optional_reviews
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Wait for Amazon Q Developer check (final review)
+        run: node scripts/ai-review/wait-for-check.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHECK_NAME: ${{ vars.Q_CHECK_NAME || 'Amazon Q Developer' }}
+          TIMEOUT_MINUTES: ${{ vars.REVIEW_WAIT_TIMEOUT_MINUTES || '30' }}
+          POLL_INTERVAL_SECONDS: ${{ vars.REVIEW_POLL_INTERVAL_SECONDS || '20' }}
+
+  approve_merge:
+    needs: [wait_for_optional_reviews, wait_for_q_check]
+    if: ${{ needs.wait_for_optional_reviews.result == 'success' && needs.wait_for_q_check.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Approve and merge
+        run: node scripts/ai-review/approve-merge.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUTO_MERGE_ENABLED: ${{ secrets.AUTO_MERGE_ENABLED }}
+          MERGE_METHOD: ${{ secrets.MERGE_METHOD }}
