@@ -7,6 +7,7 @@ import {
   FilledInput,
   Avatar,
   Autocomplete,
+  Box,
   Button,
   Chip,
   FormHelperText,
@@ -34,6 +35,7 @@ import { useDealsContext } from 'providers/DealsProvider';
 import { ADD_NEW_DEAL, SET_CREATE_DEAL_DIALOG } from 'reducers/DealsReducer';
 import * as yup from 'yup';
 import IconifyIcon from 'components/base/IconifyIcon';
+import { useContacts } from '@/services/swr/api-hooks/useCRMContactApi';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required('Deal name is required'),
@@ -42,16 +44,17 @@ const validationSchema = yup.object().shape({
   lastUpdate: yup.string().required('Last update is required'),
   createDate: yup.string().required('Create date is required'),
   closeDate: yup.string().required('Close date is required'),
-  owner: yup.object().required('Owner is required'),
-  client: yup.object().required('Client is required'),
+  owner: yup.object().nullable().required('Owner is required'),
+  contact: yup.object().nullable().required('Contact is required'),
   priority: yup.string().required('Priority is required'),
-  company: yup.object().required('Company is required'),
+  company: yup.object().nullable().required('Company is required'),
   collaborators: yup.array().of(yup.object()).optional(),
 });
 
 const CreateDealDialog = () => {
   const { listItems, createDealDialog, dealsDispatch } = useDealsContext();
   const listTitle = listItems.find((list) => list.id === createDealDialog.listId)?.title;
+  const { data: contacts, isLoading: contactsLoading } = useContacts();
 
   const initialData = useMemo(
     () => ({
@@ -60,19 +63,15 @@ const CreateDealDialog = () => {
       pipeline: '',
       stage: listTitle ?? '',
       amount: 0,
-      client: {
-        name: 'Tsamina Mina',
-        phone: '+81-90-1234-5678',
-        email: 'mina@xyz.com',
-        videoChat: 'https://zoom.us/j/123456789',
-        address: 'Shibuya, Tokyo, Japan',
-        link: '#!',
-      },
+      contact: null,
       createDate: dayjs().toString(),
       lastUpdate: dayjs().toString(),
       closeDate: dayjs().toString(),
       priority: '',
       progress: 0,
+      company: null,
+      owner: null,
+      collaborators: [],
     }),
     [listTitle],
   );
@@ -82,7 +81,7 @@ const CreateDealDialog = () => {
     resolver: yupResolver(validationSchema),
   });
 
-  const { handleSubmit, control, reset } = methods;
+  const { handleSubmit, control, reset, setValue } = methods;
 
   useEffect(() => {
     reset(initialData);
@@ -384,6 +383,62 @@ const CreateDealDialog = () => {
                   </Select>
                   <FormHelperText error>{fieldState.error?.message}</FormHelperText>
                 </FormControl>
+              )}
+            />
+          </Grid>
+
+          <Grid size={12}>
+            <Controller
+              name="contact"
+              control={control}
+              render={({ field, fieldState: { error } }) => (
+                <Autocomplete
+                  {...field}
+                  options={contacts || []}
+                  loading={contactsLoading}
+                  getOptionLabel={(option) =>
+                    option.first_name && option.last_name
+                      ? `${option.first_name} ${option.last_name}`
+                      : option.first_name || option.last_name || ''
+                  }
+                  isOptionEqualToValue={(option, value) => option.id === value?.id}
+                  onChange={(event, newValue) => {
+                    field.onChange(newValue);
+                    // Auto-populate company when contact selected
+                    if (newValue?.account) {
+                      setValue('company', newValue.account);
+                    }
+                  }}
+                  renderOption={(props, option) => (
+                    <Box component="li" {...props}>
+                      <Box>
+                        <Typography variant="body2">
+                          {option.first_name} {option.last_name}
+                        </Typography>
+                        {option.email && (
+                          <Typography variant="caption" color="text.secondary">
+                            {option.email}
+                          </Typography>
+                        )}
+                        {option.account?.name && (
+                          <Typography variant="caption" color="text.secondary">
+                            {' • '}{option.account.name}
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Contact"
+                      placeholder="Select contact"
+                      error={!!error}
+                      helperText={error?.message}
+                      required
+                    />
+                  )}
+                />
               )}
             />
           </Grid>
