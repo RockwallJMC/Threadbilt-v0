@@ -11,16 +11,8 @@ export const SupabaseAuthProvider = ({ children, initialSession }) => {
   const [loading, setLoading] = useState(!initialSession)
 
   useEffect(() => {
-    // Validate initial session if provided
-    if (initialSession) {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (!session) {
-          setSession(null)
-          setUser(null)
-          setLoading(false)
-        }
-      })
-    }
+    // Trust initialSession from server (already validated)
+    // No client-side validation needed
 
     // Set up auth state listener
     const {
