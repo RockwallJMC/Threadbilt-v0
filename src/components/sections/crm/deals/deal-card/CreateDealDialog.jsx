@@ -26,7 +26,10 @@ import {
   TextField,
   Typography,
   dialogClasses,
+  Alert,
+  Snackbar,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { companies } from 'data/crm/deals';
 import { users } from 'data/users';
@@ -59,6 +62,7 @@ const CreateDealDialog = () => {
   const { data: contacts, isLoading: contactsLoading } = useContacts();
   const { trigger: createDeal, isMutating } = useCreateDeal();
   const [submitError, setSubmitError] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const initialData = useMemo(
     () => ({
@@ -91,22 +95,90 @@ const CreateDealDialog = () => {
     reset(initialData);
   }, [createDealDialog, methods]);
 
-  const onSubmit = (data) => {
-    console.log(data);
-    dealsDispatch({ type: ADD_NEW_DEAL, payload: { listName: data.stage, deal: data } });
-    dealsDispatch({ type: SET_CREATE_DEAL_DIALOG, payload: { isOpen: false } });
-    reset();
+  const onSubmit = async (data) => {
+    try {
+      setSubmitError(null);
+
+      // Transform form data to API format
+      const dealPayload = {
+        name: data.name,
+        description: data.description || null,
+        stage: data.stage,
+        company_id: data.company?.id,
+        contact_id: data.contact?.id,
+        amount: Number(data.amount),
+        priority: data.priority,
+        progress: 0,
+        close_date: dayjs(data.closeDate).toISOString(),
+      };
+
+      // Call API
+      const newDeal = await createDeal(dealPayload);
+
+      // Optimistic update - add to local state
+      dealsDispatch({
+        type: 'ADD_NEW_DEAL',
+        payload: {
+          listId: data.stage,
+          deal: {
+            ...newDeal,
+            client: {
+              name: `${data.contact?.first_name || ''} ${data.contact?.last_name || ''}`.trim(),
+              email: data.contact?.email || '',
+              phone: data.contact?.phone || '',
+            },
+          },
+        },
+      });
+
+      // Revalidate deals list from server
+      mutate('/api/crm/deals');
+
+      // Show success toast
+      setSnackbar({
+        open: true,
+        message: 'Deal created successfully!',
+        severity: 'success',
+      });
+
+      // Close modal and reset form
+      dealsDispatch({
+        type: 'SET_CREATE_DEAL_DIALOG',
+        payload: { listId: null },
+      });
+      reset();
+
+    } catch (error) {
+      console.error('Error creating deal:', error);
+
+      // Handle duplicate name error
+      if (error.response?.data?.code === 'DUPLICATE_DEAL_NAME') {
+        setError('name', {
+          type: 'manual',
+          message: 'A deal with this name already exists',
+        });
+      } else {
+        // Generic error
+        setSubmitError(error.response?.data?.error || 'Failed to create deal. Please try again.');
+      }
+    }
   };
 
-  const handleDiscardChanges = () => {
-    dealsDispatch({ type: SET_CREATE_DEAL_DIALOG, payload: { isOpen: false } });
-    reset();
+  const handleClose = () => {
+    if (!isMutating) {
+      reset();
+      setSubmitError(null);
+      dealsDispatch({
+        type: 'SET_CREATE_DEAL_DIALOG',
+        payload: { listId: null },
+      });
+    }
   };
 
   return (
     <Dialog
       open={createDealDialog.isOpen}
-      onClose={() => dealsDispatch({ type: SET_CREATE_DEAL_DIALOG, payload: { isOpen: false } })}
+      onClose={isMutating ? undefined : handleClose}
       aria-labelledby="dialog-title"
       aria-describedby="dialog-description"
       component="form"
@@ -138,9 +210,8 @@ const CreateDealDialog = () => {
           variant="text"
           size="small"
           color="neutral"
-          onClick={() =>
-            dealsDispatch({ type: SET_CREATE_DEAL_DIALOG, payload: { isOpen: false } })
-          }
+          onClick={handleClose}
+          disabled={isMutating}
         >
           <IconifyIcon
             icon="material-symbols:close-rounded"
@@ -148,6 +219,12 @@ const CreateDealDialog = () => {
           />
         </Button>
       </Stack>
+
+      {submitError && (
+        <Alert severity="error" sx={{ mx: 3, mt: 2 }} onClose={() => setSubmitError(null)}>
+          {submitError}
+        </Alert>
+      )}
 
       <DialogContent sx={{ px: 3, py: 1 }}>
         <Grid container spacing={1}>
@@ -164,6 +241,7 @@ const CreateDealDialog = () => {
                   fullWidth
                   error={!!fieldState.error}
                   helperText={fieldState.error?.message}
+                  disabled={isMutating}
                 />
               )}
             />
@@ -184,6 +262,7 @@ const CreateDealDialog = () => {
                   multiline
                   fullWidth
                   sx={{ [`& .${inputBaseClasses.root}`]: { borderRadius: 2 } }}
+                  disabled={isMutating}
                 />
               )}
             />
@@ -194,7 +273,7 @@ const CreateDealDialog = () => {
               name="pipeline"
               control={control}
               render={({ field }) => (
-                <FormControl fullWidth>
+                <FormControl fullWidth disabled={isMutating}>
                   <InputLabel>Pipeline</InputLabel>
                   <Select {...field} label="Pipeline">
                     <MenuItem value="Sales Pipeline">Sales Pipeline</MenuItem>
@@ -213,7 +292,7 @@ const CreateDealDialog = () => {
               name="stage"
               control={control}
               render={({ field, fieldState }) => (
-                <FormControl fullWidth>
+                <FormControl fullWidth disabled={isMutating}>
                   <InputLabel id="stage-select-label" error={!!fieldState.error}>
                     Stage
                   </InputLabel>
@@ -235,7 +314,7 @@ const CreateDealDialog = () => {
               name="amount"
               control={control}
               render={({ field, fieldState }) => (
-                <FormControl variant="filled" fullWidth>
+                <FormControl variant="filled" fullWidth disabled={isMutating}>
                   <InputLabel htmlFor="deal-amount" error={!!fieldState.error}>
                     Amount
                   </InputLabel>
@@ -273,6 +352,7 @@ const CreateDealDialog = () => {
                   onChange={(date) => {
                     onChange(date);
                   }}
+                  disabled={isMutating}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -298,6 +378,7 @@ const CreateDealDialog = () => {
                   onChange={(date) => {
                     onChange(date);
                   }}
+                  disabled={isMutating}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -316,7 +397,7 @@ const CreateDealDialog = () => {
               name="owner"
               control={control}
               render={({ field: { value, onChange }, fieldState }) => (
-                <FormControl fullWidth>
+                <FormControl fullWidth disabled={isMutating}>
                   <InputLabel id="deal-owner-label" error={!!fieldState.error}>
                     Deal owner
                   </InputLabel>
@@ -346,7 +427,7 @@ const CreateDealDialog = () => {
               name="priority"
               control={control}
               render={({ field, fieldState }) => (
-                <FormControl fullWidth>
+                <FormControl fullWidth disabled={isMutating}>
                   <InputLabel id="priority-select-label" error={!!fieldState.error}>
                     Priority
                   </InputLabel>
@@ -366,7 +447,7 @@ const CreateDealDialog = () => {
               name="company"
               control={control}
               render={({ field: { value, onChange }, fieldState }) => (
-                <FormControl fullWidth>
+                <FormControl fullWidth disabled={isMutating}>
                   <InputLabel id="company-label" error={!!fieldState.error}>
                     Associate deal with
                   </InputLabel>
@@ -400,6 +481,7 @@ const CreateDealDialog = () => {
                   {...field}
                   options={contacts || []}
                   loading={contactsLoading}
+                  disabled={isMutating}
                   getOptionLabel={(option) =>
                     option.first_name && option.last_name
                       ? `${option.first_name} ${option.last_name}`
@@ -458,6 +540,7 @@ const CreateDealDialog = () => {
                   multiple
                   id="users-autocomplete"
                   options={users}
+                  disabled={isMutating}
                   getOptionLabel={(option) => option.name}
                   popupIcon={null}
                   isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -506,13 +589,34 @@ const CreateDealDialog = () => {
           zIndex: 1000,
         }}
       >
-        <Button variant="soft" color="neutral" onClick={handleDiscardChanges}>
+        <Button variant="soft" color="neutral" onClick={handleClose} disabled={isMutating}>
           Cancel
         </Button>
-        <Button type="submit" variant="contained" autoFocus>
-          Create
-        </Button>
+        <LoadingButton
+          type="submit"
+          variant="contained"
+          loading={isMutating}
+          disabled={isMutating}
+          autoFocus
+        >
+          {isMutating ? 'Creating...' : 'Create'}
+        </LoadingButton>
       </DialogActions>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 };
