@@ -2,6 +2,8 @@
 
 import {
   Avatar,
+  CircularProgress,
+  Alert,
   Divider,
   InputAdornment,
   List,
@@ -17,8 +19,45 @@ import { cssVarRgba } from 'lib/utils';
 import DateRangePicker from 'components/base/DateRangePicker';
 import IconifyIcon from 'components/base/IconifyIcon';
 import StyledTextField from 'components/styled/StyledTextField';
+import { useCRMDashboardApi } from '@/services/swr/api-hooks/useCRMDashboardApi';
 
-const CRMGreeting = ({ data }) => {
+const CRMGreeting = () => {
+  const { dealsMetrics, isLoading, hasError } = useCRMDashboardApi();
+
+  if (isLoading) {
+    return (
+      <Paper background={1} sx={{ px: { xs: 3, md: 5 }, py: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+        <CircularProgress />
+      </Paper>
+    );
+  }
+
+  if (hasError || !dealsMetrics) {
+    return (
+      <Paper background={1} sx={{ px: { xs: 3, md: 5 }, py: 3 }}>
+        <Alert severity="error">Failed to load deals metrics</Alert>
+      </Paper>
+    );
+  }
+
+  // Transform API data to component format
+  const data = [
+    {
+      icon: 'material-symbols:handshake-outline-rounded',
+      count: dealsMetrics.created.count,
+      label: 'Deals created',
+      percentage: dealsMetrics.created.percentage,
+      trend: dealsMetrics.created.trend,
+    },
+    {
+      icon: 'material-symbols:payments-outline-rounded',
+      count: dealsMetrics.closed.count,
+      label: 'Deals closed',
+      percentage: dealsMetrics.closed.percentage,
+      trend: dealsMetrics.closed.trend,
+    },
+  ];
+
   return (
     <Paper background={1} sx={{ px: { xs: 3, md: 5 }, py: 3 }}>
       <Stack
