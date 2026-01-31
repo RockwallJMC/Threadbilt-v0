@@ -1,7 +1,7 @@
 import docRoutePaths from 'docs/routes/docPaths';
 
 export const rootPaths = {
-  root: '/',
+  root: '/dashboard/crm',
   dashboardRoot: 'dashboard',
   pagesRoot: 'pages',
   miscRoot: 'misc',

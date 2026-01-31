@@ -7,6 +7,7 @@ This file provides orchestration guidance to Claude Code when working with the P
 **piercedesk6** is a Next.js 15 application (App Router) for PierceDesk.AI. React 19, Material-UI 7, dev server on port 4000.
 
 **Repository structure:**
+
 - `src/app/` - Next.js App Router routes/layouts
 - `src/components/` - shared and feature UI components
 - `src/layouts/` - application layouts
@@ -14,6 +15,7 @@ This file provides orchestration guidance to Claude Code when working with the P
 - `src/services/` - client-side data access (SWR hooks)
 
 **Build commands:**
+
 ```bash
 npm install --legacy-peer-deps
 npm run dev        # Port 4000 (TERMINAL ONLY - never run_in_background)
@@ -22,6 +24,7 @@ npm run lint
 ```
 
 **⚠️ CRITICAL: Package Installation Rules**
+
 - **NEVER run `npm install playwright`** - it's already included via `@playwright/test`
 - **NEVER add packages without verifying they're not already transitive dependencies**
 - Before adding ANY package: `npm ls <package-name>` to check if already installed
@@ -58,17 +61,18 @@ You are the conductor, not the musician. You coordinate skilled specialists to e
 
 **NEVER execute implementation work directly. ALWAYS use Task tool:**
 
-| Agent | Delegation Pattern |
-|-------|-------------------|
-| `Explore` | Task(Explore, "Find auth patterns", thoroughness: "medium") |
-| `react-mui-frontend-engineer` | Task(react-mui-frontend-engineer, "Build profile page") |
-| `wiring-agent` | Task(wiring-agent, "Wire profile API integration") |
-| `supabase-database-architect` | Task(supabase-database-architect, "Create users table") |
-| `playwright-tester` | Task(playwright-tester, "Create login tests") |
-| `documentation-expert` | Task(documentation-expert, "Document auth API") |
-| `superpowers:code-reviewer` | Task(superpowers:code-reviewer, "Review auth code") |
+| Agent                         | Delegation Pattern                                          |
+| ----------------------------- | ----------------------------------------------------------- |
+| `Explore`                     | Task(Explore, "Find auth patterns", thoroughness: "medium") |
+| `react-mui-frontend-engineer` | Task(react-mui-frontend-engineer, "Build profile page")     |
+| `wiring-agent`                | Task(wiring-agent, "Wire profile API integration")          |
+| `supabase-database-architect` | Task(supabase-database-architect, "Create users table")     |
+| `playwright-tester`           | Task(playwright-tester, "Create login tests")               |
+| `documentation-expert`        | Task(documentation-expert, "Document auth API")             |
+| `superpowers:code-reviewer`   | Task(superpowers:code-reviewer, "Review auth code")         |
 
 **Critical:**
+
 - TodoWrite = TRACKING tasks only
 - Task tool = EXECUTING tasks
 - Independent tasks = Launch multiple agents IN PARALLEL (single message, multiple Task calls)
@@ -90,6 +94,7 @@ You are the conductor, not the musician. You coordinate skilled specialists to e
 ```
 
 **Example - Feature Request:**
+
 ```
 User: "Add user profile settings page"
 
@@ -143,22 +148,26 @@ docs/
 ### Document Lifecycle
 
 **Start feature:**
+
 ```bash
 cp .claude/templates/INDEX-template.md docs/system/INDEX-feature.md
 cp .claude/templates/phase-design-template.md docs/system/design/design-phase-1.1.md
 ```
 
 **During implementation:**
+
 ```bash
 cp .claude/templates/phase-execution-template.md docs/system/execution/execution-phase-1.1.md
 ```
 
 **After merge:**
+
 ```bash
 cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature.md
 ```
 
 **Abbreviated workflow (when ALL criteria met):**
+
 - Single file or ≤ 3 files
 - < 50 lines code
 - No architecture/DB/API changes
@@ -167,12 +176,14 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 ### GitHub Integration (Coordination Hub)
 
 **ALWAYS use Skill("github-workflow") BEFORE:**
+
 - Creating issues
 - Creating PRs (after EVERY task)
 - Posting updates
 - Linking docs
 
 **Requirements:**
+
 - Every interaction includes agent name (`**Agent**: {name}`)
 - Task-level PRs (create PR after EVERY task completion)
 - Screenshots committed to repo (GitHub raw URLs)
@@ -183,13 +194,15 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 ### Aurora-First UI Pattern
 
 **Delegate to `react-mui-frontend-engineer` with instruction:**
+
 1. Search Aurora template first (template-aurora/src/)
 2. Copy-then-modify (NEVER edit templates directly)
-3. Update imports to @pierce/* packages
+3. Update imports to @pierce/\* packages
 
 ### Database Work
 
 **Delegate to `supabase-database-architect`:**
+
 - Database is CLOUD-HOSTED (Supabase)
 - Agent uses Supabase MCP tools exclusively
 - NEVER suggest local psql, pg_dump, DATABASE_URL connections
@@ -197,6 +210,7 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 ### Testing
 
 **Delegate to `playwright-tester`:**
+
 - Invoke Skill("TDD") first
 - Agent creates E2E tests in TypeScript
 - Red-Green-Refactor cycle
@@ -204,12 +218,14 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 ## Key Reference Locations
 
 **Documentation:**
+
 - `.claude/templates/` - All document templates
 - `.claude/templates/examples/` - Completed examples
 - `docs/guides/DOCUMENTATION-GUIDE.md` - Full workflow guide
 - `docs/system/AGENT.md` - Document governance rules
 
 **Skills:**
+
 - `.claude/skills/` - All available skills
 - Invoke with Skill tool, NEVER read directly
 
@@ -236,6 +252,7 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 ## Common Delegation Scenarios
 
 **Scenario: "Add authentication"**
+
 ```
 → Skill("using-superpowers")
 → Skill("brainstorming")
@@ -250,6 +267,7 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 ```
 
 **Scenario: "Fix bug in checkout"**
+
 ```
 → Skill("using-superpowers")
 → Skill("systematic-debugging")
@@ -262,6 +280,7 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 ```
 
 **Scenario: "Optimize database queries"**
+
 ```
 → Skill("using-superpowers")
 → Task(supabase-database-architect, "Analyze and optimize queries")
@@ -271,6 +290,7 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 ```
 
 **Scenario: "Convert section to live database" (Sequential Operation)**
+
 ```
 → Skill("using-superpowers")
 → Skill("brainstorming")  # Analyze section, categorize pages (List/Create/Interaction/Dashboard)
@@ -319,6 +339,7 @@ Critical:
 ## Agent SDK Context
 
 This file loads only when Agent SDK enables settings sources:
+
 - `settingSources: ["project"]` (TypeScript)
 - `setting_sources=["project"]` (Python)
 
@@ -327,3 +348,5 @@ Reference: [Claude Agent SDK - Modifying system prompts](https://platform.claude
 ---
 
 **Remember:** You orchestrate, you don't implement. Skills guide the process, specialized sub-agents execute the work.
+
+\*\* dont run npx playwright tests in the background, run them in the terminal for visibility

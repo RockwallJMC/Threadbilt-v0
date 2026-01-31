@@ -10,6 +10,42 @@
  * - Add multi-tenant test scenarios
  */
 
+const getEnv = (key, fallback) => process.env[key] || fallback;
+
+/**
+ * Test Users (Playwright E2E)
+ * Pulled from .env.test to match seeded Supabase users.
+ */
+const TEST_USERS = {
+  salesManager: {
+    email: getEnv('PLAYWRIGHT_MULTI_ORG_EMAIL', 'test-multi-org@piercedesk.test'),
+    password: getEnv('PLAYWRIGHT_MULTI_ORG_PASSWORD', 'TestPassword123!'),
+    orgName1: getEnv('PLAYWRIGHT_MULTI_ORG_NAME_1', 'Test Organization A'),
+    orgName2: getEnv('PLAYWRIGHT_MULTI_ORG_NAME_2', 'Test Organization B'),
+  },
+  salesRep: {
+    email: getEnv('PLAYWRIGHT_SINGLE_ORG_EMAIL', 'test-single-org@piercedesk.test'),
+    password: getEnv('PLAYWRIGHT_SINGLE_ORG_PASSWORD', 'TestPassword123!'),
+    orgName: getEnv('PLAYWRIGHT_SINGLE_ORG_NAME', 'Test Organization A'),
+  },
+  existingUser: {
+    email: getEnv('PLAYWRIGHT_EXISTING_USER_EMAIL', 'test-existing@piercedesk.test'),
+    password: getEnv('PLAYWRIGHT_EXISTING_USER_PASSWORD', 'TestPassword123!'),
+  },
+};
+
+/**
+ * Test Organizations (derived from multi-org user setup)
+ */
+const TEST_ORGS = {
+  acme: {
+    name: getEnv('PLAYWRIGHT_MULTI_ORG_NAME_1', 'Test Organization A'),
+  },
+  globex: {
+    name: getEnv('PLAYWRIGHT_MULTI_ORG_NAME_2', 'Test Organization B'),
+  },
+};
+
 /**
  * Test Accounts
  * Selected from mock data for predictable testing
@@ -413,6 +449,27 @@ const waitForOpportunityDetail = async (page) => {
 };
 
 /**
+ * Auth Helpers for E2E tests
+ */
+const waitForNetworkIdle = async (page, timeout = 2000) => {
+  await page.waitForLoadState('networkidle', { timeout });
+};
+
+const loginAsUser = async (page, user) => {
+  await page.goto('/authentication/default/jwt/login');
+  await page.getByLabel('Email').fill(user.email);
+  await page.getByLabel('Password').fill(user.password);
+  await page.getByRole('button', { name: 'Log in' }).click();
+  await waitForNetworkIdle(page);
+};
+
+const selectOrganization = async (page, orgName) => {
+  await page.getByRole('button', { name: /organization/i }).click();
+  await page.getByRole('menuitem', { name: orgName }).click();
+  await waitForNetworkIdle(page);
+};
+
+/**
  * Multi-Tenancy Test Data (for future Phase 1.2 integration)
  *
  * TODO: Enable when Phase 1.2 completes
@@ -453,7 +510,9 @@ const MULTI_TENANT_TEST_DATA = {
   },
 };
 
-module.exports = {
+export {
+  TEST_USERS,
+  TEST_ORGS,
   TEST_ACCOUNTS,
   TEST_CONTACTS,
   TEST_LEADS,
@@ -477,5 +536,8 @@ module.exports = {
   waitForOpportunitiesKanban,
   waitForOpportunitiesTable,
   waitForOpportunityDetail,
+  waitForNetworkIdle,
+  loginAsUser,
+  selectOrganization,
   MULTI_TENANT_TEST_DATA,
 };

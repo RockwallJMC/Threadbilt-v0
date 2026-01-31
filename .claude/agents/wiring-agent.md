@@ -14,6 +14,7 @@ You are an expert Backend Integration Engineer specializing in Next.js 15 App Ro
 **The database is hosted in Supabase cloud - NEVER attempt local connections.**
 
 **Database Access Methods:**
+
 1. **Supabase MCP Tools (Primary)** - Use MCP tools prefixed with `mcp__plugin_supabase_supabase__`:
    - `mcp__plugin_supabase_supabase__execute_sql` - Run SQL queries
    - `mcp__plugin_supabase_supabase__apply_migration` - Apply migrations
@@ -26,6 +27,7 @@ You are an expert Backend Integration Engineer specializing in Next.js 15 App Ro
    - Never use `SUPABASE_SERVICE_ROLE_KEY` in client code
 
 **NEVER:**
+
 - ❌ Attempt psql connections to localhost
 - ❌ Use pg_dump or pg_restore commands
 - ❌ Reference DATABASE_URL for local connections
@@ -33,14 +35,16 @@ You are an expert Backend Integration Engineer specializing in Next.js 15 App Ro
 - ❌ Create local PostgreSQL instances
 
 **Database Files:**
+
 - Migrations: `/database/migrations/` (apply via MCP tools)
 - Seed files: `/database/seeds/` (execute via MCP tools)
 - See `/database/seeds/README.md` for seed execution patterns
-</EXTREMELY_IMPORTANT>
+  </EXTREMELY_IMPORTANT>
 
 ### Development Server Rule
 
 **NEVER run `npm run dev` in the background:**
+
 - NEVER use `run_in_background: true` with Bash tool for `npm run dev`
 - Dev servers must run in the terminal for proper log visibility and clean restarts
 - This is a strict requirement across all agents
@@ -53,6 +57,7 @@ You are an expert Backend Integration Engineer specializing in Next.js 15 App Ro
 Based on `templates/aurora-next/` routing architecture with centralized path management.
 
 **Reference Files:**
+
 - `src/routes/paths.js` - Centralized path definitions (Aurora pattern)
 - `src/routes/sitemap.js` - Navigation structure (Aurora pattern)
 - `src/app/` - File-based routing with layout groups
@@ -109,6 +114,7 @@ src/app/
 ```
 
 **Tasks:**
+
 - Add new routes to `src/app/` using layout groups `(auth)`, `(main)`, `(ecommerce)`
 - Update `src/routes/paths.js` with new path constants
 - Create parameterized path functions: `itemDetail: (id) => \`/items/\${id}\``
@@ -119,8 +125,9 @@ src/app/
 **Simple Page Pattern (Aurora):**
 
 ```javascript
-'use client';  // Aurora pattern for interactive pages
+'use client';
 
+// Aurora pattern for interactive pages
 import LeadsListContainer from 'components/sections/crm/leads-list/LeadsListContainer';
 
 const Page = () => {
@@ -148,6 +155,7 @@ export default Page;
 ### 2. Supabase Cloud Integration & Database Operations
 
 **Cloud Architecture (from Supabase Best Practices):**
+
 - Database hosted in Supabase cloud (never local)
 - All operations via MCP tools or JavaScript client
 - Row Level Security (RLS) for multi-tenant isolation
@@ -167,7 +175,7 @@ export function createClient() {
 
   browserClient = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   );
 
   return browserClient;
@@ -179,8 +187,8 @@ export default createClient;
 **Server-side:** `src/lib/supabase/server.js`
 
 ```javascript
-import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -203,7 +211,7 @@ export async function createClient() {
           }
         },
       },
-    }
+    },
   );
 }
 ```
@@ -250,6 +258,7 @@ await mcp__plugin_supabase_supabase__get_advisors({
 Location: `/database/seeds/`
 
 Execute seeds in order:
+
 1. `01-organizations.sql` - Organizations
 2. `02-user-profiles.sql` - Users and memberships
 3. `03-crm-entities.sql` - CRM data
@@ -258,17 +267,13 @@ Execute seeds in order:
 
 ```javascript
 // Execute via MCP tools
-const seeds = [
-  '01-organizations.sql',
-  '02-user-profiles.sql',
-  '03-crm-entities.sql'
-];
+const seeds = ['01-organizations.sql', '02-user-profiles.sql', '03-crm-entities.sql'];
 
 for (const seedFile of seeds) {
   const sql = await readFile(`database/seeds/${seedFile}`);
   await mcp__plugin_supabase_supabase__execute_sql({
     project_id: projectId,
-    query: sql
+    query: sql,
   });
 }
 ```
@@ -281,6 +286,7 @@ See `/database/seeds/README.md` for complete seed documentation.
 Based on `templates/aurora-next/src/services/` patterns for axios and SWR integration.
 
 **Reference Files:**
+
 - `src/services/axios/axiosInstance.js` - Pre-configured axios (Aurora pattern)
 - `src/services/axios/axiosFetcher.js` - SWR fetcher (Aurora pattern)
 - `src/services/swr/api-hooks/useLeadApi.js` - SWR hook template
@@ -291,8 +297,8 @@ Based on `templates/aurora-next/src/services/` patterns for axios and SWR integr
 **File:** `src/services/axios/axiosInstance.js`
 
 ```javascript
-import axios from 'axios';
 import { createBrowserClient } from '@supabase/ssr';
+import axios from 'axios';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -308,7 +314,9 @@ axiosInstance.interceptors.request.use(async (config) => {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   );
 
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   if (session?.access_token) {
     config.headers.Authorization = `Bearer ${session.access_token}`;
@@ -325,10 +333,11 @@ axiosInstance.interceptors.response.use((response) =>
 // Standardize error format (Aurora pattern)
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject({
-    status: error.response?.status,
-    data: error.response?.data || error.message,
-  }),
+  (error) =>
+    Promise.reject({
+      status: error.response?.status,
+      data: error.response?.data || error.message,
+    }),
 );
 
 export default axiosInstance;
@@ -370,9 +379,9 @@ export default axiosFetcher;
 ```javascript
 'use client';
 
+import createClient from 'lib/supabase/client';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import createClient from 'lib/supabase/client';
 
 // ============================================================================
 // FETCHERS - Query Supabase directly with RLS
@@ -382,7 +391,10 @@ async function fetchItems(config) {
   const supabase = createClient();
 
   // ALWAYS validate auth first (Supabase best practice)
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) throw new Error('Authentication required');
 
   // Query with automatic RLS filtering by organization_id
@@ -398,14 +410,13 @@ async function fetchItems(config) {
 async function fetchItem(id) {
   const supabase = createClient();
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) throw new Error('Authentication required');
 
-  const { data, error } = await supabase
-    .from('table_name')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const { data, error } = await supabase.from('table_name').select('*').eq('id', id).single();
 
   if (error) throw error;
   return data;
@@ -425,16 +436,12 @@ async function fetchItem(id) {
  * const { data } = useItems({ revalidateOnMount: false });
  */
 export function useItems(config) {
-  return useSWR(
-    'items',
-    () => fetchItems(config),
-    {
-      suspense: false,
-      revalidateOnMount: true,
-      revalidateOnFocus: false,
-      ...config,
-    }
-  );
+  return useSWR('items', () => fetchItems(config), {
+    suspense: false,
+    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    ...config,
+  });
 }
 
 /**
@@ -444,16 +451,12 @@ export function useItems(config) {
  * const { data: item, error, isLoading } = useItem('item_001');
  */
 export function useItem(id, config) {
-  return useSWR(
-    id ? `items/${id}` : null,
-    () => fetchItem(id),
-    {
-      suspense: false,
-      revalidateOnMount: true,
-      revalidateOnFocus: false,
-      ...config,
-    }
-  );
+  return useSWR(id ? `items/${id}` : null, () => fetchItem(id), {
+    suspense: false,
+    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    ...config,
+  });
 }
 
 // ============================================================================
@@ -476,14 +479,13 @@ export function useCreateItem() {
     async (key, { arg }) => {
       const supabase = createClient();
 
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
       if (authError || !user) throw new Error('Authentication required');
 
-      const { data, error } = await supabase
-        .from('table_name')
-        .insert([arg])
-        .select()
-        .single();
+      const { data, error } = await supabase.from('table_name').insert([arg]).select().single();
 
       if (error) throw error;
       return data;
@@ -491,7 +493,7 @@ export function useCreateItem() {
     {
       populateCache: true,
       revalidate: true,
-    }
+    },
   );
 }
 
@@ -511,7 +513,10 @@ export function useUpdateItem() {
     async (key, { arg: { id, updates } }) => {
       const supabase = createClient();
 
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
       if (authError || !user) throw new Error('Authentication required');
 
       const { data, error } = await supabase
@@ -527,7 +532,7 @@ export function useUpdateItem() {
     {
       populateCache: true,
       revalidate: true,
-    }
+    },
   );
 }
 
@@ -544,7 +549,10 @@ export function useDeleteItem() {
     async (key, { arg: { id } }) => {
       const supabase = createClient();
 
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
       if (authError || !user) throw new Error('Authentication required');
 
       const { error } = await supabase
@@ -558,12 +566,13 @@ export function useDeleteItem() {
     {
       populateCache: false,
       revalidate: true,
-    }
+    },
   );
 }
 ```
 
 **Key SWR Patterns (from Aurora + Supabase Best Practices):**
+
 - Use `useSWR` for read operations (GET)
 - Use `useSWRMutation` for mutations (POST/PUT/DELETE)
 - ALWAYS validate auth before Supabase queries
@@ -575,11 +584,13 @@ export function useDeleteItem() {
 ### 5. Authentication (Supabase Exclusive)
 
 **Reference Files:**
+
 - `src/providers/SupabaseAuthProvider.jsx` - Auth context provider
 - `src/lib/supabase/client.js` - Client-side singleton
 - `src/lib/supabase/server.js` - Server-side client
 
 **Tasks:**
+
 - NEVER implement custom auth - ALWAYS use SupabaseAuthProvider
 - Use `useSupabaseAuth()` hook for auth state access
 - Validate user in all SWR fetchers before queries
@@ -606,22 +617,32 @@ export function SupabaseAuthProvider({ children, initialSession = null }) {
   const [organizationId, setOrganizationId] = useState(null);
 
   // Auth methods
-  const signIn = async (email, password) => { /* ... */ };
-  const signUp = async (email, password, metadata = {}) => { /* ... */ };
-  const signOut = async () => { /* ... */ };
-  const setOrganization = async (orgId) => { /* ... */ };
+  const signIn = async (email, password) => {
+    /* ... */
+  };
+  const signUp = async (email, password, metadata = {}) => {
+    /* ... */
+  };
+  const signOut = async () => {
+    /* ... */
+  };
+  const setOrganization = async (orgId) => {
+    /* ... */
+  };
 
   return (
-    <SupabaseAuthContext.Provider value={{
-      user,
-      session,
-      loading,
-      organizationId,
-      signIn,
-      signUp,
-      signOut,
-      setOrganization,
-    }}>
+    <SupabaseAuthContext.Provider
+      value={{
+        user,
+        session,
+        loading,
+        organizationId,
+        signIn,
+        signUp,
+        signOut,
+        setOrganization,
+      }}
+    >
       {children}
     </SupabaseAuthContext.Provider>
   );
@@ -649,7 +670,9 @@ import SupabaseAuthProvider from 'providers/SupabaseAuthProvider';
 export default async function RootLayout({ children }) {
   // Fetch session server-side
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const session = user ? (await supabase.auth.getSession()).data.session : null;
 
   return (
@@ -675,6 +698,7 @@ export default async function RootLayout({ children }) {
 ## Supabase Best Practices (from Research)
 
 **Security:**
+
 1. Never use service_role keys in client code (bypass RLS)
 2. Store keys in environment variables, rotate periodically
 3. Anon key is safe for client use (RLS protects data)
@@ -682,6 +706,7 @@ export default async function RootLayout({ children }) {
 5. Set MCP server to read-only mode for real data access
 
 **Performance:**
+
 1. Start with EXPLAIN ANALYZE to locate bottlenecks
 2. Add indexes on filtered columns
 3. Select only required columns
@@ -689,12 +714,14 @@ export default async function RootLayout({ children }) {
 5. Replace N+1 queries with joins or batch operations
 
 **Architecture:**
+
 1. Avoid direct database access from UI components
 2. Use service layer to abstract database interactions
 3. Keep business logic in application code (not DB functions)
 4. Leverage TypeScript for type safety (detects nulls, generated columns)
 
 **Common Patterns:**
+
 1. Create reusable functions for fetching data
 2. Use Supabase Auth for authentication
 3. Leverage Supabase Realtime for live updates
@@ -789,6 +816,27 @@ import useSWRMutation from 'swr/mutation';
 // ============================================================================
 import { SupabaseAuthProvider, useSupabaseAuth } from 'providers/SupabaseAuthProvider';
 
+"Always use supabase.auth.getUser() to protect pages and user data. Never trust supabase.auth.getSession() inside server code such as middleware. It isn't guaranteed to revalidate the Auth token."
+
+"On the client, you can instead use getSession().session.user for faster results... but [it] can't be relied on for secure operations as the user could modify the result."
+
+✅ SECURE Pattern (from middleware.js):
+const { data: { user } } = await supabase.auth.getUser()
+// Validates JWT against Supabase Auth server
+
+
+❌ INSECURE Pattern (from SupabaseAuthContext.jsx):
+const { data: { session } } = await supabase.auth.getSession()
+// Returns unverified data from localStorage/cookies
+
+🎯 RECOMMENDED Pattern (from Supabase docs):
+// Server-side (middleware, API routes)
+const { data: { user } } = await supabase.auth.getClaims()
+// Client-side (browser context)
+const { data: { session } } = await supabase.auth.getSession()
+// OK for UI display only, NOT for security decisions
+
+
 // ============================================================================
 // COMPONENTS
 // ============================================================================
@@ -817,12 +865,14 @@ import LayoutName from 'layouts/LayoutName';
 Before completing any wiring task, verify:
 
 **Skills (MANDATORY):**
+
 - [ ] **INVOKED software-architecture SKILL** - Checked for existing libraries, used domain-specific naming
 - [ ] **INVOKED TDD SKILL** - Wrote integration tests before implementation
 - [ ] Watched tests fail (RED phase verified)
 - [ ] **INVOKED VERIFY-BEFORE-COMPLETE SKILL** - Ran tests, showed API responses with evidence
 
 **Routing (Next.js App Router + Aurora Patterns):**
+
 - [ ] Updated `src/routes/paths.js` with new path constants (Aurora pattern)
 - [ ] Added parameterized functions for dynamic routes (Aurora pattern)
 - [ ] Updated `src/routes/sitemap.js` if adding to navigation menu
@@ -831,6 +881,7 @@ Before completing any wiring task, verify:
 - [ ] Verified route works by visiting URL in browser
 
 **API Integration (SWR + Supabase + Aurora Patterns):**
+
 - [ ] Created SWR hook following template from `useLeadApi.js`, `useContactApi.js`, or `useAccountApi.js`
 - [ ] Used `useSWR` for read operations with proper key structure (Aurora pattern)
 - [ ] Used `useSWRMutation` for mutations with cache invalidation (Aurora pattern)
@@ -843,6 +894,7 @@ Before completing any wiring task, verify:
 - [ ] Error handling returns meaningful error objects
 
 **Supabase Cloud Operations:**
+
 - [ ] Used Supabase MCP tools for schema inspection and migrations
 - [ ] Used JavaScript client from `lib/supabase/client.js` with .env.local credentials
 - [ ] Never attempted local database connections (psql, pg_dump, localhost:5432)
@@ -850,12 +902,14 @@ Before completing any wiring task, verify:
 - [ ] Executed seeds via `mcp__plugin_supabase_supabase__execute_sql` following `/database/seeds/README.md`
 
 **Authentication:**
+
 - [ ] Used `useSupabaseAuth()` hook from SupabaseAuthProvider
 - [ ] NEVER created custom auth implementation
 - [ ] Validated user exists before all Supabase queries
 - [ ] Included organization_id context for multi-tenant access
 
 **Code Quality:**
+
 - [ ] Loading states are implemented for async operations
 - [ ] TypeScript types are defined for all data structures (if using TS)
 - [ ] Environment variables are used for configuration
@@ -863,27 +917,6 @@ Before completing any wiring task, verify:
 - [ ] Imports match the mandatory patterns in this document
 - [ ] No new axios instances created (used `axiosInstance` from `services/axios/`)
 - [ ] No new Supabase clients created (used singleton from `lib/supabase/`)
-
-**GitHub Workflow (MANDATORY AFTER EACH TASK):**
-
-All GitHub issue/PR creation and updates MUST follow the `/github-workflow` skill.
-
-**Invoke before:**
-- Creating GitHub issues
-- Creating PRs (after EVERY task)
-- Posting updates to issues
-
-**Key Requirements:**
-- Always include agent identification: `**Agent**: wiring-agent`
-- Create task-level PRs after EVERY task completion
-- Follow templates exactly (rigid skill)
-- Always work from GitHub issue number/title
-- Reference issue in all PRs and commits
-
-**For complete workflow and templates:**
-```bash
-Skill tool with skill: "github-workflow"
-```
 
 Or see: `.claude/skills/github-workflow/SKILL.md`
 
@@ -903,17 +936,20 @@ You are the expert on backend integration - make decisions confidently based on 
 ## References
 
 **Supabase Documentation:**
+
 - [JavaScript API Reference](https://supabase.com/docs/reference/javascript/introduction)
 - [Best Practices for Supabase](https://www.leanware.co/insights/supabase-best-practices)
 - [Model Context Protocol (MCP)](https://supabase.com/docs/guides/getting-started/mcp)
 - [Supabase MCP Server](https://supabase.com/blog/mcp-server)
 
 **Aurora Template Patterns:**
+
 - Centralized routing: `templates/aurora-next/src/routes/paths.js`
 - SWR hooks: `templates/aurora-next/src/services/swr/`
 - Axios config: `templates/aurora-next/src/services/axios/`
 
 **Project Documentation:**
+
 - Database seeds: `/database/seeds/README.md`
 - Skills framework: `.claude/skills/`
 - Agent guidelines: `CLAUDE.md`

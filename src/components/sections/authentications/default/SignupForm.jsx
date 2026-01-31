@@ -110,7 +110,9 @@ const SignupForm = ({ handleSignup, socialAuth = true, provider = 'jwt' }) => {
           <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)}>
             {errors.root?.credential?.message && (
               <Alert severity="error" sx={{ mb: 3 }}>
-                {errors.root?.credential?.message}
+                {typeof errors.root?.credential?.message === 'string'
+                  ? errors.root?.credential?.message
+                  : errors.root?.credential?.message?.message || 'Authentication failed'}
               </Alert>
             )}
             <Grid container>

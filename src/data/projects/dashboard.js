@@ -193,7 +193,7 @@ export const projectsData = [
         milestones: [
           { id: 13, name: 'Beta Testing', date: '2024-08-15', completed: false },
           { id: 14, name: 'App Store Launch', date: '2024-08-31', completed: false }
-        ]
+        ],
         startDate: '2024-08-01',
         endDate: '2024-08-31',
       },

@@ -31,14 +31,14 @@ export async function middleware(request) {
   } = await supabase.auth.getUser()
 
   // Protect dashboard routes - redirect to login if not authenticated
-  if (request.nextUrl.pathname.startsWith('/dashboards') && !user) {
+  if ((request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/dashboards')) && !user) {
     const loginUrl = new URL('/authentication/default/jwt/login', request.url)
     return NextResponse.redirect(loginUrl)
   }
 
   // Redirect authenticated users away from auth pages
   if (request.nextUrl.pathname.startsWith('/authentication') && user) {
-    const dashboardUrl = new URL('/dashboards/default', request.url)
+    const dashboardUrl = new URL('/dashboard/crm', request.url)
     return NextResponse.redirect(dashboardUrl)
   }
 
@@ -47,6 +47,7 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
+    '/dashboard/:path*',
     '/dashboards/:path*',
     '/authentication/:path*',
   ],

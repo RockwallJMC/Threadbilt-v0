@@ -19,7 +19,7 @@ export function createApiClient(request) {
 
   // Extract cookies from the request headers
   const cookieHeader = request.headers.get('cookie') || ''
-  
+
   // Parse cookies into a simple key-value store
   const cookieStore = {}
   cookieHeader.split(';').forEach(cookie => {
@@ -29,7 +29,11 @@ export function createApiClient(request) {
     }
   })
 
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
+  // Check for Authorization header (Bearer token)
+  const authHeader = request.headers.get('authorization')
+  const accessToken = authHeader?.replace('Bearer ', '')
+
+  const options = {
     cookies: {
       get(name) {
         return cookieStore[name]
@@ -42,5 +46,16 @@ export function createApiClient(request) {
         // API routes handle cookies via response headers
       },
     },
-  })
+  }
+
+  // If Authorization header exists, set global headers to include it
+  if (accessToken) {
+    options.global = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  }
+
+  return createServerClient(supabaseUrl, supabaseAnonKey, options)
 }

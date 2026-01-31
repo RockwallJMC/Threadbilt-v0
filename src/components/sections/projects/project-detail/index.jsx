@@ -33,9 +33,10 @@ const ProjectDetail = ({ projectId }) => {
     { label: 'Materials', component: <div>Materials tracking coming soon...</div> },
     { label: 'Billing', component: <div>Billing information coming soon...</div> },
     { label: 'Team', component: <ProjectTeam project={project} /> },
+    { label: 'AIA Billing', component: <ProjectAIABilling project={project} /> },
   ];
 
-    { label: 'AIA Billing', component: <ProjectAIABilling project={project} /> },
+  return (
     <Paper sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <ProjectDetailHeader project={project} />
       
