@@ -62,8 +62,8 @@ const DealDetails = ({ dealId }) => {
     { id: 6, attribute: 'Closing Date', value: deal.close_date, background: false },
     { id: 7, attribute: 'Associated Contact', value: deal.contact?.first_name, background: true },
     { id: 8, attribute: 'Priority', value: deal.priority || 'not set', background: false },
-    { id: 9, attribute: 'Deal Owner', value: deal.collaborators?.owner, background: true },
-    { id: 10, attribute: 'Collaborating Agents', value: deal.collaborators?.collaborators, background: false },
+    { id: 9, attribute: 'Deal Owner', value: deal.collaborators?.owner?.full_name || deal.collaborators?.owner?.email || 'N/A', background: true },
+    { id: 10, attribute: 'Collaborating Agents', value: deal.collaborators?.collaborators?.map(c => c.full_name || c.email).join(', ') || 'None', background: false },
     { id: 11, attribute: 'Budget Forecast', value: deal.value, background: true },
     { id: 12, attribute: 'Deal Probability', value: deal.probability, background: false },
   ];
@@ -74,12 +74,12 @@ const DealDetails = ({ dealId }) => {
       { id: 'email', attribute: 'Emails', value: deal.activity_summary?.by_type?.email || 0 },
       { id: 'meeting', attribute: 'Meeting', value: deal.activity_summary?.by_type?.meeting || 0 },
     ],
-    timeline: deal.recent_activities?.slice(0, 4).map(a => ({
+    timeline: (deal.recent_activities || []).slice(0, 4).map(a => ({
       id: a.id,
       title: a.subject,
       description: a.description,
       date: a.activity_date,
-    })) || [],
+    })),
   };
 
   const analyticsData = analytics ? [

@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createApiClient } from '@/lib/supabase/api-server';
 
 export async function GET(request, { params }) {
   try {
-    const supabase = await createClient();
+    const supabase = createApiClient(request);
     const { id } = await params;
 
     // Verify authentication
@@ -47,15 +47,21 @@ export async function GET(request, { params }) {
     const dealProgress = stageOrder[deal.stage] || 0;
 
     // Calculate win/loss ratio for this organization (context metric)
-    const { data: orgDeals } = await supabase
+    const { count: wonCount } = await supabase
       .from('deals')
-      .select('stage')
+      .select('*', { count: 'exact', head: true })
       .eq('organization_id', userOrg.organization_id)
-      .in('stage', ['closed_won', 'closed_lost']);
+      .eq('stage', 'closed_won');
 
-    const wonCount = orgDeals?.filter(d => d.stage === 'closed_won').length || 0;
-    const lostCount = orgDeals?.filter(d => d.stage === 'closed_lost').length || 0;
-    const winLossRatio = lostCount > 0 ? ((wonCount / lostCount) * 100).toFixed(1) : 100;
+    const { count: lostCount } = await supabase
+      .from('deals')
+      .select('*', { count: 'exact', head: true })
+      .eq('organization_id', userOrg.organization_id)
+      .eq('stage', 'closed_lost');
+
+    const winRatePercentage = (wonCount + lostCount) > 0 
+      ? ((wonCount / (wonCount + lostCount)) * 100).toFixed(1) 
+      : null;
 
     // Calculate conversion rate (activities to deal value)
     const { data: activities } = await supabase
@@ -76,7 +82,7 @@ export async function GET(request, { params }) {
 
     const analytics = {
       deal_progress: dealProgress,
-      win_loss_ratio: parseFloat(winLossRatio),
+      win_loss_ratio: winRatePercentage ? parseFloat(winRatePercentage) : null,
       conversion_rate: parseFloat(conversionRate),
       engagement_metrics: parseFloat(engagementMetrics),
     };
