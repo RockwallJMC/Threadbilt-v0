@@ -41,6 +41,32 @@ function transformDealForUI(deal) {
     };
   }
 
+  // Ensure company exists with logo (prevent Image component errors)
+  if (!formatted.company) {
+    formatted.company = {
+      logo_url: 'https://api.dicebear.com/7.x/initials/svg?seed=Unknown',
+      logo: 'https://api.dicebear.com/7.x/initials/svg?seed=Unknown',
+      name: 'Unknown Company',
+      link: '#!',
+    };
+  } else {
+    // Generate DiceBear logo from company name if logo_url doesn't exist or is a local path
+    const companyName = formatted.company.name || 'Company';
+    const needsPlaceholder = !formatted.company.logo_url ||
+                            formatted.company.logo_url.startsWith('/images/company-logo/');
+
+    if (needsPlaceholder) {
+      // Clean company name for URL (replace spaces with hyphens, remove special chars)
+      const cleanName = companyName.replace(/[^\w\s]/g, '').replace(/\s+/g, '-');
+      const logoUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${cleanName}`;
+      formatted.company.logo_url = logoUrl;
+      formatted.company.logo = logoUrl;
+    } else {
+      // Map logo_url to logo for template-aurora compatibility
+      formatted.company.logo = formatted.company.logo_url;
+    }
+  }
+
   return formatted;
 }
 

@@ -1,12 +1,12 @@
 'use client';
 
 import { default as ReactEChartsCore } from 'echarts-for-react/lib/core';
-import { useMemo } from 'react';
+import { useMemo, forwardRef } from 'react';
 import { Box, useTheme } from '@mui/material';
 import merge from 'lodash.merge';
 import { grey } from 'theme/palette/colors';
 
-const ReactEchart = ({ option, ref, ...rest }) => {
+const ReactEchart = forwardRef(({ option, ...rest }, ref) => {
   const theme = useTheme();
 
   const isTouchDevice = useMemo(() => {
@@ -51,6 +51,8 @@ const ReactEchart = ({ option, ref, ...rest }) => {
       {...rest}
     />
   );
-};
+});
+
+ReactEchart.displayName = 'ReactEchart';
 
 export default ReactEchart;

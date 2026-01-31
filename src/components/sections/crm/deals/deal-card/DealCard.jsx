@@ -61,12 +61,12 @@ const DealCard = memo(({ deal }) => {
   return (
     <Card sx={{ borderRadius: 4, bgcolor: 'background.elevation1', outline: 'none' }}>
       <CardHeader
-        avatar={<Image src={deal.company.logo} width={48} height={48} sx={{ borderRadius: 2 }} />}
+        avatar={<Image src={deal.company.logo} width={48} height={48} unoptimized sx={{ borderRadius: 2 }} />}
         title={
           <Typography
             variant="subtitle2"
             component={Link}
-            href={paths.dealDetails}
+            href={paths.dealDetails(deal.id)}
             underline="none"
             sx={{
               display: 'block',

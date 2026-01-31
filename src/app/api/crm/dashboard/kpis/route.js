@@ -14,6 +14,20 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get user's organization_id
+    const { data: membership } = await supabase
+      .from('organization_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    const organizationId = membership?.organization_id || user.user_metadata?.organization_id || user.app_metadata?.organization_id;
+
+    if (!organizationId) {
+      return NextResponse.json({ error: 'User is not a member of any active organization' }, { status: 400 });
+    }
+
     const { searchParams } = new URL(request.url);
     const dateFrom = searchParams.get('dateFrom') || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const dateTo = searchParams.get('dateTo') || new Date().toISOString();
@@ -22,7 +36,7 @@ export async function GET(request) {
     const { count: activeUsersCount, error: activeError } = await supabase
       .from('contacts')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('organization_id', organizationId)
       .gte('created_at', dateFrom)
       .lte('created_at', dateTo);
 
@@ -34,7 +48,7 @@ export async function GET(request) {
     const { count: newContactsCount, error: contactsError } = await supabase
       .from('contacts')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('organization_id', organizationId)
       .gte('created_at', dateFrom)
       .lte('created_at', dateTo);
 
@@ -71,36 +85,46 @@ export async function GET(request) {
         title: 'Active Users',
         value: avgDailyLogins.toString(),
         subtitle: 'avg daily logins',
-        icon: 'solar:users-group-rounded-bold-duotone',
-        color: 'primary'
+        icon: {
+          name: 'solar:users-group-rounded-bold-duotone',
+          color: 'primary'
+        }
       },
       {
         title: 'New Contacts',
         value: (newContactsCount || 0).toString(),
         subtitle: 'accounts opened',
-        icon: 'solar:user-plus-rounded-bold-duotone',
-        color: 'success'
+        icon: {
+          name: 'solar:user-plus-rounded-bold-duotone',
+          color: 'success'
+        }
       },
       {
         title: 'Renewal Rate',
         value: renewalRate + '%',
         subtitle: 'premium accounts',
-        icon: 'solar:refresh-circle-bold-duotone',
-        color: 'warning'
+        icon: {
+          name: 'solar:refresh-circle-bold-duotone',
+          color: 'warning'
+        }
       },
       {
         title: 'Inventory',
         value: inventory.toLocaleString(),
         subtitle: 'units in stock',
-        icon: 'solar:box-bold-duotone',
-        color: 'info'
+        icon: {
+          name: 'solar:box-bold-duotone',
+          color: 'info'
+        }
       },
       {
         title: 'Delivered',
         value: delivered.toLocaleString(),
         subtitle: 'unit products',
-        icon: 'solar:delivery-bold-duotone',
-        color: 'secondary'
+        icon: {
+          name: 'solar:delivery-bold-duotone',
+          color: 'secondary'
+        }
       }
     ];
 

@@ -55,17 +55,39 @@ export async function GET(request) {
       organizationId = membership.organization_id;
     }
 
-    // Fetch all active users in the organization
+    // Fetch all active members in the organization
+    const { data: members, error: membersError } = await supabase
+      .from('organization_members')
+      .select('user_id')
+      .eq('organization_id', organizationId)
+      .eq('is_active', true);
+
+    if (membersError) {
+      console.error('Error fetching organization members:', membersError);
+      return NextResponse.json(
+        { error: 'Failed to fetch organization members' },
+        { status: 500 }
+      );
+    }
+
+    if (!members || members.length === 0) {
+      return NextResponse.json([]);
+    }
+
+    // Get user IDs
+    const userIds = members.map(m => m.user_id);
+
+    // Fetch user profiles for those IDs
     const { data: users, error: usersError } = await supabase
       .from('user_profiles')
       .select('id, email, full_name, avatar_url')
-      .eq('organization_id', organizationId)
+      .in('id', userIds)
       .order('full_name', { ascending: true });
 
     if (usersError) {
-      console.error('Error fetching organization users:', usersError);
+      console.error('Error fetching user profiles:', usersError);
       return NextResponse.json(
-        { error: 'Failed to fetch organization users' },
+        { error: 'Failed to fetch user profiles' },
         { status: 500 }
       );
     }

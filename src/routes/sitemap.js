@@ -261,7 +261,7 @@ const sitemap = [
           {
             name: 'Deal details',
             key: 'deal_details',
-            path: paths.dealDetails,
+            path: paths.dealDetails(),
             pathName: 'deal-details',
             active: true,
           },

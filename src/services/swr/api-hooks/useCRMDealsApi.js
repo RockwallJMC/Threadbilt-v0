@@ -118,14 +118,7 @@ const updateDealMutation = async (url, { arg }) => {
  * });
  */
 export const useUpdateDeal = () => {
-  const mutation = useSWRMutation('update-deal', updateDealMutation, {
-    // Revalidate after update
-    onSuccess: (data, key, config) => {
-      if (config?.onSuccess) {
-        config.onSuccess(data, key, config);
-      }
-    },
-  });
+  const mutation = useSWRMutation('update-deal', updateDealMutation);
 
   return mutation;
 };

@@ -13,6 +13,11 @@ import CRMDropdownMenu from '../../common/CRMDropdownMenu';
 const Deals = ({ deals }) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
+  // Don't render if deals array is empty
+  if (!deals || deals.length === 0) {
+    return null;
+  }
+
   return (
     <Stack direction="column" gap={2}>
       <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>

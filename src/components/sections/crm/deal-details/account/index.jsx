@@ -18,7 +18,7 @@ const Account = ({ accountData }) => {
       <Stack direction="column" gap={3}>
         <Stack direction="column" gap={2}>
           <Stack gap={1.5}>
-            <Image src={accountData.logo} width={44} height={44} />
+            <Image src={accountData.logo} width={44} height={44} unoptimized />
 
             <Stack direction="column" sx={{ justifyContent: 'space-between' }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>

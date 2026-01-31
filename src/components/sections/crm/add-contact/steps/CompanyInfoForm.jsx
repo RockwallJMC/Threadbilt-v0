@@ -21,7 +21,7 @@ import ControlledSelect from 'components/sections/crm/add-contact/ControlledSele
 
 export const companyInfoSchema = yup.object().shape({
   companyInfo: yup.object({
-    avatar: yup.mixed().required('Avatar is required'),
+    avatar: yup.mixed().optional(),
     companyName: yup.string().required('This field is required'),
     industryType: yup.string().required('This field is required'),
     foundingYear: yup.string().nullable().optional(),
@@ -148,8 +148,8 @@ const CompanyInfoForm = ({ label }) => {
                     disableFuture
                     openTo="year"
                     label="Founding Year"
-                    value={value ? dayjs(value) : null}
-                    onChange={(date) => onChange(date ? date.toString() : null)}
+                    value={value ? dayjs(value, 'YYYY') : null}
+                    onChange={(date) => onChange(date ? date.format('YYYY') : null)}
                     slotProps={{
                       textField: {
                         error: !!errors.companyInfo?.foundingYear,

@@ -14,6 +14,20 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get user's organization_id
+    const { data: membership } = await supabase
+      .from('organization_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    const organizationId = membership?.organization_id || user.user_metadata?.organization_id || user.app_metadata?.organization_id;
+
+    if (!organizationId) {
+      return NextResponse.json({ error: 'User is not a member of any active organization' }, { status: 400 });
+    }
+
     const { searchParams } = new URL(request.url);
     const dateFrom = searchParams.get('dateFrom') || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const dateTo = searchParams.get('dateTo') || new Date().toISOString();
@@ -33,7 +47,7 @@ export async function GET(request) {
     const { count: activeToday, error: todayError } = await supabase
       .from('contacts')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('organization_id', organizationId)
       .gte('created_at', todayStart)
       .lte('created_at', now.toISOString());
 
@@ -43,7 +57,7 @@ export async function GET(request) {
     const { count: activeThisWeek, error: weekError } = await supabase
       .from('contacts')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('organization_id', organizationId)
       .gte('created_at', weekStart)
       .lte('created_at', now.toISOString());
 
@@ -53,7 +67,7 @@ export async function GET(request) {
     const { count: activeThisMonth, error: monthError } = await supabase
       .from('contacts')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('organization_id', organizationId)
       .gte('created_at', monthStart)
       .lte('created_at', now.toISOString());
 
@@ -63,7 +77,7 @@ export async function GET(request) {
     const { count: prevActiveCount, error: prevError } = await supabase
       .from('contacts')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('organization_id', organizationId)
       .gte('created_at', prevDateFrom)
       .lte('created_at', prevDateTo);
 

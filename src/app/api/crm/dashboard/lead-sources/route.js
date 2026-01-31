@@ -14,6 +14,20 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get user's organization_id
+    const { data: membership } = await supabase
+      .from('organization_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    const organizationId = membership?.organization_id || user.user_metadata?.organization_id || user.app_metadata?.organization_id;
+
+    if (!organizationId) {
+      return NextResponse.json({ error: 'User is not a member of any active organization' }, { status: 400 });
+    }
+
     const { searchParams } = new URL(request.url);
     const dateFrom = searchParams.get('dateFrom') || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const dateTo = searchParams.get('dateTo') || new Date().toISOString();
@@ -22,7 +36,7 @@ export async function GET(request) {
     const { data: contacts, error: contactsError } = await supabase
       .from('contacts')
       .select('lead_source')
-      .eq('user_id', user.id)
+      .eq('organization_id', organizationId)
       .gte('created_at', dateFrom)
       .lte('created_at', dateTo);
 

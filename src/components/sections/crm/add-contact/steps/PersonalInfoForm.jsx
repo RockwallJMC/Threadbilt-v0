@@ -232,9 +232,9 @@ const PersonalInfoForm = ({ label }) => {
                         label="Date of Birth"
                         disableFuture
                         format="DD/MM/YYYY"
-                        value={field.value ? dayjs(field.value, 'DD/MM/YYYY') : null}
+                        value={field.value ? dayjs(field.value) : null}
                         onChange={(newValue) => {
-                          const formattedDate = newValue?.format('DD/MM/YYYY');
+                          const formattedDate = newValue?.format('YYYY-MM-DD');
                           field.onChange(formattedDate || '');
                         }}
                         slotProps={{

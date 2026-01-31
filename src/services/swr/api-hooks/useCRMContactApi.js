@@ -86,14 +86,7 @@ const updateCRMContactMutation = async (url, { arg }) => {
  * // updatedContact = { id, first_name, last_name, ..., company: { ... } }
  */
 export const useUpdateCRMContact = () => {
-  const mutation = useSWRMutation('update-crm-contact', updateCRMContactMutation, {
-    // Revalidate after update
-    onSuccess: (data, key, config) => {
-      if (config?.onSuccess) {
-        config.onSuccess(data, key, config);
-      }
-    },
-  });
+  const mutation = useSWRMutation('update-crm-contact', updateCRMContactMutation);
 
   return mutation;
 };
@@ -145,14 +138,7 @@ const createCRMContactMutation = async (url, { arg }) => {
  * // newContact = { contact: { id, first_name, ... }, company: { id, name, ... } }
  */
 export const useCreateCRMContact = () => {
-  const mutation = useSWRMutation('create-crm-contact', createCRMContactMutation, {
-    // Revalidate after create
-    onSuccess: (data, key, config) => {
-      if (config?.onSuccess) {
-        config.onSuccess(data, key, config);
-      }
-    },
-  });
+  const mutation = useSWRMutation('create-crm-contact', createCRMContactMutation);
 
   return mutation;
 };

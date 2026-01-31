@@ -12,23 +12,11 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's organization
-    const { data: userOrg } = await supabase
-      .from('user_organizations')
-      .select('organization_id')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!userOrg) {
-      return NextResponse.json({ error: 'No organization found' }, { status: 403 });
-    }
-
-    // Fetch deal for context
+    // Fetch deal for context (RLS handles org filtering)
     const { data: deal, error: dealError } = await supabase
       .from('deals')
-      .select('stage, value, created_at, close_date')
+      .select('stage, amount, create_date, close_date, organization_id')
       .eq('id', id)
-      .eq('organization_id', userOrg.organization_id)
       .single();
 
     if (dealError || !deal) {
@@ -50,32 +38,33 @@ export async function GET(request, { params }) {
     const { count: wonCount } = await supabase
       .from('deals')
       .select('*', { count: 'exact', head: true })
-      .eq('organization_id', userOrg.organization_id)
-      .eq('stage', 'closed_won');
+      .eq('organization_id', deal.organization_id)
+      .eq('stage', 'Won');
 
     const { count: lostCount } = await supabase
       .from('deals')
       .select('*', { count: 'exact', head: true })
-      .eq('organization_id', userOrg.organization_id)
-      .eq('stage', 'closed_lost');
+      .eq('organization_id', deal.organization_id)
+      .eq('stage', 'Lost');
 
-    const winRatePercentage = (wonCount + lostCount) > 0 
-      ? ((wonCount / (wonCount + lostCount)) * 100).toFixed(1) 
+    const winRatePercentage = (wonCount + lostCount) > 0
+      ? ((wonCount / (wonCount + lostCount)) * 100).toFixed(1)
       : null;
 
-    // Calculate conversion rate (activities to deal value)
+    // Calculate conversion rate (activities to deal amount)
     const { data: activities } = await supabase
       .from('activities')
       .select('id')
       .eq('entity_type', 'opportunity')
       .eq('entity_id', id)
-      .eq('organization_id', userOrg.organization_id);
+      .eq('organization_id', deal.organization_id);
 
     const activityCount = activities?.length || 1;
-    const conversionRate = deal.value > 0 ? ((deal.value / activityCount) / 1000).toFixed(1) : 0;
+    const dealAmount = parseFloat(deal.amount) || 0;
+    const conversionRate = dealAmount > 0 ? ((dealAmount / activityCount) / 1000).toFixed(1) : 0;
 
     // Calculate engagement metrics (activities per week since creation)
-    const createdDate = new Date(deal.created_at);
+    const createdDate = new Date(deal.create_date);
     const now = new Date();
     const weeksSinceCreation = Math.max(1, Math.floor((now - createdDate) / (7 * 24 * 60 * 60 * 1000)));
     const engagementMetrics = ((activityCount / weeksSinceCreation) * 10).toFixed(1);

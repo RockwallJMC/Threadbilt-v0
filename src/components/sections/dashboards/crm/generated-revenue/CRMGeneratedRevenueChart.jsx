@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, forwardRef } from 'react';
 import { isSafari } from 'react-device-detect';
 import { useTheme } from '@mui/material';
 import dayjs from 'dayjs';
@@ -15,7 +15,7 @@ import ReactEchart from 'components/base/ReactEchart';
 
 echarts.use([TooltipComponent, GridComponent, BarChart, CanvasRenderer, LegendComponent]);
 
-const CRMGeneratedRevenueChart = ({ sx, data, ref }) => {
+const CRMGeneratedRevenueChart = forwardRef(({ sx, data }, ref) => {
   const { vars, typography } = useTheme();
   const { getThemeColor } = useSettingsContext();
 
@@ -131,6 +131,8 @@ const CRMGeneratedRevenueChart = ({ sx, data, ref }) => {
   );
 
   return <ReactEchart ref={ref} echarts={echarts} option={getOptions} sx={sx} />;
-};
+});
+
+CRMGeneratedRevenueChart.displayName = 'CRMGeneratedRevenueChart';
 
 export default CRMGeneratedRevenueChart;

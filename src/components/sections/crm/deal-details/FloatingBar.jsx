@@ -45,7 +45,7 @@ const FloatingBar = ({ contactInfo, handleDrawerOpen }) => {
           >
             Replica Badidas Futbol
           </Typography>
-          {upSm && (
+          {upSm && contactInfo?.people && contactInfo.people.length > 0 && (
             <Stack gap={1}>
               <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
                 {contactInfo.type}:

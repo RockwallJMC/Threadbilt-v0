@@ -101,7 +101,8 @@ const paths = {
   events: `/${rootPaths.appsRoot}/${rootPaths.eventsRoot}/event-detail`,
 
   leadDetails: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/lead-details`,
-  dealDetails: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/deal-details`,
+  dealDetails: (dealId) =>
+    `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/deal-details${dealId ? `/${dealId}` : ''}`,
   addContact: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/add-contact`,
   deals: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/deals`,
 

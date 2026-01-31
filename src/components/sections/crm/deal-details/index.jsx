@@ -104,11 +104,23 @@ const DealDetails = ({ dealId }) => {
     },
   ];
 
+  // Generate company logo with DiceBear fallback
+  const companyName = deal.company?.name || 'Company';
+  const companyLogo = deal.company?.logo_url && !deal.company.logo_url.startsWith('/images/company-logo/')
+    ? deal.company.logo_url
+    : `https://api.dicebear.com/7.x/initials/svg?seed=${companyName.replace(/[^\w\s]/g, '').replace(/\s+/g, '-')}`;
+
   const accountData = {
-    name: deal.company?.name || '',
+    name: companyName,
     dateCreated: deal.company?.created_at || '',
-    logo: deal.company?.logo_url || '',
+    logo: companyLogo,
     tags: deal.company?.tags || [],
+    contactIcons: [
+      'material-symbols:call-outline',
+      'material-symbols:mail-outline',
+      'material-symbols:video-call-outline-rounded',
+      'material-symbols:contact-mail-outline-rounded',
+    ],
     ongoingDeals: deal.company?.deals?.filter(d => d.stage !== 'closed_won' && d.stage !== 'closed_lost') || [],
     pastDeals: deal.company?.deals?.filter(d => d.stage === 'closed_won' || d.stage === 'closed_lost') || [],
   };
