@@ -5,7 +5,9 @@ import TabContext from '@mui/lab/TabContext';
 import TabPanel from '@mui/lab/TabPanel';
 import Tab from '@mui/material/Tab';
 import Tabs, { tabsClasses } from '@mui/material/Tabs';
-import { activityMonitoringData } from 'data/crm/deal-details';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+import { useCRMActivities } from 'services/swr/api-hooks/useCRMActivitiesApi';
 import AllActivitiesTabPanel from './activity-tab-panels/all-activities';
 import CallLogTabPanel from './activity-tab-panels/call-log';
 import EmailTabPanel from './activity-tab-panels/email';
@@ -22,10 +24,70 @@ const ActivityTab = {
   Notes: 'Notes',
 };
 
-const ActivityTabs = () => {
+// Map tab to activity_type for API filtering
+const tabToActivityType = {
+  [ActivityTab.Activities]: null, // null = all activities
+  [ActivityTab.Email]: 'email',
+  [ActivityTab.Meeting]: 'meeting',
+  [ActivityTab.CallLog]: 'call',
+  [ActivityTab.Task]: 'task',
+  [ActivityTab.Notes]: 'note',
+};
+
+const ActivityTabs = ({ contactId }) => {
   const [activeTab, setActiveTab] = useState(ActivityTab.Activities);
 
+  // Fetch activities based on selected tab
+  const activityType = tabToActivityType[activeTab];
+  const { data: activities, isLoading } = useCRMActivities(contactId, activityType);
+
   const handleChange = (_event, newValue) => setActiveTab(newValue);
+
+  // Transform API activities into grouped format expected by tab panels
+  const transformActivitiesForPanel = (activities, type) => {
+    if (!activities || activities.length === 0) return [];
+
+    // Group activities by date
+    const grouped = activities.reduce((acc, activity) => {
+      const date = activity.activity_date.split('T')[0]; // Get date part only
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(activity);
+      return acc;
+    }, {});
+
+    // Convert to array format expected by panels
+    return Object.entries(grouped).map(([date, items]) => ({
+      id: date,
+      date: date,
+      [type]: items,
+    }));
+  };
+
+  // Prepare data for each tab panel type
+  const allActivitiesData = transformActivitiesForPanel(
+    activities,
+    'activities'
+  );
+
+  const emailData = transformActivitiesForPanel(
+    activeTab === ActivityTab.Email ? activities : [],
+    'emails'
+  );
+
+  const meetingData = transformActivitiesForPanel(
+    activeTab === ActivityTab.Meeting ? activities : [],
+    'meetings'
+  );
+
+  const callLogData = transformActivitiesForPanel(
+    activeTab === ActivityTab.CallLog ? activities : [],
+    'calls'
+  );
+
+  const tasksData = activeTab === ActivityTab.Task ? activities || [] : [];
+  const notesData = activeTab === ActivityTab.Notes ? activities || [] : [];
 
   return (
     <TabContext value={activeTab}>
@@ -53,22 +115,58 @@ const ActivityTabs = () => {
         <Tab label={ActivityTab.Notes} value={ActivityTab.Notes} />
       </Tabs>
       <TabPanel value={ActivityTab.Activities} sx={{ px: 0, pb: 0 }}>
-        <AllActivitiesTabPanel allActivities={activityMonitoringData.allActivities} />
+        {isLoading ? (
+          <Box display="flex" justifyContent="center" p={3}>
+            <CircularProgress size={24} />
+          </Box>
+        ) : (
+          <AllActivitiesTabPanel allActivities={allActivitiesData} />
+        )}
       </TabPanel>
       <TabPanel value={ActivityTab.Email} sx={{ px: 0, pb: 0 }}>
-        <EmailTabPanel emailData={activityMonitoringData.email} />
+        {isLoading ? (
+          <Box display="flex" justifyContent="center" p={3}>
+            <CircularProgress size={24} />
+          </Box>
+        ) : (
+          <EmailTabPanel emailData={emailData} />
+        )}
       </TabPanel>
       <TabPanel value={ActivityTab.Meeting} sx={{ px: 0, pb: 0 }}>
-        <MeetingTabPanel meetingData={activityMonitoringData.meeting} />
+        {isLoading ? (
+          <Box display="flex" justifyContent="center" p={3}>
+            <CircularProgress size={24} />
+          </Box>
+        ) : (
+          <MeetingTabPanel meetingData={meetingData} />
+        )}
       </TabPanel>
       <TabPanel value={ActivityTab.CallLog} sx={{ px: 0, pb: 0 }}>
-        <CallLogTabPanel callLogData={activityMonitoringData.callLog} />
+        {isLoading ? (
+          <Box display="flex" justifyContent="center" p={3}>
+            <CircularProgress size={24} />
+          </Box>
+        ) : (
+          <CallLogTabPanel callLogData={callLogData} />
+        )}
       </TabPanel>
       <TabPanel value={ActivityTab.Task} sx={{ px: 0, pb: 0 }}>
-        <TaskTabPanel tasksData={activityMonitoringData.tasks} />
+        {isLoading ? (
+          <Box display="flex" justifyContent="center" p={3}>
+            <CircularProgress size={24} />
+          </Box>
+        ) : (
+          <TaskTabPanel tasksData={tasksData} />
+        )}
       </TabPanel>
       <TabPanel value={ActivityTab.Notes} sx={{ px: 0, pb: 0 }}>
-        <NotesTabPanel notes={activityMonitoringData.notes} />
+        {isLoading ? (
+          <Box display="flex" justifyContent="center" p={3}>
+            <CircularProgress size={24} />
+          </Box>
+        ) : (
+          <NotesTabPanel notes={notesData} />
+        )}
       </TabPanel>
     </TabContext>
   );
