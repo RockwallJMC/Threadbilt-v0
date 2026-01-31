@@ -85,7 +85,6 @@ Skills (Quality Gates)     +     Agents (Execution)     =     Consistent Results
 **When to Invoke:**
 - BEFORE claiming work is complete, fixed, or passing
 - BEFORE committing code
-- BEFORE creating PRs
 - BEFORE moving to next task
 
 **Core Principle:** Evidence before assertions, always

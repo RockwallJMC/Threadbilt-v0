@@ -1,1 +1,17 @@
-ss -lptn 'sport = :4000'
+#!/usr/bin/env bash
+set -euo pipefail
+echo "Scanning for Playwright and npm/Next dev processes..."
+ps -eo pid,cmd | rg -n "playwright|@playwright/test/cli\\.js test-server|playwright-mcp|npm run dev|next dev|next-server" || true
+echo
+echo "Listening on port 4000 (if permitted):"
+ss -lptn 'sport = :4000' || true
+PIDS=$(ps -eo pid=,cmd= | rg -n "playwright|@playwright/test/cli\\.js test-server|playwright-mcp|npm run dev|next dev|next-server" | awk '{print $1}' | sort -u)
+if [[ -z "${PIDS}" ]]; then
+  echo "No matching processes found."
+  exit 0
+fi
+echo
+echo "Sending SIGTERM to PIDs:"
+echo "${PIDS}"
+kill -TERM ${PIDS}
+echo "Done."

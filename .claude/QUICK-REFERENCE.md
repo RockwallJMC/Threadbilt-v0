@@ -27,7 +27,7 @@ Skill("using-superpowers")
 4. Task(Explore, "research patterns")
 5. Task(multiple-agents, "implement")
 6. Skill("VERIFY-BEFORE-COMPLETE")
-7. Create PR with evidence
+7. Update documentation and tracking artifacts with verification evidence
 ```
 
 ### Bug Investigation

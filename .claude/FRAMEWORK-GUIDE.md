@@ -76,12 +76,11 @@ npm run lint    # Show clean output
 1. Skill("using-superpowers")
 2. Create INDEX file
 3. Create phase design documents
-4. Create GitHub issue + feature branch
+4. Create GitHub issue (if using GitHub for tracking)
 5. Task(agents, "implement phases")
 6. Create phase execution documents
 7. Skill("VERIFY-BEFORE-COMPLETE")
-8. Create PR with evidence
-9. Update as-built documentation
+8. Update as-built documentation and tracking docs with verification evidence
 
 ## Agent Specializations
 

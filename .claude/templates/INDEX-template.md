@@ -1,8 +1,6 @@
 ---
 feature: "Feature Name - Description"
 github_issue: "#123"
-feature_branch: "feature/desk-name-feature"
-pr_number: "#456"
 status: "planned" | "in-progress" | "blocked" | "complete" | "merged" | "locked"
 started: "YYYY-MM-DD"
 target_completion: "YYYY-MM-DD"
@@ -25,13 +23,11 @@ Brief description of what this feature accomplishes and its business value.
 - Deliverable 2
 - Deliverable 3
 
-## GitHub Tracking
+## GitHub Tracking (optional)
 
 - **Issue**: #{github_issue} - [View Issue](https://github.com/{org}/{repo}/issues/{number})
-- **Feature Branch**: `{feature_branch}`
-- **Pull Request**: #{pr_number} - [View PR](https://github.com/{org}/{repo}/pull/{number}) (after PR creation)
 
-All phase progress updates are posted to the GitHub issue for external coordination and visibility.
+When using GitHub issues, phase progress updates should be posted there for external coordination and visibility.
 
 ## Phase Breakdown
 

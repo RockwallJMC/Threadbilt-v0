@@ -89,8 +89,7 @@ You are the conductor, not the musician. You coordinate skilled specialists to e
 7. Invoke Skill("VERIFY-BEFORE-COMPLETE") before claiming done
 8. Show verification evidence (test output, build output)
 9. Invoke Skill("code-review:code-review") for final code review
-10. Skill("github-workflow") to create PR with code review summary
-11. Update GitHub issue with implementation summary
+10. Update GitHub issue or local tracking docs with implementation summary
 ```
 
 **Example - Feature Request:**
@@ -109,8 +108,7 @@ Orchestrator Actions:
 → Skill("VERIFY-BEFORE-COMPLETE")
 → Show verification evidence
 → Skill("code-review:code-review") for final review
-→ Skill("github-workflow") to create PR
-→ Update GitHub issue with summary
+→ Update GitHub issue or local tracking docs with summary
 ```
 
 ## Documentation Framework (MANDATORY)
@@ -120,15 +118,13 @@ Orchestrator Actions:
 ### Execution Flow
 
 ```
-1. Initiate → GitHub issue + feature branch
+1. Initiate → GitHub issue
 2. Plan → INDEX + phase design docs
 3. Execute Task → Implement with phase execution doc updates
 4. Verify Task → Run lint/build/tests, capture evidence
 5. Code Review → Skill("code-review:code-review") for quality assurance
-6. PR Task → Create PR with code review summary
-7. Merge Task → Merge task PR
-8. Repeat → Next task (steps 3-7) until phase complete
-9. Phase Complete → Generate as-built, update user docs, update GitHub issue
+6. Repeat → Next task (steps 3-5) until phase complete
+7. Phase Complete → Generate as-built, update user docs, update GitHub issue
 ```
 
 ### Documentation Structure
@@ -263,7 +259,7 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 → Task(playwright-tester, "Create auth E2E tests")
 → Skill("VERIFY-BEFORE-COMPLETE")
 → Skill("code-review:code-review") for final review
-→ Skill("github-workflow") to create PR + update issue
+→ Update GitHub issue or local tracking docs
 ```
 
 **Scenario: "Fix bug in checkout"**
@@ -276,7 +272,7 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 → Task(react-mui-frontend-engineer, "Fix checkout component")
 → Skill("VERIFY-BEFORE-COMPLETE")
 → Skill("code-review:code-review") for final review
-→ Skill("github-workflow") to create PR + update issue
+→ Update GitHub issue or local tracking docs
 ```
 
 **Scenario: "Optimize database queries"**
@@ -286,7 +282,7 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 → Task(supabase-database-architect, "Analyze and optimize queries")
 → Skill("VERIFY-BEFORE-COMPLETE")
 → Skill("code-review:code-review") for final review
-→ Skill("github-workflow") to create PR + update issue
+→ Update GitHub issue or local tracking docs
 ```
 
 **Scenario: "Convert section to live database" (Sequential Operation)**
@@ -296,8 +292,7 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 → Skill("brainstorming")  # Analyze section, categorize pages (List/Create/Interaction/Dashboard)
 
 → Create section INDEX + shared brainstorm doc
-→ Create feature branch: feature/desk-{section}-database-wiring
-→ Commit docs to branch
+→ Commit docs
 
 For each page type (List → Create → Interaction → Dashboard):
   → Create plan.md (phase-execution-template)
@@ -315,23 +310,19 @@ For each page type (List → Create → Interaction → Dashboard):
 
   → Verify: npm run build && npm run lint
   → Skill("code-review:code-review") for final code review
-  → Skill("github-workflow") to create PR with code review summary
-  → Skill("github-workflow") to update issue with implementation summary
-  → WAIT for human merge
+  → Update GitHub issue or local tracking docs with implementation summary
   → Archive plan.md as phase{X.Y.Z}-{date}-{section}-{type}.md
   → Update section INDEX
-  → Skill("github-workflow") to close issue
+  → Close issue if applicable
   → AUTO-TRANSITION to next page type
 
 After all page types complete:
   → Update section INDEX with completion
-  → Clean up feature branch
   → WAIT for user to specify next section
 
 Critical:
 - Bottom-up per page: supabase → wiring → react-mui
 - Sequential testing: data → API → UI → E2E
-- One PR per page type (not per page)
 - Human review required (no auto-merge)
 - Auto-transition between page types
 ```

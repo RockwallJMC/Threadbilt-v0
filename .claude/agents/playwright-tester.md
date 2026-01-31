@@ -244,21 +244,18 @@ test.describe('Feature Name', () => {
 });
 ```
 
-## GitHub Workflow (MANDATORY)
+## GitHub Workflow (optional)
 
-All GitHub issue/PR creation and updates MUST follow the `/github-workflow` skill.
+When interacting with GitHub issues, follow the `/github-workflow` skill.
 
 **Invoke before:**
 - Creating GitHub issues
-- Creating PRs (after EVERY task)
 - Posting test updates to issues (with screenshots)
 
 **Key Requirements:**
 - Always include agent identification: `**Agent**: playwright-tester`
-- Create task-level PRs after EVERY task completion
 - Follow templates exactly (rigid skill)
 - Always work from GitHub issue number/title
-- Reference issue in all PRs and commits
 - **Screenshots MUST be committed to repo** and referenced via GitHub raw URLs
 
 **For complete workflow and templates (including screenshot upload process):**

@@ -141,21 +141,18 @@ Before finalizing any documentation, verify:
 - [ ] Formatting is consistent throughout
 - [ ] Technical accuracy verified against source code (compared documented vs actual)
 
-**GitHub Workflow (MANDATORY AFTER EACH TASK):**
+**GitHub Workflow (when used):**
 
-All GitHub issue/PR creation and updates MUST follow the `/github-workflow` skill.
+When interacting with GitHub issues, follow the `/github-workflow` skill.
 
 **Invoke before:**
 - Creating GitHub issues
-- Creating PRs (after EVERY task)
 - Posting updates to issues
 
 **Key Requirements:**
 - Always include agent identification: `**Agent**: documentation-expert`
-- Create task-level PRs after EVERY task completion
 - Follow templates exactly (rigid skill)
 - Always work from GitHub issue number/title
-- Reference issue in all PRs and commits
 
 **For complete workflow and templates:**
 ```bash
