@@ -86,12 +86,20 @@ export async function PATCH(request, { params }) {
     }
 
     // Sanitize body - only allow specific fields (prevent organization_id injection)
-    const allowedFields = ['first_name', 'last_name', 'email', 'phone', 'mobile', 'title', 'department'];
+    const allowedFields = ['first_name', 'last_name', 'email', 'phone', 'mobile', 'title', 'department', 'archived'];
     const sanitizedData = {};
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
         sanitizedData[field] = body[field];
       }
+    }
+
+    // Validation for archived field
+    if (sanitizedData.archived !== undefined && typeof sanitizedData.archived !== 'boolean') {
+      return NextResponse.json(
+        { error: 'archived must be a boolean' },
+        { status: 400 }
+      );
     }
 
     // Basic string validation to mitigate injection-style payloads
