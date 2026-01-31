@@ -206,3 +206,48 @@ test.describe('GridToolbar Features', () => {
     expect(download.suggestedFilename()).toContain('.csv');
   });
 });
+
+test.describe('Navigation', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/apps/crm/contacts');
+    await page.waitForSelector('[role="grid"]');
+  });
+
+  test('should navigate to contact details on double-click', async ({ page }) => {
+    // Double-click first row
+    const firstRow = page.locator('[role="row"]').nth(1); // Skip header
+    await firstRow.dblclick();
+
+    // Verify navigation to contact details
+    await page.waitForURL(/\/apps\/crm\/contact-details\/[^/]+/);
+    expect(page.url()).toContain('/apps/crm/contact-details/');
+  });
+
+  test('should navigate to contact details via view button', async ({ page }) => {
+    // Click view button on first contact
+    const viewButton = page.locator('[aria-label="View"]').first();
+    await viewButton.click();
+
+    // Verify navigation
+    await page.waitForURL(/\/apps\/crm\/contact-details\/[^/]+/);
+    expect(page.url()).toContain('/apps/crm/contact-details/');
+  });
+
+  test('should navigate to company details when clicking company name', async ({ page }) => {
+    // Click company name link in first row
+    const companyLink = page.locator('[data-field="account"] a').first();
+
+    // Check if link exists (some contacts may not have company)
+    const linkCount = await companyLink.count();
+    if (linkCount > 0) {
+      await companyLink.click();
+
+      // Verify navigation to company/account details
+      await page.waitForURL(/\/apps\/crm\/account-details\/[^/]+/);
+      expect(page.url()).toContain('/apps/crm/account-details/');
+    } else {
+      // Skip test if no company links exist
+      test.skip();
+    }
+  });
+});
