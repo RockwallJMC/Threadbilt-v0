@@ -3,6 +3,7 @@
 import axiosInstance from 'services/axios/axiosInstance';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
+import { useSWRConfig } from 'swr';
 
 /**
  * Fetcher function for all contacts
@@ -27,16 +28,12 @@ const contactsFetcher = async () => {
  * // contacts = [{ id, first_name, last_name, email, ..., company: { id, name, ... } }, ...]
  */
 export const useContacts = (config) => {
-  const swr = useSWR(
-    'crm-contacts',
-    contactsFetcher,
-    {
-      suspense: false,
-      revalidateOnMount: true,
-      revalidateOnFocus: false,
-      ...config,
-    }
-  );
+  const swr = useSWR('crm-contacts', contactsFetcher, {
+    suspense: false,
+    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    ...config,
+  });
 
   return swr;
 };
@@ -83,7 +80,7 @@ export const useCRMContact = (contactId, config) => {
       revalidateOnMount: true,
       revalidateOnFocus: false,
       ...config,
-    }
+    },
   );
 
   return swr;
@@ -179,3 +176,107 @@ export const useCreateCRMContact = () => {
 
   return mutation;
 };
+
+/**
+ * Fetcher function for all contacts
+ * Fetches contacts from API route with automatic organization filtering
+ *
+ * @returns {Promise<Object>} Response with contacts array
+ */
+const crmContactsListFetcher = async () => {
+  const response = await axiosInstance.get('/api/crm/contacts');
+  return response;
+};
+
+/**
+ * Hook to fetch all contacts for the user's organization
+ * Returns active (non-archived) contacts with account joins
+ *
+ * @returns {Object} SWR response with contacts array
+ *
+ * @example
+ * const { contacts, isLoading, isError, mutate } = useCRMContacts();
+ * // contacts = [{ id, first_name, last_name, email, ..., account: { id, name, ... } }, ...]
+ */
+export function useCRMContacts() {
+  const { data, error, isLoading, mutate } = useSWR(
+    '/api/crm/contacts',
+    crmContactsListFetcher,
+    {
+      suspense: false,
+      revalidateOnMount: true,
+      revalidateOnFocus: false,
+    }
+  );
+
+  return {
+    contacts: data?.contacts || [],
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+/**
+ * Hook to archive and unarchive contacts (soft delete)
+ * Provides functions to toggle archived status with automatic revalidation
+ *
+ * @returns {Object} Archive and unarchive functions
+ *
+ * @example
+ * const { archiveContact, unarchiveContact } = useArchiveContact();
+ * await archiveContact('contact_001'); // Marks contact as archived
+ * await unarchiveContact('contact_001'); // Restores contact
+ */
+export function useArchiveContact() {
+  const { mutate } = useSWRConfig();
+
+  const archiveContact = async (contactId) => {
+    const response = await fetch(`/api/crm/contacts/${contactId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ archived: true }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to archive contact');
+    }
+
+    const data = await response.json();
+
+    // Revalidate contacts list
+    mutate('/api/crm/contacts');
+
+    return data;
+  };
+
+  const unarchiveContact = async (contactId) => {
+    const response = await fetch(`/api/crm/contacts/${contactId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ archived: false }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to unarchive contact');
+    }
+
+    const data = await response.json();
+
+    // Revalidate contacts list
+    mutate('/api/crm/contacts');
+
+    return data;
+  };
+
+  return {
+    archiveContact,
+    unarchiveContact,
+  };
+}
