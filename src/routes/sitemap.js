@@ -353,6 +353,29 @@ const sitemap = [
         ],
       },
       {
+        name: 'Service Desk',
+        key: 'service',
+        pathName: 'service',
+        icon: 'material-symbols:engineering-outline',
+        active: true,
+        items: [
+          {
+            name: 'Create Ticket',
+            key: 'create_ticket',
+            path: paths.createServiceTicket,
+            pathName: 'create-ticket',
+            active: true,
+          },
+          {
+            name: 'Ticket Detail',
+            key: 'ticket_detail',
+            path: paths.serviceTicketDetail(),
+            pathName: 'ticket-detail',
+            active: true,
+          },
+        ],
+      },
+      {
         name: 'Kanban',
         key: 'kanban',
         pathName: 'kanban',

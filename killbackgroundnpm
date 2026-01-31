@@ -1,11 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 echo "Scanning for Playwright and npm/Next dev processes..."
-ps -eo pid,cmd | rg -n "playwright|@playwright/test/cli\\.js test-server|playwright-mcp|npm run dev|next dev|next-server" || true
+PATTERN="playwright|@playwright/test/cli\\.js test-server|playwright-mcp|npm run dev|next dev|next-server"
+if command -v rg >/dev/null 2>&1; then
+  MATCH="rg -n"
+  MATCH_NOLN="rg --no-line-number"
+else
+  MATCH="grep -En"
+  MATCH_NOLN="grep -E"
+fi
+ps -eo pid,cmd | eval ${MATCH} "\"${PATTERN}\"" || true
 echo
 echo "Listening on port 4000 (if permitted):"
-ss -lptn 'sport = :4000' || true
-PIDS=$(ps -eo pid=,cmd= | rg -n "playwright|@playwright/test/cli\\.js test-server|playwright-mcp|npm run dev|next dev|next-server" | awk '{print $1}' | sort -u)
+if command -v ss >/dev/null 2>&1; then
+  ss -lptn 'sport = :4000' || true
+else
+  echo "ss not available; skipping port check."
+fi
+PIDS=$(ps -eo pid=,cmd= | eval ${MATCH_NOLN} "\"${PATTERN}\"" | awk '{print $1}' | sort -u)
 if [[ -z "${PIDS}" ]]; then
   echo "No matching processes found."
   exit 0

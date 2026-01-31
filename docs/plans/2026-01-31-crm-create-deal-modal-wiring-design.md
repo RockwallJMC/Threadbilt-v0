@@ -23,6 +23,7 @@ Wire the CRM Create Deal modal to persist deals to the database via the existing
 ### 1. Data Flow Architecture
 
 **Overall Flow:**
+
 ```
 User fills form → Validation → Transform data → POST /api/crm/deals →
 Optimistic update → Revalidate deals list → Show success message → Close modal
@@ -69,7 +70,9 @@ const validationSchema = Yup.object().shape({
   description: Yup.string(), // Optional
   pipeline: Yup.string(), // Optional
   stage: Yup.string().required('Stage is required'),
-  amount: Yup.number().required('Amount is required').min(0, 'Amount must be positive'),
+  amount: Yup.number()
+    .required('Amount is required')
+    .min(0, 'Amount must be positive'),
   createDate: Yup.date().required('Create date is required'),
   closeDate: Yup.date()
     .required('Close date is required')
@@ -89,6 +92,7 @@ const validationSchema = Yup.object().shape({
 3. **Keep**: All other fields as-is
 
 **Field Order:**
+
 - Deal name, description, pipeline, stage
 - Amount, create date, close date
 - Deal owner, priority
@@ -134,7 +138,7 @@ const validationSchema = Yup.object().shape({
 1. **Form Storage**: Continue using dayjs objects in form state
 2. **API Submission**: Transform to ISO strings:
    ```javascript
-   close_date: dayjs(formData.closeDate).toISOString()
+   close_date: dayjs(formData.closeDate).toISOString();
    ```
 3. **Display**: Keep existing format "DD MMM, YYYY"
 
@@ -152,11 +156,12 @@ const validationSchema = Yup.object().shape({
 **Field Error Integration:**
 
 For duplicate name conflict:
+
 ```javascript
 if (error.response?.data?.code === 'DUPLICATE_DEAL_NAME') {
   setError('name', {
     type: 'manual',
-    message: 'A deal with this name already exists'
+    message: 'A deal with this name already exists',
   });
 }
 ```
@@ -169,15 +174,18 @@ if (error.response?.data?.code === 'DUPLICATE_DEAL_NAME') {
 ## Implementation Components
 
 ### Files to Modify:
+
 1. `/src/components/sections/crm/deals/deal-card/CreateDealDialog.jsx` - Main modal component
 2. `/src/services/swr/api-hooks/useCRMDealsApi.js` - Already has useCreateDeal hook
 3. `/src/providers/DealsProvider.jsx` - May need optimistic update logic
 
 ### Files to Create:
+
 1. `/src/app/api/crm/contacts/route.js` - GET endpoint for contacts
 2. `/src/services/swr/api-hooks/useCRMContactApi.js` - SWR hook for contacts (if doesn't exist)
 
 ### Database Requirements:
+
 - Contacts table must exist in Supabase (verify schema)
 - May need to create contacts API endpoint and seed data
 
@@ -196,6 +204,7 @@ if (error.response?.data?.code === 'DUPLICATE_DEAL_NAME') {
 ## Trade-offs
 
 **Chosen Approach**: Full refactor
+
 - ✅ Fixes technical debt
 - ✅ Better UX with proper contact selection
 - ✅ Aligned validation with API

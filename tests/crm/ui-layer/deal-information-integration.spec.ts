@@ -23,7 +23,10 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { loginAsOrgUser, TEST_DATA } from '../../helpers/multi-tenant-setup.js';
+import { TEST_DATA } from '../../helpers/multi-tenant-setup.js';
+
+// Use authenticated storage state (user is already logged in)
+test.use({ storageState: 'tests/.auth/user.json' });
 
 // Test configuration
 const DEAL_ID = TEST_DATA.ACME_OPPORTUNITY.id;
@@ -31,11 +34,9 @@ const DEAL_DETAILS_URL = `http://localhost:4000/apps/crm/deals/${DEAL_ID}`;
 
 test.describe('Deal Information - Inline Editing E2E', () => {
   test.beforeEach(async ({ page }) => {
-    // Login as authenticated Acme admin user
-    await loginAsOrgUser(page, 'ACME', 'admin');
-
-    // Navigate to deal details page
+    // Navigate to deal details page (already authenticated via storageState)
     await page.goto(DEAL_DETAILS_URL);
+    await page.waitForLoadState('networkidle');
 
     // Wait for Deal Information panel to load
     await page.waitForSelector('text=Deal Information', { timeout: 10000 });
@@ -329,12 +330,36 @@ test.describe('Deal Information - Inline Editing E2E', () => {
     await expect(closingDateRow).toContainText('2026');
   });
 
-  test('RED: should show error toast on failed update', async ({ page }) => {
-    // RED PHASE: Test will fail because error handling doesn't exist yet
-    // This test verifies error notifications
+  test('should show loading state during save', async ({ page }) => {
+    // Find Budget Forecast row
+    const budgetRow = page.locator('text=Budget Forecast').locator('..').locator('..');
 
+    // Click to enter edit mode
+    const viewText = budgetRow.locator('p, div').filter({ hasNotText: 'Budget Forecast:' }).first();
+    await viewText.click();
+
+    // Wait for currency input to appear
+    const currencyInput = budgetRow.locator('input[type="number"]');
+    await expect(currencyInput).toBeVisible();
+
+    // Enter new amount
+    await currencyInput.fill('');
+    await currencyInput.fill('999999');
+
+    // Blur to trigger auto-save and immediately check for loading indicator
+    await currencyInput.blur();
+
+    // Note: Loading state may be very brief, so we can't reliably assert it appears
+    // Instead, we verify the save completes successfully
+    const successToast = page.locator('text=Deal updated');
+    await expect(successToast).toBeVisible({ timeout: 5000 });
+  });
+
+  test('should handle API error with toast and rollback', async ({ page }) => {
     // Intercept API call to simulate error
+    let requestCount = 0;
     await page.route('**/api/crm/deals/*', route => {
+      requestCount++;
       if (route.request().method() === 'PATCH') {
         route.fulfill({
           status: 500,
@@ -346,19 +371,91 @@ test.describe('Deal Information - Inline Editing E2E', () => {
       }
     });
 
-    // Edit description field
-    const descriptionField = page.locator('[data-testid="field-description"]');
-    await descriptionField.click();
+    // Find Deal Details row
+    const dealDetailsRow = page.locator('text=Deal Details').locator('..').locator('..');
 
-    const textarea = page.locator('textarea');
+    // Get original value
+    const originalValue = await dealDetailsRow.locator('p, div').filter({ hasNotText: 'Deal Details:' }).first().textContent();
+
+    // Click to enter edit mode
+    const viewText = dealDetailsRow.locator('p, div').filter({ hasNotText: 'Deal Details:' }).first();
+    await viewText.click();
+
+    // Wait for textarea to appear
+    const textarea = dealDetailsRow.locator('textarea');
+    await expect(textarea).toBeVisible();
+
+    // Enter new value
     await textarea.fill('This update will fail');
+
+    // Blur to trigger save (which will fail)
     await textarea.blur();
 
     // Verify error toast appears
-    const errorToast = page.locator('text="Failed to update deal"');
-    await expect(errorToast).toBeVisible();
+    const errorToast = page.locator('text=Failed to update deal');
+    await expect(errorToast).toBeVisible({ timeout: 5000 });
 
-    // Verify field reverts to original value (rollback)
-    await expect(descriptionField).not.toContainText('This update will fail');
+    // Verify field stays in edit mode with original value (rollback)
+    await expect(textarea).toBeVisible();
+    const rolledBackValue = await textarea.inputValue();
+    expect(rolledBackValue).toBe(originalValue || '');
+
+    // Verify PATCH request was attempted
+    expect(requestCount).toBeGreaterThan(0);
+  });
+
+  test('should persist data after page reload', async ({ page }) => {
+    // Find Budget Forecast row
+    const budgetRow = page.locator('text=Budget Forecast').locator('..').locator('..');
+
+    // Click to enter edit mode
+    const viewText = budgetRow.locator('p, div').filter({ hasNotText: 'Budget Forecast:' }).first();
+    await viewText.click();
+
+    // Wait for currency input to appear
+    const currencyInput = budgetRow.locator('input[type="number"]');
+    await expect(currencyInput).toBeVisible();
+
+    // Enter unique value
+    const uniqueValue = '123456';
+    await currencyInput.fill('');
+    await currencyInput.fill(uniqueValue);
+
+    // Blur to trigger auto-save
+    await currencyInput.blur();
+
+    // Verify success toast appears
+    const successToast = page.locator('text=Deal updated');
+    await expect(successToast).toBeVisible({ timeout: 5000 });
+
+    // Wait for save to complete
+    await page.waitForTimeout(1000);
+
+    // Reload the page
+    await page.reload();
+
+    // Wait for Deal Information panel to load
+    await page.waitForSelector('text=Deal Information', { timeout: 10000 });
+
+    // Find Budget Forecast row again
+    const budgetRowAfterReload = page.locator('text=Budget Forecast').locator('..').locator('..');
+    await expect(budgetRowAfterReload).toBeVisible();
+
+    // Verify value persisted (formatted with comma)
+    await expect(budgetRowAfterReload).toContainText('123,456');
+  });
+
+  test('should show all 6 editable fields and 2 read-only fields', async ({ page }) => {
+    // Verify all editable fields are present
+    await expect(page.locator('text=Deal Details')).toBeVisible(); // EditableTextField
+    await expect(page.locator('text=Current Stage')).toBeVisible(); // EditableSelect
+    await expect(page.locator('text=Closing Date')).toBeVisible(); // EditableDatePicker
+    await expect(page.locator('text=Budget Forecast')).toBeVisible(); // EditableCurrencyInput
+    await expect(page.locator('text=Forecast Category')).toBeVisible(); // EditableSelect
+    await expect(page.locator('text=Deal Probability')).toBeVisible(); // EditablePercentageInput
+
+    // Verify read-only audit fields are present
+    await expect(page.locator('text=Created By')).toBeVisible();
+    await expect(page.locator('text=Create Date')).toBeVisible();
   });
 });

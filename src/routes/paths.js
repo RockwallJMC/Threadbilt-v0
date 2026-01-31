@@ -15,6 +15,7 @@ export const rootPaths = {
   ecommerceAdminRoot: 'admin',
   ecommerceCustomerRoot: 'customer',
   eventsRoot: 'events',
+  serviceRoot: 'service',
   emailRoot: 'email',
   kanbanRoot: 'kanban',
   calendarRoot: 'calendar',
@@ -98,6 +99,10 @@ const paths = {
 
   createEvent: `/${rootPaths.appsRoot}/${rootPaths.eventsRoot}/create-event`,
   events: `/${rootPaths.appsRoot}/${rootPaths.eventsRoot}/event-detail`,
+
+  createServiceTicket: `/${rootPaths.appsRoot}/${rootPaths.serviceRoot}/create-ticket`,
+  serviceTicketDetail: (ticketId) =>
+    `/${rootPaths.appsRoot}/${rootPaths.serviceRoot}/ticket-detail${ticketId ? `/${ticketId}` : ''}`,
 
   leadDetails: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/lead-details`,
   dealDetails: (dealId) =>

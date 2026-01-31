@@ -23,6 +23,11 @@ npm run build
 npm run lint
 ```
 
+**Git rules (MANDATORY):**
+
+- Do **NOT** use `git worktree` or multiple worktrees in this repository.
+- Use normal branches in the single main checkout instead.
+
 **⚠️ CRITICAL: Package Installation Rules**
 
 - **NEVER run `npm install playwright`** - it's already included via `@playwright/test`
