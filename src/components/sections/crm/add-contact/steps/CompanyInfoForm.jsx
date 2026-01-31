@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import {
   Box,
@@ -57,6 +58,8 @@ const CompanyInfoForm = ({ label }) => {
     formState: { errors },
   } = useFormContext();
 
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+
   return (
     <div>
       <Box sx={{ mb: 4.5 }}>
@@ -75,9 +78,29 @@ const CompanyInfoForm = ({ label }) => {
               return (
                 <AvatarDropBox
                   defaultFile={value}
-                  onDrop={(acceptedFiles) => {
+                  onDrop={async (acceptedFiles) => {
                     if (acceptedFiles.length > 0) {
-                      onChange(acceptedFiles[0]);
+                      setIsUploadingLogo(true);
+                      try {
+                        const formData = new FormData();
+                        formData.append('file', acceptedFiles[0]);
+
+                        const response = await fetch('/api/upload/avatar', {
+                          method: 'POST',
+                          body: formData,
+                        });
+
+                        if (!response.ok) throw new Error('Upload failed');
+
+                        const data = await response.json();
+                        onChange(data.url); // Store URL instead of File object
+                      } catch (error) {
+                        console.error('Logo upload error:', error);
+                        // Keep file object as fallback
+                        onChange(acceptedFiles[0]);
+                      } finally {
+                        setIsUploadingLogo(false);
+                      }
                     }
                   }}
                   error={errors.companyInfo?.avatar ? 'Invalid avatar' : undefined}
@@ -85,6 +108,11 @@ const CompanyInfoForm = ({ label }) => {
               );
             }}
           />
+          {isUploadingLogo && (
+            <Typography variant="caption" color="primary">
+              Uploading...
+            </Typography>
+          )}
           {errors.companyInfo?.avatar?.message && (
             <FormHelperText error>{errors.companyInfo.avatar.message}</FormHelperText>
           )}

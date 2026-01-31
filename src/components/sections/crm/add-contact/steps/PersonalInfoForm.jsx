@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import {
   Box,
@@ -41,6 +42,8 @@ const PersonalInfoForm = ({ label }) => {
     formState: { errors },
   } = useFormContext();
 
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
   return (
     <div>
       <Box sx={{ mb: 4.5 }}>
@@ -58,9 +61,29 @@ const PersonalInfoForm = ({ label }) => {
               return (
                 <AvatarDropBox
                   defaultFile={value}
-                  onDrop={(acceptedFiles) => {
+                  onDrop={async (acceptedFiles) => {
                     if (acceptedFiles.length > 0) {
-                      onChange(acceptedFiles[0]);
+                      setIsUploadingAvatar(true);
+                      try {
+                        const formData = new FormData();
+                        formData.append('file', acceptedFiles[0]);
+
+                        const response = await fetch('/api/upload/avatar', {
+                          method: 'POST',
+                          body: formData,
+                        });
+
+                        if (!response.ok) throw new Error('Upload failed');
+
+                        const data = await response.json();
+                        onChange(data.url); // Store URL instead of File object
+                      } catch (error) {
+                        console.error('Avatar upload error:', error);
+                        // Keep file object as fallback
+                        onChange(acceptedFiles[0]);
+                      } finally {
+                        setIsUploadingAvatar(false);
+                      }
                     }
                   }}
                   sx={{
@@ -73,6 +96,11 @@ const PersonalInfoForm = ({ label }) => {
               );
             }}
           />
+          {isUploadingAvatar && (
+            <Typography variant="caption" color="primary">
+              Uploading...
+            </Typography>
+          )}
           {errors.personalInfo?.profileImage?.message && (
             <FormHelperText error>{errors.personalInfo?.profileImage?.message}</FormHelperText>
           )}
