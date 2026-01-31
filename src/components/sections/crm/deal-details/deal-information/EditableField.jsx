@@ -1,16 +1,18 @@
+/**
+ * Aurora Search: No inline editing patterns found in Aurora templates.
+ * This is a custom PierceDesk pattern for inline editable fields.
+ */
+
 import { useState } from 'react';
 import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import IconifyIcon from 'components/base/IconifyIcon';
 
 /**
  * Generic wrapper for inline editable fields
  * @param {string} value - Current field value
  * @param {function} onSave - Async save handler (value) => Promise
  * @param {function} renderView - Render function for view mode (value, handleEdit)
- * @param {function} renderEdit - Render function for edit mode (value, handleSave, handleCancel, isSaving)
+ * @param {function} renderEdit - Render function for edit mode (editValue, setEditValue, handleSave, handleCancel, isSaving)
  * @param {string} fieldName - Field name for error messages
  */
 const EditableField = ({ value, onSave, renderView, renderEdit, fieldName }) => {
