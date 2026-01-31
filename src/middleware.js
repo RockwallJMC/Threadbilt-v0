@@ -38,7 +38,7 @@ export async function middleware(request) {
 
   // Redirect authenticated users away from auth pages
   if (request.nextUrl.pathname.startsWith('/authentication') && user) {
-    const dashboardUrl = new URL('/dashboard/crm', request.url)
+    const dashboardUrl = new URL('/apps/crm', request.url)
     return NextResponse.redirect(dashboardUrl)
   }
 
