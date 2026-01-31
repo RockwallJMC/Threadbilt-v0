@@ -10,6 +10,40 @@ function formatDealDecimals(deal) {
   };
 }
 
+// Helper: Transform contact to client format (template-aurora compatibility)
+function transformDealForUI(deal) {
+  if (!deal) return deal;
+
+  const formatted = formatDealDecimals(deal);
+
+  // Add client field from contact for template-aurora compatibility
+  // Always add client field (even if contact is null) to prevent UI errors
+  if (deal.contact) {
+    formatted.client = {
+      name: deal.contact.first_name && deal.contact.last_name
+        ? `${deal.contact.first_name} ${deal.contact.last_name}`.trim()
+        : deal.contact.first_name || deal.contact.last_name || deal.contact.email || 'Unknown',
+      email: deal.contact.email || '',
+      phone: deal.contact.phone || '',
+      videoChat: '',
+      address: '',
+      link: '#!',
+    };
+  } else {
+    // Provide default client when contact is null
+    formatted.client = {
+      name: 'No Contact',
+      email: '',
+      phone: '',
+      videoChat: '',
+      address: '',
+      link: '#!',
+    };
+  }
+
+  return formatted;
+}
+
 // ============================================================================
 // GET /api/crm/deals
 // Fetch all deals for authenticated user, grouped by stage
@@ -28,7 +62,7 @@ export async function GET(request) {
       );
     }
 
-    // Fetch deals with joins, explicit user filter (RLS + defense-in-depth)
+    // Fetch deals with joins (RLS handles organization filtering)
     const { data: deals, error } = await supabase
       .from('deals')
       .select(`
@@ -36,7 +70,6 @@ export async function GET(request) {
         company:companies(*),
         contact:crm_contacts(*)
       `)
-      .eq('user_id', user.id)
       .order('stage_order', { ascending: true });
 
     if (error) {
@@ -47,7 +80,7 @@ export async function GET(request) {
       );
     }
 
-    // Format decimal fields and group deals by stage
+    // Transform deals and group by stage
     const grouped = {
       Contact: [],
       MQL: [],
@@ -59,7 +92,7 @@ export async function GET(request) {
 
     deals.forEach(deal => {
       if (grouped[deal.stage]) {
-        grouped[deal.stage].push(formatDealDecimals(deal));
+        grouped[deal.stage].push(transformDealForUI(deal));
       }
     });
 
@@ -110,11 +143,10 @@ export async function POST(request) {
       }
     }
 
-    // Calculate stage_order (append to end of stage, filter by user)
+    // Calculate stage_order (append to end of stage, org-wide)
     const { data: existingDeals } = await supabase
       .from('deals')
       .select('stage_order')
-      .eq('user_id', user.id)
       .eq('stage', sanitizedData.stage)
       .order('stage_order', { ascending: false })
       .limit(1);
@@ -147,7 +179,7 @@ export async function POST(request) {
       );
     }
 
-    return NextResponse.json(formatDealDecimals(newDeal), { status: 201 });
+    return NextResponse.json(transformDealForUI(newDeal), { status: 201 });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json(

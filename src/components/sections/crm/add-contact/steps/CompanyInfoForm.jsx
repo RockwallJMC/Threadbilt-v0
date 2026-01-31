@@ -24,7 +24,7 @@ export const companyInfoSchema = yup.object().shape({
     avatar: yup.mixed().required('Avatar is required'),
     companyName: yup.string().required('This field is required'),
     industryType: yup.string().required('This field is required'),
-    foundingYear: yup.string().nullable().required('This field is required'),
+    foundingYear: yup.string().nullable().optional(),
     contact: yup.object({
       officialEmail: yup.string().email('Invalid email format').required('This field is required'),
       phoneNumber: yup.string().required('This field is required'),

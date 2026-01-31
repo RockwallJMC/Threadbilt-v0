@@ -2,7 +2,7 @@
 
 import { createContext, use, useReducer, useCallback, useEffect, useState } from 'react';
 import { useDeals, useUpdateDeal } from 'services/swr/api-hooks/useCRMDealsApi';
-import { DRAG_START, DRAG_OVER, DRAG_END, dealsReducer } from 'reducers/DealsReducer';
+import { DRAG_START, DRAG_OVER, DRAG_END, SET_LIST_ITEMS, dealsReducer } from 'reducers/DealsReducer';
 
 const STAGES = ['Contact', 'MQL', 'SQL', 'Opportunity', 'Won', 'Lost'];
 
@@ -13,23 +13,8 @@ const DealsProvider = ({ children }) => {
   const { data: groupedDeals, error, isLoading, mutate } = useDeals();
   const { trigger: updateDeal } = useUpdateDeal();
 
-  // Transform API data to list format
-  const [listItems, setListItems] = useState([]);
-
-  useEffect(() => {
-    if (groupedDeals) {
-      const transformed = STAGES.map(stage => ({
-        id: stage,
-        title: stage,
-        deals: groupedDeals[stage] || [],
-        compactMode: false,
-      }));
-      setListItems(transformed);
-    }
-  }, [groupedDeals]);
-
   const initialState = {
-    listItems: listItems,
+    listItems: [],
     createDealDialog: { isOpen: false },
     draggedList: null,
     draggedDeal: null,
@@ -38,6 +23,22 @@ const DealsProvider = ({ children }) => {
   };
 
   const [state, dealsDispatch] = useReducer(dealsReducer, initialState);
+
+  // Update reducer when API data changes
+  useEffect(() => {
+    if (groupedDeals) {
+      const transformed = STAGES.map(stage => ({
+        id: stage,
+        title: stage,
+        deals: groupedDeals[stage] || [],
+        compactMode: false,
+      }));
+      dealsDispatch({
+        type: SET_LIST_ITEMS,
+        payload: { listItems: transformed },
+      });
+    }
+  }, [groupedDeals]);
 
   const handleDragStart = (event) => {
     dealsDispatch({
@@ -95,7 +96,7 @@ const DealsProvider = ({ children }) => {
     // Get updated list items after reducer update
     // We need to wait a tick for the reducer to update state
     setTimeout(async () => {
-      const currentListItems = state.listItems.length > 0 ? state.listItems : listItems;
+      const currentListItems = state.listItems;
       const dealInfo = findDealAndStage(activeId, currentListItems);
 
       if (dealInfo && dealInfo.deal) {

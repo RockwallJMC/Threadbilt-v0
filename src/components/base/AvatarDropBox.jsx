@@ -71,7 +71,7 @@ const AvatarDropBox = ({ onDrop, error, defaultFile, sx, ...rest }) => {
       }}
     >
       <input {...getInputProps()} />
-      {preview && <Image src={preview?.preview ?? ''} alt={preview?.name} fill />}
+      {preview && <Image src={preview?.preview ?? ''} alt={preview?.name} fill sizes="144px" />}
 
       <Stack
         direction="column"

@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import {
   Autocomplete,
   Box,
+  CircularProgress,
   Divider,
   FormControl,
   FormHelperText,
@@ -41,14 +43,6 @@ const sourceOptions = [
   { value: 'other', label: 'Other' },
 ];
 
-const agentOptions = [
-  { value: 'agent1', label: 'Agent 1' },
-  { value: 'agent2', label: 'Agent 2' },
-  { value: 'agent3', label: 'Agent 3' },
-  { value: 'agent4', label: 'Agent 4' },
-  { value: 'agent5', label: 'Agent 5' },
-];
-
 const statusOptions = [
   { value: 'new', label: 'New' },
   { value: 'contacted', label: 'Contacted' },
@@ -86,6 +80,32 @@ const LeadInfoForm = ({ label }) => {
     formState: { errors },
   } = useFormContext();
 
+  const [agentOptions, setAgentOptions] = useState([]);
+  const [loadingAgents, setLoadingAgents] = useState(true);
+
+  useEffect(() => {
+    const fetchOrganizationUsers = async () => {
+      try {
+        const response = await fetch('/api/crm/organization-users');
+        const users = await response.json();
+
+        if (response.ok) {
+          const options = users.map((user) => ({
+            value: user.email,
+            label: user.full_name || user.email,
+          }));
+          setAgentOptions(options);
+        }
+      } catch (error) {
+        console.error('Error fetching organization users:', error);
+      } finally {
+        setLoadingAgents(false);
+      }
+    };
+
+    fetchOrganizationUsers();
+  }, []);
+
   return (
     <div>
       <Box sx={{ mb: 4.5 }}>
@@ -105,13 +125,22 @@ const LeadInfoForm = ({ label }) => {
               control={control}
               error={errors.leadInfo?.source?.message}
             />
-            <ControlledSelect
-              name="leadInfo.assignedAgent"
-              label="Assign Agent"
-              options={agentOptions}
-              control={control}
-              error={errors.leadInfo?.assignedAgent?.message}
-            />
+            {loadingAgents ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CircularProgress size={20} />
+                <Typography variant="body2" color="text.secondary">
+                  Loading agents...
+                </Typography>
+              </Box>
+            ) : (
+              <ControlledSelect
+                name="leadInfo.assignedAgent"
+                label="Assign Agent"
+                options={agentOptions}
+                control={control}
+                error={errors.leadInfo?.assignedAgent?.message}
+              />
+            )}
           </Stack>
         </ContactFormSection>
 

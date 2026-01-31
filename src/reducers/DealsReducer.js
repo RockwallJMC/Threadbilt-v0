@@ -9,6 +9,7 @@ export const SET_CREATE_DEAL_DIALOG = 'SET_CREATE_DEAL_DIALOG';
 export const TOGGLE_COMPACT_MODE = 'TOGGLE_COMPACT_MODE';
 export const TOGGLE_DEAL_EXPAND = 'TOGGLE_DEAL_EXPAND';
 export const UPDATE_LIST_TITLE = 'UPDATE_LIST_TITLE';
+export const SET_LIST_ITEMS = 'SET_LIST_ITEMS';
 
 const findList = (id, listItems) => {
   if (!id) {
@@ -197,6 +198,13 @@ export const dealsReducer = (state, action) => {
         listItems: state.listItems.map((item) =>
           item.id === action.payload.id ? { ...item, title: action.payload.title } : item,
         ),
+      };
+    }
+
+    case SET_LIST_ITEMS: {
+      return {
+        ...state,
+        listItems: action.payload.listItems,
       };
     }
 

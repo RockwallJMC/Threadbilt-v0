@@ -10,6 +10,40 @@ function formatDealDecimals(deal) {
   };
 }
 
+// Helper: Transform contact to client format (template-aurora compatibility)
+function transformDealForUI(deal) {
+  if (!deal) return deal;
+
+  const formatted = formatDealDecimals(deal);
+
+  // Add client field from contact for template-aurora compatibility
+  // Always add client field (even if contact is null) to prevent UI errors
+  if (deal.contact) {
+    formatted.client = {
+      name: deal.contact.first_name && deal.contact.last_name
+        ? `${deal.contact.first_name} ${deal.contact.last_name}`.trim()
+        : deal.contact.first_name || deal.contact.last_name || deal.contact.email || 'Unknown',
+      email: deal.contact.email || '',
+      phone: deal.contact.phone || '',
+      videoChat: '',
+      address: '',
+      link: '#!',
+    };
+  } else {
+    // Provide default client when contact is null
+    formatted.client = {
+      name: 'No Contact',
+      email: '',
+      phone: '',
+      videoChat: '',
+      address: '',
+      link: '#!',
+    };
+  }
+
+  return formatted;
+}
+
 // ============================================================================
 // GET /api/crm/deals/[id]
 // Fetch single deal with nested data (contact, company, collaborators, activities)
@@ -30,7 +64,7 @@ export async function GET(request, { params }) {
 
     const dealId = (await params).id;
 
-    // Fetch deal with contact and company joins
+    // Fetch deal with contact and company joins (RLS handles org filtering)
     const { data: deal, error: dealError } = await supabase
       .from('deals')
       .select(`
@@ -43,7 +77,6 @@ export async function GET(request, { params }) {
         )
       `)
       .eq('id', dealId)
-      .eq('user_id', user.id)
       .single();
 
     if (dealError || !deal) {
@@ -58,7 +91,6 @@ export async function GET(request, { params }) {
       .from('deals')
       .select('*')
       .eq('company_id', deal.contact?.company?.id)
-      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     // Fetch deal collaborators grouped by role
@@ -101,7 +133,7 @@ export async function GET(request, { params }) {
 
     // Construct response with nested data
     const response = {
-      ...formatDealDecimals(deal),
+      ...transformDealForUI(deal),
       company: {
         ...deal.contact?.company,
         deals: companyDeals || [],
@@ -142,12 +174,11 @@ export async function PATCH(request, { params }) {
     const dealId = (await params).id;
     const body = await request.json();
 
-    // Check if deal exists with explicit user filter (RLS + defense-in-depth)
+    // Check if deal exists (RLS handles org filtering)
     const { data: existingDeal, error: fetchError } = await supabase
       .from('deals')
       .select('*')
       .eq('id', dealId)
-      .eq('user_id', user.id)
       .single();
 
     if (fetchError || !existingDeal) {
@@ -214,12 +245,11 @@ export async function PATCH(request, { params }) {
     // Add last_update timestamp
     sanitizedData.last_update = new Date().toISOString();
 
-    // Update deal with explicit user filter
+    // Update deal (RLS handles org filtering)
     const { data: updatedDeal, error: updateError } = await supabase
       .from('deals')
       .update(sanitizedData)
       .eq('id', dealId)
-      .eq('user_id', user.id)
       .select(`
         *,
         company:companies(*),
@@ -235,7 +265,7 @@ export async function PATCH(request, { params }) {
       );
     }
 
-    return NextResponse.json(formatDealDecimals(updatedDeal));
+    return NextResponse.json(transformDealForUI(updatedDeal));
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json(

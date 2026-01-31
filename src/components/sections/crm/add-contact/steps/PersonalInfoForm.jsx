@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import {
   Box,
+  CircularProgress,
   Divider,
   FormControl,
   FormHelperText,
+  InputAdornment,
   Stack,
   TextField,
   Typography,
@@ -14,20 +16,21 @@ import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import * as yup from 'yup';
 import AvatarDropBox from 'components/base/AvatarDropBox';
+import IconifyIcon from 'components/base/IconifyIcon';
 import NumberTextField from 'components/base/NumberTextField';
 import ContactFormSection from 'components/sections/crm/add-contact/ContactFormSection';
 import ControlledSelect from 'components/sections/crm/add-contact/ControlledSelect';
 
 export const personalInfoSchema = yup.object({
   personalInfo: yup.object({
-    profileImage: yup.mixed().required('Profile picture is required'),
+    profileImage: yup.mixed().optional(),
     firstName: yup.string().required('This field is required'),
     lastName: yup.string().required('This field is required'),
     workEmail: yup.string().email('Invalid email format').required('This field is required'),
-    personalEmail: yup.string().email('Invalid email format').required('This field is required'),
+    personalEmail: yup.string().email('Invalid email format').optional(),
     phoneNumber: yup.string().required('Phone Number is required'),
     alternatePhoneNumber: yup.string().notRequired(),
-    dateOfBirth: yup.string().required('This field is required'),
+    dateOfBirth: yup.string().optional(),
     jobTitle: yup.string().required('This field is required'),
     status: yup.string().required('This field is required'),
     linkedInUrl: yup.string().url('Invalid URL').optional(),
@@ -40,9 +43,42 @@ const PersonalInfoForm = ({ label }) => {
     register,
     control,
     formState: { errors },
+    getValues,
   } = useFormContext();
 
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [emailValidation, setEmailValidation] = useState({
+    checking: false,
+    exists: null,
+    message: '',
+  });
+
+  const checkEmailUniqueness = async (email) => {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailValidation({ checking: false, exists: null, message: '' });
+      return;
+    }
+
+    setEmailValidation({ checking: true, exists: null, message: '' });
+
+    try {
+      const response = await fetch(`/api/crm/contacts/check-email?email=${encodeURIComponent(email)}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setEmailValidation({
+          checking: false,
+          exists: data.exists,
+          message: data.exists ? 'This email is already in use' : 'Email is available',
+        });
+      } else {
+        setEmailValidation({ checking: false, exists: null, message: '' });
+      }
+    } catch (error) {
+      console.error('Error checking email:', error);
+      setEmailValidation({ checking: false, exists: null, message: '' });
+    }
+  };
 
   return (
     <div>
@@ -133,9 +169,28 @@ const PersonalInfoForm = ({ label }) => {
                 fullWidth
                 label="Work Email"
                 type="email"
-                error={!!errors.personalInfo?.workEmail}
-                helperText={errors.personalInfo?.workEmail?.message}
+                error={!!errors.personalInfo?.workEmail || emailValidation.exists === true}
+                helperText={
+                  errors.personalInfo?.workEmail?.message ||
+                  (emailValidation.exists !== null ? emailValidation.message : '')
+                }
                 {...register('personalInfo.workEmail')}
+                onBlur={(e) => checkEmailUniqueness(e.target.value)}
+                InputProps={{
+                  endAdornment: emailValidation.checking ? (
+                    <InputAdornment position="end">
+                      <CircularProgress size={20} />
+                    </InputAdornment>
+                  ) : emailValidation.exists === false ? (
+                    <InputAdornment position="end">
+                      <IconifyIcon icon="mdi:check-circle" color="success.main" />
+                    </InputAdornment>
+                  ) : emailValidation.exists === true ? (
+                    <InputAdornment position="end">
+                      <IconifyIcon icon="mdi:close-circle" color="error.main" />
+                    </InputAdornment>
+                  ) : null,
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
