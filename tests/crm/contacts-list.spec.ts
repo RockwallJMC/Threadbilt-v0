@@ -71,3 +71,64 @@ test.describe('Contacts List', () => {
     await expect(input).toHaveAttribute('type', 'email');
   });
 });
+
+test.describe('Contacts Archive', () => {
+  test('should archive contact with undo', async ({ page }) => {
+    await page.goto('/apps/crm/contacts');
+    await page.waitForSelector('[role="grid"]');
+
+    // Get initial row count
+    const initialRows = await page.locator('[role="row"]').count();
+
+    // Click archive button on first contact
+    const archiveButton = page.locator('[aria-label="Archive"]').first();
+    await archiveButton.click();
+
+    // Verify row is removed from grid
+    const newRowCount = await page.locator('[role="row"]').count();
+    expect(newRowCount).toBe(initialRows - 1);
+
+    // Verify toast appears with undo button
+    await expect(page.locator('.MuiAlert-message')).toContainText('Contact archived');
+    const undoButton = page.locator('button:has-text("Undo")');
+    await expect(undoButton).toBeVisible();
+
+    // Click undo
+    await undoButton.click();
+
+    // Verify contact is restored
+    await page.waitForTimeout(500); // Wait for UI update
+    const restoredRowCount = await page.locator('[role="row"]').count();
+    expect(restoredRowCount).toBe(initialRows);
+
+    // Verify restored toast
+    await expect(page.locator('.MuiAlert-message')).toContainText('Contact restored');
+  });
+
+  test('should permanently archive after timeout', async ({ page }) => {
+    await page.goto('/apps/crm/contacts');
+    await page.waitForSelector('[role="grid"]');
+
+    // Get first contact ID for verification
+    const firstRow = page.locator('[role="row"]').nth(1); // Skip header
+    const contactName = await firstRow.locator('[data-field="first_name"]').textContent();
+
+    // Click archive button
+    const archiveButton = page.locator('[aria-label="Archive"]').first();
+    await archiveButton.click();
+
+    // Verify toast appears
+    await expect(page.locator('.MuiAlert-message')).toContainText('Contact archived');
+
+    // Wait for toast timeout (10 seconds + buffer)
+    await page.waitForTimeout(11000);
+
+    // Refresh page
+    await page.reload();
+    await page.waitForSelector('[role="grid"]');
+
+    // Verify contact is NOT in list
+    const contactCells = await page.locator('[data-field="first_name"]').allTextContents();
+    expect(contactCells).not.toContain(contactName);
+  });
+});
