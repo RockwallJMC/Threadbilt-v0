@@ -57,7 +57,7 @@ export function useCRMDealApi(dealId) {
     deal,
     analytics,
     isLoading: !deal && !dealError,
-    error: dealError || analyticsError,
+    error: dealError,
     mutate: mutateDeal,
     updateDeal,
   };
