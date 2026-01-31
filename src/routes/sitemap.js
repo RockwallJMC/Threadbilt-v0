@@ -275,22 +275,6 @@ const sitemap = [
         ],
       },
       {
-        name: 'Service Desk',
-        pathName: 'service-desk',
-        key: 'service_desk',
-        icon: 'material-symbols:support-agent-outline',
-        active: true,
-        items: [
-          {
-            name: 'Tickets',
-            key: 'tickets',
-            path: paths.serviceDeskTickets,
-            pathName: 'tickets',
-            active: true,
-          },
-        ],
-      },
-      {
         name: 'Invoice',
         key: 'invoice',
         pathName: 'invoice',

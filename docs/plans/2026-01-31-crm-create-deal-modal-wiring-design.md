@@ -204,7 +204,7 @@ if (error.response?.data?.code === 'DUPLICATE_DEAL_NAME') {
 
 ## Next Steps
 
-1. Set up git worktree for isolated development
+1. Create a feature branch in this repo for isolated development (do **NOT** use git worktrees in this project)
 2. Create detailed implementation plan
 3. Implement in order:
    - Contact API endpoint (if needed)
