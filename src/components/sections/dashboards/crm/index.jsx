@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 import CRMGreeting from 'components/sections/dashboards/crm/CRMGreeting';
 import AcquisitionCost from 'components/sections/dashboards/crm/acquisition-cost/AcquisitionCost';
 import ActiveUsers from 'components/sections/dashboards/crm/active-users/ActiveUsers';
