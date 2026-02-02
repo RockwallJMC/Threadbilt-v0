@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import { useTheme } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
@@ -110,6 +111,7 @@ const SlimSidenav = () => {
           [`& .${drawerClasses.paper}`]: {
             boxSizing: 'border-box',
             width: drawerWidth,
+            boxShadow: (theme) => `6px 0 10px -8px ${alpha(theme.palette.grey[500], 0.35)}`,
             transition: {
               xs: theme.transitions.create(['width'], {
                 duration: theme.transitions.duration.standard,

@@ -9,7 +9,7 @@ import IconifyIcon from 'components/base/IconifyIcon';
 import StyledTextField from 'components/styled/StyledTextField';
 import ListContainerMenu from './ListContainerMenu';
 
-const ListHeader = ({ listId, title, compactMode, handleAddTaskFormOpen }) => {
+const ListHeader = ({ listId, title, compactMode, handleAddTaskFormOpen, dragHandleRef, dragHandleProps }) => {
   const [listTitle, setListTitle] = useState({ isEditing: false, value: title });
   const { kanbanDispatch } = useKanbanContext();
 
@@ -26,7 +26,7 @@ const ListHeader = ({ listId, title, compactMode, handleAddTaskFormOpen }) => {
   };
 
   return (
-    <Box sx={{ p: 3, pb: 2 }}>
+    <Box sx={{ p: 3, pb: 2 }} ref={dragHandleRef} {...dragHandleProps}>
       <Stack
         spacing={1}
         sx={{

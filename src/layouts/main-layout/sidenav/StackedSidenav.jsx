@@ -12,6 +12,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
@@ -315,6 +316,7 @@ const StackedSidenav = () => {
           [`& .${drawerClasses.paper}`]: {
             boxSizing: 'border-box',
             width: mouseEntered ? mainDrawerWidth.full : drawerWidth,
+            boxShadow: (theme) => `6px 0 10px -8px ${alpha(theme.palette.grey[500], 0.35)}`,
             transition: theme.transitions.create(['width'], {
               duration: theme.transitions.duration.standard,
             }),

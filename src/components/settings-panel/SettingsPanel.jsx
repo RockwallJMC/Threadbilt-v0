@@ -140,12 +140,12 @@ const SettingsPanel = () => {
                   <NavigationMenuPanel />
                 </Section>
 
-                {navigationMenuType !== 'topnav' && (
+                {(navigationMenuType === 'sidenav' || navigationMenuType === 'combo') && (
                   <Section title="Sidenav Shape" disable={disableSidenavShapeSection}>
                     <SidenavShapePanel />
                   </Section>
                 )}
-                {navigationMenuType !== 'sidenav' && (
+                {(navigationMenuType === 'topnav' || navigationMenuType === 'combo') && (
                   <Section title="Topnav Shape" disable={disableTopShapeSection}>
                     <TopnavShapePanel />
                   </Section>

@@ -4,7 +4,15 @@ import ListContainer from './ListContainer';
 
 const SortableListItem = ({ taskList }) => {
   const { id, tasks } = taskList;
-  const { setNodeRef, attributes, listeners, transition, transform, isDragging } = useSortable({
+  const {
+    setNodeRef,
+    setActivatorNodeRef,
+    attributes,
+    listeners,
+    transition,
+    transform,
+    isDragging,
+  } = useSortable({
     id: id,
     data: {
       type: 'list',
@@ -22,7 +30,7 @@ const SortableListItem = ({ taskList }) => {
   return (
     <SortableContext id={id} items={tasks} strategy={verticalListSortingStrategy}>
       <div ref={setNodeRef} {...attributes} style={style}>
-        <ListContainer taskList={taskList} listeners={listeners} />
+        <ListContainer taskList={taskList} listeners={listeners} dragHandleRef={setActivatorNodeRef} />
       </div>
     </SortableContext>
   );

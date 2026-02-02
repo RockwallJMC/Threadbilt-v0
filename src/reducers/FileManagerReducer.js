@@ -88,6 +88,11 @@ export const fileManagerReducer = (state, action) => {
           file.id === action.payload.folderId ? { ...file, color: action.payload.color } : file,
         ),
       };
+    case 'TOGGLE_SLIDE_DOWN':
+      return {
+        ...state,
+        isSlideDownOpen: !state.isSlideDownOpen,
+      };
     default:
       return state;
   }

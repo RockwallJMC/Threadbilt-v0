@@ -30,7 +30,7 @@ const FileManagerHeader = ({ handleSidebar, handleToggleInfo }) => {
           alignItems: { sm: 'center' },
         }}
       >
-        <Stack gap={1} sx={{ flexShrink: 0 }}>
+        <Stack direction="row" gap={1} sx={{ flexShrink: 0 }}>
           {!upMd && (
             <Button
               variant="soft"

@@ -19,6 +19,7 @@ export const rootPaths = {
   kanbanRoot: 'kanban',
   calendarRoot: 'calendar',
   schedulerRoot: 'scheduler',
+  serviceRoot: 'service',
   appsRoot: 'apps',
   crmRoot: 'crm',
   fileManagerRoot: 'file-manager',
@@ -33,11 +34,11 @@ const paths = {
   showcase: `/showcase`,
 
   ecommerce: `/${rootPaths.dashboardRoot}/ecommerce`,
-  crm: `/${rootPaths.dashboardRoot}/crm`,
+  crm: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}`,
   project: `/${rootPaths.dashboardRoot}/project`,
   analytics: `/${rootPaths.dashboardRoot}/analytics`,
   hrm: `/${rootPaths.dashboardRoot}/hrm`,
-  timeTracker: `/${rootPaths.dashboardRoot}/time-tracker`,
+  timeTracker: `/${rootPaths.appsRoot}/${rootPaths.serviceRoot}/dispatcher`,
   hiring: `/${rootPaths.dashboardRoot}/${rootPaths.hiringRoot}`,
 
   starter: `/${rootPaths.pagesRoot}/starter`,
@@ -98,6 +99,12 @@ const paths = {
 
   createEvent: `/${rootPaths.appsRoot}/${rootPaths.eventsRoot}/create-event`,
   events: `/${rootPaths.appsRoot}/${rootPaths.eventsRoot}/event-detail`,
+
+  createServiceTicket: `/${rootPaths.appsRoot}/${rootPaths.serviceRoot}/create-ticket`,
+  serviceTicketDetail: (ticketId) =>
+    `/${rootPaths.appsRoot}/${rootPaths.serviceRoot}/ticket-detail${ticketId ? `/${ticketId}` : ''}`,
+
+  resourceSchedule: `/${rootPaths.appsRoot}/${rootPaths.serviceRoot}/resource-schedule`,
 
   leadDetails: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/lead-details`,
   dealDetails: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/deal-details`,

@@ -1,0 +1,128 @@
+Desks
+
+- Business - dashboard/analytics
+- Sales - apps/crm
+- Projects - dashboard/Project
+- Service - apps/service/resource-schedule
+- Inventory - dashboard/ecommerce
+
+
+
+Business
+- New
+[Sales, Projects, Service, Inventory]
+- New Leads, New Opportunities, New Projects, New Service, New Box Sales
+- [by Quantity], [by Value]
+[Tickets, Orders, Invoices, Payments]
+- New Tickets, New Orders, New Invoices, New Payments
+- [by Quantity], [by Value]
+
+- In Progress
+[Sales, Projects, Service, Inventory]
+- Pending Leads, Pending Opportunities, Pending Projects, Pending Service, Pending Box Sales
+- [by Quantity], [by Value]
+[Tickets, Orders, Invoices, Payments]
+- Pending Tickets, Pending Orders, Pending Invoices, Pending Payments
+- [by Quantity], [by Value]
+
+- Closed
+[Sales, Projects, Service, Inventory]
+- Closed Leads [won/loss], Closed Opportunities [won/loss], Closed Projects, Closed Service, Closed Box Sales
+- [by Quantity], [by Value]
+[Tickets, Orders, Invoices, Payments]
+- Closed Tickets, Closed Orders, Closed Invoices, Closed Payments
+- [by Quantity], [by Value]
+
+- Cancelled
+[Sales, Projects, Service, Inventory]
+- Cancelled Leads, Cancelled Opportunities, Cancelled Projects, Cancelled Service, Cancelled Box Sales
+- [by Quantity], [by Value]
+[Tickets, Orders, Invoices, Payments]
+- Cancelled Tickets, Cancelled Orders, Cancelled Invoices, Cancelled Payments
+- [by Quantity], [by Value]
+
+- Overdue
+[Sales, Projects, Service, Inventory]
+- Overdue Leads, Overdue Opportunities, Overdue Projects, Overdue Service, Overdue Box Sales
+- [by Quantity], [by Value]
+[Tickets, Orders, Invoices, Payments]
+- Overdue Tickets, Overdue Orders, Overdue Invoices, Overdue Payments
+- [by Quantity], [by Value]
+
+- in pipeline existing
+[Sales, Projects, Service, Inventory]
+- Leads in Pipeline, Opportunities in Pipeline, Projects in Pipeline, Service in Pipeline, Box Sales in Pipeline
+- [by Quantity], [by Value]
+[Tickets, Orders, Invoices, Payments]
+- Tickets in Pipeline, Orders in Pipeline, Invoices in Pipeline, Payments in Pipeline
+- [by Quantity], [by Value]
+
+
+Activity Line
+- Follow Ups
+- Emails to Follow Up
+- Calls to Follow Up
+- Meetings to Follow Up
+- Completed Communications
+- Emails Sent
+- Calls Made
+- Meetings Scheduled
+- Tasks
+- Tasks Completed
+- Tasks Pending
+- Overdue Tasks
+- Notes
+- Notes Created
+- Notes Updated
+- Notes Deleted
+- Events
+- Events Created
+- Events Updated
+- Events Deleted
+
+Interactions
+- Notifications
+- Notifications Sent
+- Notifications Read
+- Notifications Dismissed
+- Reminders
+- Reminders Created
+- Reminders Updated
+- Reminders Deleted
+- Alerts
+- Alerts Created
+- Alerts Updated
+- Alerts Deleted
+- Reports
+- Reports Created
+- Reports Updated
+- Reports Deleted
+- Logs
+- Logs Created
+- Logs Updated
+- Logs Deleted
+
+Time Management
+- Time Worked
+- Hours this week
+- Hours this month
+- Hours this quarter
+- Time Forecast
+- Forecast this week
+- Forecast this month
+- Forecast this quarter
+- Productivity
+- Hours worked / Hours Forecast
+- Hours worked / Hours Billed
+- Ticket average Value
+- [Sales, Projects, Service, Inventory]
+- Efficiency
+- Time to close Leads
+- Time to close Opportunities
+- Time to close Projects
+- Time to close Service
+- Time to close Box Sales
+- Time to close Tickets
+- Time to close Orders
+- Time to close Invoices
+- Time to close Payments

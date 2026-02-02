@@ -1,3 +1,5 @@
+"use client";
+
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import CRMGreeting from 'components/sections/dashboards/crm/CRMGreeting';

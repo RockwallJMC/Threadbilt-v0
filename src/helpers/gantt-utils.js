@@ -6,31 +6,38 @@ const statusPriority = {
   complete: 3,
 };
 
+const getStatusPriority = (status) => statusPriority[status] ?? 99;
+
 export const transformProjectTimelineData = (timelineData) => {
   const sortedProjects = timelineData.sort(
-    (a, b) => statusPriority[a.status] - statusPriority[b.status],
+    (a, b) => getStatusPriority(a.status) - getStatusPriority(b.status),
   );
 
-  const groupedProjects = sortedProjects.reduce((acc, project) => {
-    if (!acc[project.status]) {
-      acc[project.status] = [];
-    }
-    acc[project.status].push(project);
+  const hasStatusGroups = sortedProjects.some((project) => Boolean(project.status));
 
+  const groupedProjects = sortedProjects.reduce((acc, project) => {
+    const groupKey = hasStatusGroups ? project.status : '__all__';
+    if (!acc[groupKey]) {
+      acc[groupKey] = [];
+    }
+    acc[groupKey].push(project);
     return acc;
   }, {});
 
   const transformedRows = sortedProjects.map((project) => {
-    const group = groupedProjects[project.status];
+    const groupKey = hasStatusGroups ? project.status : '__all__';
+    const group = groupedProjects[groupKey];
 
-    const isFirst = group[0].id === project.id;
-    const isLast = group[group.length - 1].id === project.id;
+    const isFirst = hasStatusGroups && group[0].id === project.id;
+    const isLast = hasStatusGroups && group[group.length - 1].id === project.id;
+
+    const rowClass = project.rowClass || project.status;
 
     return {
       id: project.id,
       label: project.label,
       classes: [
-        project.status,
+        rowClass,
         ...(isFirst ? ['task-divider-start'] : []),
         ...(isLast ? ['task-divider-end'] : []),
       ],
@@ -38,13 +45,14 @@ export const transformProjectTimelineData = (timelineData) => {
   });
 
   const transformedTasks = sortedProjects.flatMap((project) => {
+    const taskClass = project.taskClass || project.rowClass || project.status;
     return project.tasks.map((task) => ({
       ...task,
       id: task.id,
       from: task.startDate,
       to: task.endDate,
       resourceId: project.id,
-      classes: [project.status],
+      classes: [taskClass],
     }));
   });
 
@@ -81,17 +89,38 @@ export const customDateAdapter = {
       return `${dayNumber} ${dayLetters[dayLetter]}`;
     }
 
+    if (format === 'hh A') {
+      const hour = dayjs(date).format('hh');
+      const meridiem = dayjs(date).format('A').charAt(0);
+
+      return `${hour} ${meridiem}`;
+    }
+
     return dayjs(date).format(format);
   },
 
   roundTo(date, unit, offset) {
-    const manipulateUnit = unit;
+    const ms = dayjs(date).valueOf();
 
-    const roundedDate = dayjs(date)
-      .startOf(unit)
-      .add(offset - 15, manipulateUnit);
+    if (unit === 'minute') {
+      const step = offset * 60 * 1000;
+      return Math.round(ms / step) * step;
+    }
 
-    return roundedDate.valueOf();
+    if (unit === 'hour') {
+      const step = offset * 60 * 60 * 1000;
+      return Math.round(ms / step) * step;
+    }
+
+    if (unit === 'day') {
+      const step = offset * 24 * 60 * 60 * 1000;
+      return Math.round(ms / step) * step;
+    }
+
+    const base = dayjs(date).startOf(unit);
+    const diff = dayjs(date).diff(base, unit, true);
+    const rounded = Math.round(diff / offset) * offset;
+    return base.add(rounded, unit).valueOf();
   },
 };
 

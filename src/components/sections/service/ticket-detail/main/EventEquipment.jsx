@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { IconButton, List, ListItem, ListItemIcon, ListItemText, Stack, Typography } from '@mui/material';
+import { IconButton, Paper, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { useNavContext } from 'layouts/main-layout/NavProvider';
 import IconifyIcon from 'components/base/IconifyIcon';
@@ -38,33 +38,25 @@ const EventEquipment = ({ equipmentList }) => {
               Equipment
             </Typography>
           </ScrollSpyContent>
-          <List sx={{ listStylePosition: 'inside', mb: 3 }} disablePadding>
+          <Stack spacing={1} sx={{ mb: 3 }}>
             {equipmentList.equipment.map((item) => (
-              <ListItem
+              <Paper
                 key={item}
-                disablePadding
+                background={1}
                 sx={{
-                  columnGap: 0.7,
-                  mb: 1,
                   p: 2,
-                  bgcolor: 'background.elevation1',
+                  borderRadius: 2,
                 }}
               >
-                <Stack direction="row" spacing={1} sx={{ flex: 1, alignItems: 'center' }}>
-                  <ListItemIcon sx={{ minWidth: 0 }}>
-                    <IconifyIcon
-                      icon="material-symbols:circle"
-                      color="background.elevation3"
-                      fontSize={8}
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item}
-                    slotProps={{
-                      primary: { variant: 'subtitle1', color: 'text.secondary' },
-                    }}
-                    sx={{ m: 0, flex: 1 }}
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                  <IconifyIcon
+                    icon="material-symbols:circle"
+                    color="background.elevation3"
+                    fontSize={8}
                   />
+                  <Typography variant="subtitle1" color="text.secondary" sx={{ flex: 1 }}>
+                    {item}
+                  </Typography>
                   <IconButton
                     size="small"
                     onClick={() => handleOpenSiteMap(item)}
@@ -78,9 +70,9 @@ const EventEquipment = ({ equipmentList }) => {
                     <IconifyIcon icon="material-symbols:location-on-outline" fontSize={20} />
                   </IconButton>
                 </Stack>
-              </ListItem>
+              </Paper>
             ))}
-          </List>
+          </Stack>
 
           <SiteMapDrawer
             open={siteMapOpen}

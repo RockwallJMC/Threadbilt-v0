@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.git/
+test-results/
+coverage/
+build/
+dist/
+.claude/

@@ -1,4 +1,4 @@
-import { List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { Paper, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { useNavContext } from 'layouts/main-layout/NavProvider';
 import IconifyIcon from 'components/base/IconifyIcon';
@@ -22,35 +22,29 @@ const EventPerformers = ({ performerList }) => {
               Details
             </Typography>
           </ScrollSpyContent>
-          <List sx={{ listStylePosition: 'inside', mb: 3 }} disablePadding>
+          <Stack spacing={1} sx={{ mb: 3 }}>
             {performerList.performers.map((performer) => (
-              <ListItem
+              <Paper
                 key={performer}
-                disablePadding
+                background={1}
                 sx={{
-                  columnGap: 0.7,
-                  mb: 1,
                   p: 2,
-                  bgcolor: 'background.elevation1',
+                  borderRadius: 2,
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 0 }}>
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                   <IconifyIcon
                     icon="material-symbols:circle"
                     color="background.elevation3"
                     fontSize={8}
                   />
-                </ListItemIcon>
-                <ListItemText
-                  primary={performer}
-                  slotProps={{
-                    primary: { variant: 'subtitle1', color: 'text.secondary' },
-                  }}
-                  sx={{ m: 0 }}
-                />
-              </ListItem>
+                  <Typography variant="subtitle1" color="text.secondary">
+                    {performer}
+                  </Typography>
+                </Stack>
+              </Paper>
             ))}
-          </List>
+          </Stack>
         </div>
       </Grid>
       <Grid size={{ xs: 12, xl: 6 }}>

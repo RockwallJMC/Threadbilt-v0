@@ -46,7 +46,7 @@ const ticketOptions = [
 
 const CombinedEventFormSchema = EventTicketFormSchema.concat(EventPaymentMethodSchema);
 
-const TicketPurchaseDrawer = ({ open, handleClose }) => {
+const TicketPurchaseDrawer = ({ open, handleClose, isNested = false }) => {
   const { currencyFormat } = useNumberFormat();
   const { enqueueSnackbar } = useSnackbar();
   const signatureRef = useRef(null);
@@ -115,7 +115,7 @@ const TicketPurchaseDrawer = ({ open, handleClose }) => {
           width: 1,
           bgcolor: 'background.elevation1',
         },
-        zIndex: theme.zIndex.drawer + 1,
+        zIndex: theme.zIndex.drawer + (isNested ? 2 : 1),
       })}
     >
       <FormProvider {...methods}>

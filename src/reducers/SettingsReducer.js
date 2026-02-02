@@ -12,6 +12,8 @@ export const SET_SIDENAV_SHAPE = 'SET_SIDENAV_SHAPE';
 export const SET_NAVIGATION_MENU_TYPE = 'SET_NAVIGATION_MENU_TYPE';
 export const SET_NAV_COLOR = 'SET_NAV_COLOR';
 export const SET_LOCALE = 'SET_LOCALE';
+export const TOGGLE_SIDE_DESK = 'TOGGLE_SIDE_DESK';
+export const SET_SIDE_DESK_LOCKED = 'SET_SIDE_DESK_LOCKED';
 
 export const settingsReducer = (state, action) => {
   let updatedState = {};
@@ -70,6 +72,14 @@ export const settingsReducer = (state, action) => {
           };
           break;
         }
+        case 'threadnavbar': {
+          updatedState = {
+            navigationMenuType: 'threadnavbar',
+            sidenavCollapsed: false,
+            drawerWidth: mainDrawerWidth.slim,
+          };
+          break;
+        }
       }
       break;
     }
@@ -109,6 +119,18 @@ export const settingsReducer = (state, action) => {
       };
       break;
     }
+    case TOGGLE_SIDE_DESK: {
+      updatedState = {
+        sideDeskOpen: !state.sideDeskOpen,
+      };
+      break;
+    }
+    case SET_SIDE_DESK_LOCKED: {
+      updatedState = {
+        sideDeskLocked: action.payload,
+      };
+      break;
+    }
     case RESET:
       updatedState = {
         ...initialConfig,
@@ -132,6 +154,8 @@ export const settingsReducer = (state, action) => {
         'topnavType',
         'navColor',
         'locale',
+        'sideDeskOpen',
+        'sideDeskLocked',
       ].includes(key)
     ) {
       setItemToStore(key, String(updatedState[key]));

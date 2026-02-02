@@ -28,8 +28,7 @@ const PipelineKanban = () => {
 
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: {
-      delay: 250,
-      distance: 0,
+      tolerance: 5,
     },
   });
 

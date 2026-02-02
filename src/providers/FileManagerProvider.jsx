@@ -15,6 +15,7 @@ const initialState = {
   viewMode: 'grid',
   filter: 'all',
   sort: 'none',
+  isSlideDownOpen: false,
 };
 
 const isFolder = (file) => file.type === 'folder';
@@ -60,6 +61,10 @@ const FileManagerProvider = ({ children }) => {
     fileManagerDispatch({ type: 'DESELECT_ALL_FILES' });
   }, [id, pathname]);
 
+  const toggleSlideDown = () => {
+    fileManagerDispatch({ type: 'TOGGLE_SLIDE_DOWN' });
+  };
+
   return (
     <FileManagerContext
       value={{
@@ -67,6 +72,7 @@ const FileManagerProvider = ({ children }) => {
         fileManagerDispatch,
         isSidebarOpen,
         handleDrawer,
+        toggleSlideDown,
       }}
     >
       {children}

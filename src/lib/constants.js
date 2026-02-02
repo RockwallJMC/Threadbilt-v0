@@ -7,3 +7,4 @@ export const mainDrawerWidth = {
   collapsed: 136,
   stackedNavCollapsed: 72,
 };
+export const sideDeskDrawerWidth = 500;

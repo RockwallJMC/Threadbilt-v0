@@ -3,8 +3,9 @@
   "version": "1.7.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/ensure-turbopack-cache.js",
-    "dev": "TURBOPACK_CACHE_DIR=.next/cache/turbopack next dev --turbopack -p 4000",
+    "predev:turbo": "node scripts/ensure-turbopack-cache.js",
+    "dev": "next dev -p 4000",
+    "dev:turbo": "TURBOPACK_CACHE_DIR=.next/cache/turbopack next dev --turbopack -p 4000",
     "build": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "next start -p 4000",
     "lint": "eslint . --ext .js,.jsx --max-warnings 0",

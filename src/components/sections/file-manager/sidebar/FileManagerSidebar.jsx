@@ -11,8 +11,8 @@ import StorageInfo from './storage-info/StorageInfo';
 const FileSidebarContent = ({ handleDrawer }) => {
   return (
     <SimpleBar>
-      <DriveNavigation handleDrawer={handleDrawer} />
       <StorageInfo />
+      <DriveNavigation handleDrawer={handleDrawer} />
     </SimpleBar>
   );
 };

@@ -4,25 +4,32 @@ import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Box, CircularProgress, Paper, Stack, Typography } from '@mui/material';
 import IconifyIcon from 'components/base/IconifyIcon';
+import Mapbox from 'components/base/Mapbox';
 
-// Phase 4: Mapbox integration placeholder
-// Note: react-map-gl has path resolution issues with Next.js jsconfig wildcard alias
-// For now, using static placeholder - full integration requires jsconfig adjustment
+// Interactive Mapbox map with location marker
 const MapPlaceholder = ({ location, address }) => (
   <Box
     sx={{
       width: 1,
       height: 300,
       borderRadius: 6,
-      bgcolor: 'grey.200',
       position: 'relative',
-      backgroundImage: location?.latitude
-        ? `url(https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-l-marker+ff0000(${location.longitude},${location.latitude})/${location.longitude},${location.latitude},${location.zoom || 15},0/600x300@2x?access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN})`
-        : 'none',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
     }}
   >
+    <Mapbox
+      sx={{
+        width: 1,
+        height: 300,
+        borderRadius: 6,
+      }}
+      options={{
+        center: location?.latitude && location?.longitude
+          ? [location.longitude, location.latitude]
+          : [-97.3331, 32.7767], // Fallback to DFW
+        zoom: location?.zoom || 15,
+        scrollZoom: false,
+      }}
+    />
     {address && (
       <Paper
         sx={{
@@ -51,8 +58,7 @@ const MapPlaceholder = ({ location, address }) => (
 );
 
 const ServiceLocationMap = ({ location, address }) => {
-  // Use static map API for Phase 4 due to build issues with react-map-gl
-  // Interactive map can be added in future phase after jsconfig path alias fix
+  // Interactive Mapbox map with marker showing ticket location
   return <MapPlaceholder location={location} address={address} />;
 };
 

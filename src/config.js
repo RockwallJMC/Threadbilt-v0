@@ -11,6 +11,8 @@ export const initialConfig = {
   openNavbarDrawer: false,
   drawerWidth: mainDrawerWidth.full,
   locale: 'en-US',
+  sideDeskOpen: false,
+  sideDeskLocked: false,
 };
 
 export const defaultJwtAuthCredentials = {

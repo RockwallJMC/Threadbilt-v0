@@ -12,14 +12,23 @@ import TicketPurchaseToolbar from 'components/sections/service/ticket-detail/Tic
 import EventInfo from 'components/sections/service/ticket-detail/main/EventInfo';
 import ServiceLocationMap from 'components/sections/service/ticket-detail/ServiceLocationMap';
 
-const TicketDetail = () => {
+const TicketDetail = ({ ticketId, isInDrawer = false }) => {
   const [openPurchaseTicketDrawer, setOpenPurchaseTicketDrawer] = useState(false);
   const { up } = useBreakpoints();
   const upXl = up('xl');
 
+  // TODO: When real API is ready, fetch ticket by ticketId
+  // For now, using mock data from eventInfo
+
   return (
     <ScrollSpy offset={600}>
-      <Container maxWidth={false} sx={{ maxWidth: 1280, p: { xs: 3, md: 5 } }}>
+      <Container
+        maxWidth={false}
+        sx={{
+          maxWidth: isInDrawer ? 'none' : 1280,
+          p: isInDrawer ? { xs: 3, sm: 5 } : { xs: 3, md: 5 }
+        }}
+      >
         <ServiceLocationMap
           location={eventInfo.serviceLocation}
           address={eventInfo.serviceLocation?.address}
@@ -41,6 +50,7 @@ const TicketDetail = () => {
       <TicketPurchaseDrawer
         open={openPurchaseTicketDrawer}
         handleClose={() => setOpenPurchaseTicketDrawer(false)}
+        isNested={isInDrawer}
       />
     </ScrollSpy>
   );

@@ -78,6 +78,21 @@ const NavigationMenuPanel = () => {
           />
         }
       />
+      <FormControlLabel
+        disableTypography
+        value="threadnavbar"
+        control={<Radio />}
+        label={
+          <SettingsItem
+            label="ThreadNavbar"
+            image={{
+              light: `${assetsDir}/images/settings-panel/threadnavbar.webp`,
+              dark: `${assetsDir}/images/settings-panel/threadnavbar-dark.webp`,
+            }}
+            active={!disableNavigationMenuSection && navigationMenuType === 'threadnavbar'}
+          />
+        }
+      />
     </SettingsPanelRadioGroup>
   );
 };

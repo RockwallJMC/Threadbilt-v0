@@ -9,14 +9,13 @@ import Typography from '@mui/material/Typography';
 import ListHeader from './ListHeader';
 import TaskItems from './TaskItems';
 
-const ListContainer = ({ taskList, listeners }) => {
+const ListContainer = ({ taskList, listeners, dragHandleRef }) => {
   const { id, title, tasks, compactMode } = taskList;
   const [isAddNewTaskFormOpen, setIsAddNewTaskFormOpen] = useState(false);
   const theme = useTheme();
 
   return (
     <Box
-      {...listeners}
       sx={[
         {
           height: 1,
@@ -35,6 +34,8 @@ const ListContainer = ({ taskList, listeners }) => {
         title={title}
         compactMode={compactMode}
         handleAddTaskFormOpen={() => setIsAddNewTaskFormOpen(true)}
+        dragHandleRef={dragHandleRef}
+        dragHandleProps={listeners}
       />
 
       {compactMode ? (

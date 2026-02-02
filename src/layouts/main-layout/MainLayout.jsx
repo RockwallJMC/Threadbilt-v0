@@ -7,7 +7,7 @@ import Toolbar from '@mui/material/Toolbar';
 import clsx from 'clsx';
 import AppBar from 'layouts/main-layout/app-bar';
 import Sidenav from 'layouts/main-layout/sidenav';
-import { mainDrawerWidth } from 'lib/constants';
+import { mainDrawerWidth, sideDeskDrawerWidth } from 'lib/constants';
 import { useSettingsContext } from 'providers/SettingsProvider';
 import { sidenavVibrantStyle } from 'theme/styles/vibrantNav';
 import VibrantBackground from 'components/common/VibrantBackground';
@@ -16,9 +16,11 @@ import Footer from './footer';
 import SidenavDrawerContent from './sidenav/SidenavDrawerContent';
 import SlimSidenav from './sidenav/SlimSidenav';
 import StackedSidenav from './sidenav/StackedSidenav';
+import ThreadNavbar from './sidenav/ThreadNavbar';
 import Topnav from './topnav';
 import TopNavStacked from './topnav/TopNavStacked';
 import TopnavSlim from './topnav/TopnavSlim';
+import SideDeskDrawer from 'components/sections/side-desk/SideDeskDrawer';
 
 const MainLayout = ({ children }) => {
   const {
@@ -29,6 +31,7 @@ const MainLayout = ({ children }) => {
       topnavType,
       openNavbarDrawer,
       navColor,
+      sideDeskOpen,
     },
     setConfig,
   } = useSettingsContext();
@@ -79,6 +82,10 @@ const MainLayout = ({ children }) => {
             </>
           )}
 
+          {navigationMenuType === 'threadnavbar' && <ThreadNavbar />}
+
+          {navigationMenuType === 'threadnavbar' && <SideDeskDrawer />}
+
           <Drawer
             variant="temporary"
             open={openNavbarDrawer}
@@ -112,7 +119,13 @@ const MainLayout = ({ children }) => {
                 flexGrow: 1,
                 p: 0,
                 minHeight: '100vh',
-                width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
+                width: {
+                  xs: '100%',
+                  md:
+                    navigationMenuType === 'threadnavbar'
+                      ? `calc(100% - ${sideDeskOpen ? drawerWidth + sideDeskDrawerWidth : drawerWidth}px)`
+                      : `calc(100% - ${drawerWidth}px)`,
+                },
                 display: 'flex',
                 flexDirection: 'column',
               },
@@ -127,6 +140,13 @@ const MainLayout = ({ children }) => {
               },
               navigationMenuType === 'topnav' && {
                 ml: { xs: 0 },
+              },
+              navigationMenuType === 'threadnavbar' && {
+                ml: {
+                  xs: 0,
+                  md: sideDeskOpen ? `${sideDeskDrawerWidth}px` : 0,
+                },
+                transition: 'margin-left 0.3s',
               },
             ]}
           >

@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { Paper, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { useNavContext } from 'layouts/main-layout/NavProvider';
 import Image from 'components/base/Image';
@@ -21,44 +21,39 @@ const EventSchedule = ({ schedule }) => {
               Instructions
             </Typography>
           </ScrollSpyContent>
-          <Stack direction="column" sx={{ gap: { xs: 2.5, sm: 1 }, mb: 3 }}>
+          <Stack spacing={1} sx={{ mb: 3 }}>
             {schedule.info.map((item) => (
-              <Stack
-                key={item.label}
-                direction={{ xs: 'column', sm: 'row' }}
-                sx={{
-                  gap: 1,
-                  borderRadius: 2,
-                }}
-              >
-                <Box
-                  sx={{
-                    bgcolor: 'background.elevation1',
-                    px: 2,
-                    py: 1,
-                    width: { sm: 150 },
-                  }}
-                >
-                  <Typography
-                    color="text.secondary"
+              <Grid container spacing={1} key={item.label}>
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <Paper
+                    background={1}
                     sx={{
-                      fontWeight: 700,
+                      p: 2,
+                      borderRadius: 2,
                     }}
                   >
-                    {item.label}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    flex: 1,
-                    px: 2,
-                    py: 1,
-                    bgcolor: 'background.elevation1',
-                  }}
-                >
-                  <Typography color="text.secondary">{item.time}</Typography>
-                </Box>
-              </Stack>
+                    <Typography
+                      color="text.secondary"
+                      sx={{
+                        fontWeight: 700,
+                      }}
+                    >
+                      {item.label}
+                    </Typography>
+                  </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 8 }}>
+                  <Paper
+                    background={1}
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                    }}
+                  >
+                    <Typography color="text.secondary">{item.time}</Typography>
+                  </Paper>
+                </Grid>
+              </Grid>
             ))}
           </Stack>
         </div>

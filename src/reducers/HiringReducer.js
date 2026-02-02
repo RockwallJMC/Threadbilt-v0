@@ -3,6 +3,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 export const DRAG_START = 'DRAG_START';
 export const DRAG_OVER = 'DRAG_OVER';
 export const DRAG_END = 'DRAG_END';
+export const REMOVE_ITEM = 'REMOVE_ITEM';
 
 const findList = (id, listItems) => {
   if (!id) {
@@ -114,6 +115,18 @@ export const hiringReducer = (state, action) => {
       }
 
       return { ...state, draggedItem: null, draggedList: null };
+    }
+
+    case REMOVE_ITEM: {
+      const { itemId } = action.payload;
+      return {
+        ...state,
+        listItems: state.listItems.map((list) => ({
+          ...list,
+          items: list.items.filter((item) => item.id !== itemId),
+        })),
+        draggedItem: null,
+      };
     }
 
     default:

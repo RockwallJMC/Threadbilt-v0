@@ -18,6 +18,16 @@ const mixins = {
     },
   },
   footer: { xs: 72, sm: 56 },
+  gantt: {
+    headerRowHeight: 28,
+    tableBodyCellWidth: {
+      xs: 90,
+      sm: 130,
+    },
+    ticketTaskHeight: 44,
+    avatarSize: 26,
+    tableHeaderPadding: 16,
+  },
   topOffset: (topbarHeight, offset, important = false) =>
     topbarHeight
       ? Object.entries(topbarHeight).reduce((acc, [key, value]) => {

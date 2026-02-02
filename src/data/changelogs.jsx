@@ -276,7 +276,7 @@ export const changelog = [
     ),
     logs: {
       New: [
-        { text: 'Dashboard', link: '/dashboard/time-tracker' },
+        { text: 'Dashboard', link: '/apps/service/dispatcher' },
         { text: 'App', link: '/file-manager' },
         { text: 'App', link: '/apps/calendar' },
         { text: 'App', link: '/apps/scheduler' },

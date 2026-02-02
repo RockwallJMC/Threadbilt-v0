@@ -38,7 +38,7 @@ const paths = {
   project: `/${rootPaths.dashboardRoot}/project`,
   analytics: `/${rootPaths.dashboardRoot}/analytics`,
   hrm: `/${rootPaths.dashboardRoot}/hrm`,
-  timeTracker: `/${rootPaths.dashboardRoot}/time-tracker`,
+  timeTracker: `/${rootPaths.appsRoot}/${rootPaths.serviceRoot}/dispatcher`,
   hiring: `/${rootPaths.dashboardRoot}/${rootPaths.hiringRoot}`,
 
   starter: `/${rootPaths.pagesRoot}/starter`,
@@ -103,6 +103,7 @@ const paths = {
   createServiceTicket: `/${rootPaths.appsRoot}/${rootPaths.serviceRoot}/create-ticket`,
   serviceTicketDetail: (ticketId) =>
     `/${rootPaths.appsRoot}/${rootPaths.serviceRoot}/ticket-detail${ticketId ? `/${ticketId}` : ''}`,
+  resourceSchedule: `/${rootPaths.appsRoot}/${rootPaths.serviceRoot}/resource-schedule`,
 
   leadDetails: `/${rootPaths.appsRoot}/${rootPaths.crmRoot}/lead-details`,
   dealDetails: (dealId) =>

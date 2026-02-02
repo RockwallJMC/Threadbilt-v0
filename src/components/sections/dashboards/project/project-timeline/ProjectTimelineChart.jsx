@@ -12,7 +12,11 @@ import { useBreakpoints } from 'providers/BreakpointsProvider';
 import IconifyIcon from 'components/base/IconifyIcon';
 import SvelteGanttChart from 'components/base/SvelteGanttChart';
 
-const ProjectTimelineChart = ({ projectTimelineData }) => {
+const ProjectTimelineChart = ({
+  projectTimelineData,
+  hourRange,
+  tableHeaderTitle = 'All Projects',
+}) => {
   const { down } = useBreakpoints();
 
   const isSmallScreen = down('sm');
@@ -26,7 +30,17 @@ const ProjectTimelineChart = ({ projectTimelineData }) => {
     [projectTimelineData],
   );
 
-  const { from, to } = getFromToDates(ganttData.tasks);
+  const { from: dataFrom, to: dataTo } = getFromToDates(ganttData.tasks);
+
+  const { from, to } = useMemo(() => {
+    if (!hourRange) {
+      return { from: dataFrom, to: dataTo };
+    }
+
+    const dayStart = dayjs(dataFrom).startOf('day').add(5, 'hour');
+    return { from: dayStart.valueOf(), to: dayStart.add(hourRange, 'hour').valueOf() };
+  }, [dataFrom, dataTo, hourRange]);
+
   const timeRanges = useMemo(() => generateTimeRanges(from, to), [from, to]);
 
   const toggleTableWidth = () => {
@@ -41,6 +55,7 @@ const ProjectTimelineChart = ({ projectTimelineData }) => {
     const fromDate = dayjs(from);
     const toDate = dayjs(to);
     const numMonths = toDate.diff(fromDate, 'month') + 1;
+    const minWidth = hourRange ? Math.max(800, hourRange * 60) : 1700 * numMonths;
 
     return {
       rows: ganttData.rows.map((row) => ({
@@ -52,10 +67,10 @@ const ProjectTimelineChart = ({ projectTimelineData }) => {
       timeRanges,
       from,
       to,
-      minWidth: 1700 * numMonths,
-      tableHeaders: [{ title: 'All Projects', property: 'label', width: 140, type: 'tree' }],
+      minWidth,
+      tableHeaders: [{ title: tableHeaderTitle, property: 'label', width: 140, type: 'tree' }],
     };
-  }, [ganttData, tableWidth, from, to]);
+  }, [ganttData, tableWidth, from, to, hourRange, tableHeaderTitle]);
 
   return (
     <Box sx={{ width: 1, height: 420, position: 'relative' }}>

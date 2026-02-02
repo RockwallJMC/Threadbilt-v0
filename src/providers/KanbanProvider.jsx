@@ -36,9 +36,9 @@ const KanbanProvider = ({ children }) => {
             type: DRAG_OVER,
             payload: {
               activeId: event.active.id,
-              overId: event.over.id,
+              overId: event.over?.id,
               activeRect: event.active.rect.current.translated,
-              overRect: event.over.rect,
+              overRect: event.over?.rect,
             },
           });
         }, 16);
