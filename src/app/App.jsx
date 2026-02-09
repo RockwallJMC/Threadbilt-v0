@@ -17,11 +17,12 @@ const SettingPanelToggler = dynamic(() => import('components/settings-panel/Sett
 const App = ({ children }) => {
   const pathname = usePathname();
   const { mode } = useThemeMode();
-  const { configDispatch } = useSettingsContext();
+  const { config, configDispatch } = useSettingsContext();
 
   useConfigFromQuery();
 
   const isShowcase = pathname.startsWith('/showcase');
+  const { sideDeskOpen } = config;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -42,7 +43,7 @@ const App = ({ children }) => {
       {!isShowcase && (
         <>
           <SettingsPanel />
-          <SettingPanelToggler />
+          {sideDeskOpen && <SettingPanelToggler />}
         </>
       )}
     </SettingsPanelProvider>

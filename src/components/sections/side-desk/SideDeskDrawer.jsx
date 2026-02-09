@@ -1,27 +1,33 @@
 'use client';
 
+import { useState } from 'react';
 import { Drawer, drawerClasses } from '@mui/material';
 import { useBreakpoints } from 'providers/BreakpointsProvider';
 import { useSettingsContext } from 'providers/SettingsProvider';
-import { TOGGLE_SIDE_DESK } from 'reducers/SettingsReducer';
+import { TOGGLE_SIDE_DESK, SET_SIDE_DESK_WIDTH } from 'reducers/SettingsReducer';
 import SimpleBar from 'components/base/SimpleBar';
 import useSideDeskMetrics from 'hooks/useSideDeskMetrics';
-import { sideDeskDrawerWidth } from 'lib/constants';
+import { SIDE_DESK_WIDTH_MIN, SIDE_DESK_WIDTH_MAX } from 'lib/constants';
+import Resizable from 'components/base/Resizable';
 import SideDeskContent from './SideDeskContent';
 import SideDeskHeader from './SideDeskHeader';
 
 const SideDeskDrawer = () => {
+  const [activeView, setActiveView] = useState(null);
+
   const {
-    config: { sideDeskOpen, drawerWidth: threadNavbarWidth },
+    config: { sideDeskOpen, sideDeskWidth, drawerWidth: threadNavbarWidth },
     configDispatch,
   } = useSettingsContext();
 
   const { up } = useBreakpoints();
   const upMd = up('md');
 
-  const { deskName, deskType } = useSideDeskMetrics();
+  const { deskType } = useSideDeskMetrics();
 
-  const drawerWidth = sideDeskDrawerWidth;
+  const handleViewChange = (item) => {
+    setActiveView(item);
+  };
 
   const handleClose = () => {
     configDispatch({
@@ -29,9 +35,38 @@ const SideDeskDrawer = () => {
     });
   };
 
+  const handleResize = (width) => {
+    configDispatch({
+      type: SET_SIDE_DESK_WIDTH,
+      payload: width,
+    });
+  };
+
   const drawerContent = (
-    <>
-      <SideDeskHeader deskName={deskName} />
+    <Resizable
+      size={{ width: sideDeskWidth, height: '100%' }}
+      handleResize={handleResize}
+      minWidth={SIDE_DESK_WIDTH_MIN}
+      maxWidth={SIDE_DESK_WIDTH_MAX}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        '.resizable-handler': {
+          width: '8px !important',
+          backgroundColor: 'action.hover',
+          cursor: 'col-resize',
+          transition: 'background-color 0.2s',
+          '&:hover': {
+            backgroundColor: 'primary.main',
+          },
+        },
+      }}
+    >
+      <SideDeskHeader
+        activeView={activeView}
+        onViewChange={handleViewChange}
+      />
       <SimpleBar
         sx={{
           flex: 1,
@@ -43,9 +78,9 @@ const SideDeskDrawer = () => {
           },
         }}
       >
-        <SideDeskContent deskType={deskType} />
+        <SideDeskContent deskType={deskType} activeView={activeView} />
       </SimpleBar>
-    </>
+    </Resizable>
   );
 
   return (
@@ -60,7 +95,7 @@ const SideDeskDrawer = () => {
             width: 0,
             [`& .${drawerClasses.paper}`]: {
               boxSizing: 'border-box',
-              width: drawerWidth,
+              width: sideDeskWidth,
               position: 'fixed',
               left: threadNavbarWidth,
               height: '100vh',
@@ -84,7 +119,7 @@ const SideDeskDrawer = () => {
           }}
           sx={{
             [`& .${drawerClasses.paper}`]: {
-              width: drawerWidth,
+              width: sideDeskWidth,
               display: 'flex',
               flexDirection: 'column',
             },

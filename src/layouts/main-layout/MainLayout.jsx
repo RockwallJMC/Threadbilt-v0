@@ -7,7 +7,7 @@ import Toolbar from '@mui/material/Toolbar';
 import clsx from 'clsx';
 import AppBar from 'layouts/main-layout/app-bar';
 import Sidenav from 'layouts/main-layout/sidenav';
-import { mainDrawerWidth, sideDeskDrawerWidth } from 'lib/constants';
+import { mainDrawerWidth } from 'lib/constants';
 import { useSettingsContext } from 'providers/SettingsProvider';
 import { sidenavVibrantStyle } from 'theme/styles/vibrantNav';
 import VibrantBackground from 'components/common/VibrantBackground';
@@ -32,6 +32,7 @@ const MainLayout = ({ children }) => {
       openNavbarDrawer,
       navColor,
       sideDeskOpen,
+      sideDeskWidth,
     },
     setConfig,
   } = useSettingsContext();
@@ -123,7 +124,7 @@ const MainLayout = ({ children }) => {
                   xs: '100%',
                   md:
                     navigationMenuType === 'threadnavbar'
-                      ? `calc(100% - ${sideDeskOpen ? drawerWidth + sideDeskDrawerWidth : drawerWidth}px)`
+                      ? `calc(100% - ${sideDeskOpen ? drawerWidth + sideDeskWidth : drawerWidth}px)`
                       : `calc(100% - ${drawerWidth}px)`,
                 },
                 display: 'flex',
@@ -144,9 +145,9 @@ const MainLayout = ({ children }) => {
               navigationMenuType === 'threadnavbar' && {
                 ml: {
                   xs: 0,
-                  md: sideDeskOpen ? `${sideDeskDrawerWidth}px` : 0,
+                  md: sideDeskOpen ? `${sideDeskWidth}px` : 0,
                 },
-                transition: 'margin-left 0.3s',
+                transition: 'margin-left 0.3s, width 0.3s',
               },
             ]}
           >

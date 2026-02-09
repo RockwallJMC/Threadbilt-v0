@@ -1,6 +1,68 @@
 import docSitemap from 'docs/routes/docSitemap';
 import paths from './paths';
 
+// Side Desk navigation - quick access items for the side desk drawer
+export const sideDeskNavigation = [
+  {
+    name: 'Tickets',
+    key: 'sidedesk_tickets',
+    path: paths.ticketList,
+    pathName: 'sidedesk-tickets',
+    icon: 'material-symbols:confirmation-number-outline',
+    active: true,
+  },
+  {
+    name: 'Orders',
+    key: 'sidedesk_orders',
+    path: paths.adminOrderList,
+    pathName: 'sidedesk-orders',
+    icon: 'material-symbols:shopping-bag-outline',
+    active: true,
+  },
+  {
+    name: 'Invoices',
+    key: 'sidedesk_invoices',
+    path: paths.invoiceList,
+    pathName: 'sidedesk-invoices',
+    icon: 'material-symbols:receipt-long-outline',
+    active: true,
+  },
+  {
+    name: 'Email',
+    key: 'sidedesk_email',
+    path: paths.emailLabel('inbox'),
+    pathName: 'sidedesk-email',
+    selectionPrefix: '/email/list',
+    icon: 'material-symbols:mail-outline',
+    active: true,
+  },
+  {
+    name: 'Chat',
+    key: 'sidedesk_chat',
+    path: paths.chat,
+    pathName: 'sidedesk-chat',
+    selectionPrefix: '/chat',
+    icon: 'material-symbols:chat-outline',
+    active: true,
+  },
+  {
+    name: 'Events',
+    key: 'sidedesk_events',
+    path: paths.calendar,
+    pathName: 'sidedesk-events',
+    icon: 'material-symbols:event-outline',
+    active: true,
+  },
+  {
+    name: 'Accounts',
+    key: 'sidedesk_accounts',
+    path: paths.contacts,
+    pathName: 'sidedesk-accounts',
+    icon: 'material-symbols:contacts-outline',
+    active: true,
+  },
+];
+
 const sitemap = [
   {
     id: 'homepage',

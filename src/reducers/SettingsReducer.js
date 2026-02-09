@@ -1,5 +1,5 @@
 import { initialConfig } from 'config';
-import { mainDrawerWidth } from 'lib/constants';
+import { mainDrawerWidth, SIDE_DESK_WIDTH_MIN, SIDE_DESK_WIDTH_MAX } from 'lib/constants';
 import { setItemToStore } from 'lib/utils';
 
 //Action types
@@ -14,6 +14,7 @@ export const SET_NAV_COLOR = 'SET_NAV_COLOR';
 export const SET_LOCALE = 'SET_LOCALE';
 export const TOGGLE_SIDE_DESK = 'TOGGLE_SIDE_DESK';
 export const SET_SIDE_DESK_LOCKED = 'SET_SIDE_DESK_LOCKED';
+export const SET_SIDE_DESK_WIDTH = 'SET_SIDE_DESK_WIDTH';
 
 export const settingsReducer = (state, action) => {
   let updatedState = {};
@@ -131,6 +132,16 @@ export const settingsReducer = (state, action) => {
       };
       break;
     }
+    case SET_SIDE_DESK_WIDTH: {
+      const width = Math.max(
+        SIDE_DESK_WIDTH_MIN,
+        Math.min(SIDE_DESK_WIDTH_MAX, action.payload)
+      );
+      updatedState = {
+        sideDeskWidth: width,
+      };
+      break;
+    }
     case RESET:
       updatedState = {
         ...initialConfig,
@@ -156,6 +167,7 @@ export const settingsReducer = (state, action) => {
         'locale',
         'sideDeskOpen',
         'sideDeskLocked',
+        'sideDeskWidth',
       ].includes(key)
     ) {
       setItemToStore(key, String(updatedState[key]));

@@ -9,7 +9,7 @@ import List from '@mui/material/List';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import { useSettingsContext } from 'providers/SettingsProvider';
-import { TOGGLE_SIDE_DESK } from 'reducers/SettingsReducer';
+import { TOGGLE_SIDE_DESK, SET_SIDENAV_SHAPE, SET_NAVIGATION_MENU_TYPE } from 'reducers/SettingsReducer';
 import paths from 'routes/paths';
 import { sidenavVibrantStyle } from 'theme/styles/vibrantNav';
 import IconifyIcon from 'components/base/IconifyIcon';
@@ -77,6 +77,17 @@ const ThreadNavbar = () => {
   const toggleSideDesk = () => {
     configDispatch({
       type: TOGGLE_SIDE_DESK,
+    });
+  };
+
+  const switchToSlimNav = () => {
+    configDispatch({
+      type: SET_NAVIGATION_MENU_TYPE,
+      payload: 'sidenav',
+    });
+    configDispatch({
+      type: SET_SIDENAV_SHAPE,
+      payload: 'slim',
     });
   };
 
@@ -154,6 +165,26 @@ const ThreadNavbar = () => {
                   <SlimNavItem key={item.pathName} item={item} level={0} />
                 ))}
               </List>
+
+              <Divider sx={{ my: 1 }} />
+
+              {/* Switch to Slim Sidenav Button */}
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+                <Tooltip title="Switch to Slim Sidenav" placement="right">
+                  <IconButton
+                    onClick={switchToSlimNav}
+                    sx={{
+                      color: 'text.secondary',
+                      transition: 'color 0.2s',
+                      '&:hover': {
+                        color: 'primary.main',
+                      },
+                    }}
+                  >
+                    <IconifyIcon icon="material-symbols:view-sidebar-outline" sx={{ fontSize: 22 }} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
             </Box>
           </SidenavSimpleBar>
         </Box>

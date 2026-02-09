@@ -1,7 +1,7 @@
 import docRoutePaths from 'docs/routes/docPaths';
 
 export const rootPaths = {
-  root: '/apps/crm',
+  root: '/dashboard/ecommerce',
   dashboardRoot: 'dashboard',
   pagesRoot: 'pages',
   miscRoot: 'misc',
@@ -18,12 +18,14 @@ export const rootPaths = {
   serviceRoot: 'service',
   emailRoot: 'email',
   kanbanRoot: 'kanban',
+  projectsRoot: 'projects',
   calendarRoot: 'calendar',
   schedulerRoot: 'scheduler',
   appsRoot: 'apps',
   crmRoot: 'crm',
   fileManagerRoot: 'file-manager',
   invoiceRoot: 'invoice',
+  ticketsRoot: 'tickets',
   landingRoot: 'landing',
   hiringRoot: 'hiring',
   hiringAdmin: 'admin',
@@ -97,6 +99,9 @@ const paths = {
   boards: `/${rootPaths.appsRoot}/${rootPaths.kanbanRoot}/boards`,
   createBoard: `/${rootPaths.appsRoot}/${rootPaths.kanbanRoot}/create-board`,
 
+  projectBoards: `/${rootPaths.appsRoot}/${rootPaths.projectsRoot}/boards`,
+  createProject: `/${rootPaths.appsRoot}/${rootPaths.projectsRoot}/create-project`,
+
   createEvent: `/${rootPaths.appsRoot}/${rootPaths.eventsRoot}/create-event`,
   events: `/${rootPaths.appsRoot}/${rootPaths.eventsRoot}/event-detail`,
 
@@ -126,6 +131,10 @@ const paths = {
   invoicePreview: `/${rootPaths.appsRoot}/${rootPaths.invoiceRoot}/invoice-preview`,
   invoicePreviewWithId: (id) =>
     `/${rootPaths.appsRoot}/${rootPaths.invoiceRoot}/invoice-preview/${id}`,
+
+  ticketList: `/${rootPaths.appsRoot}/${rootPaths.ticketsRoot}/ticket-list`,
+  ticketDetailWithId: (id) =>
+    `/${rootPaths.appsRoot}/${rootPaths.ticketsRoot}/ticket/${id}`,
 
   calendar: `/${rootPaths.appsRoot}/${rootPaths.calendarRoot}`,
   scheduler: `/${rootPaths.appsRoot}/${rootPaths.schedulerRoot}`,

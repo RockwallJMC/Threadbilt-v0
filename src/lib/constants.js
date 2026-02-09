@@ -8,3 +8,8 @@ export const mainDrawerWidth = {
   stackedNavCollapsed: 72,
 };
 export const sideDeskDrawerWidth = 500;
+
+// Side Desk resizable width constants
+export const SIDE_DESK_WIDTH_DEFAULT = 500;
+export const SIDE_DESK_WIDTH_MIN = 250;
+export const SIDE_DESK_WIDTH_MAX = 500;
