@@ -21,7 +21,7 @@ import BasicInfo from 'components/sections/kanban/create-board/steps/BasicInfo';
 import ColumnStage from 'components/sections/kanban/create-board/steps/ColumnStage/ColumnStage';
 import LabelInfo from 'components/sections/kanban/create-board/steps/LabelInfo';
 import TeamInvite from 'components/sections/kanban/create-board/steps/TeamInvite/TeamInvite';
-import useCreateBoardForm from 'components/sections/kanban/create-board/useCreateBoardStepper';
+import useCreateBoardForm, { validationSchemas } from 'components/sections/kanban/create-board/useCreateBoardStepper';
 
 const steps = [
   {
@@ -61,12 +61,34 @@ const CreateBoardStepper = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
-  const methods = useCreateBoardForm(activeStep);
-  const { handleSubmit, trigger } = methods;
+  const methods = useCreateBoardForm();
+  const { handleSubmit, getValues, setError, clearErrors } = methods;
+
+  // Per-step validation using step-specific schemas
+  const validateCurrentStep = async () => {
+    clearErrors();
+    const schema = validationSchemas[activeStep];
+    const values = getValues();
+
+    try {
+      await schema.validate(values, { abortEarly: false });
+      return true;
+    } catch (err) {
+      if (err.inner) {
+        err.inner.forEach((validationError) => {
+          setError(validationError.path, {
+            type: 'validation',
+            message: validationError.message,
+          });
+        });
+      }
+      return false;
+    }
+  };
 
   const handleSaveAndContinue = async (event) => {
     event.preventDefault();
-    const isValid = await trigger();
+    const isValid = await validateCurrentStep();
     if (isValid) {
       setCompletedSteps((prev) => [...prev, activeStep]);
       setActiveStep((prev) => prev + 1);

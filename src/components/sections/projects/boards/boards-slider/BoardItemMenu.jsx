@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Grow } from '@mui/material';
+import { Grow, ListItemIcon, ListItemText } from '@mui/material';
 import Button from '@mui/material/Button';
 import Menu, { menuClasses } from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -8,16 +8,29 @@ import IconifyIcon from 'components/base/IconifyIcon';
 
 const menuItems = [
   {
-    id: 1,
-    label: 'Share',
+    id: 'viewBoard',
+    label: 'View Board',
+    icon: 'material-symbols:dashboard-outline',
   },
   {
-    id: 2,
+    id: 'edit',
+    label: 'Edit',
+    icon: 'material-symbols:edit-outline',
+  },
+  {
+    id: 'archive',
+    label: 'Archive',
+    icon: 'material-symbols:archive-outline',
+  },
+  {
+    id: 'delete',
     label: 'Delete',
+    icon: 'material-symbols:delete-outline',
+    color: 'error.main',
   },
 ];
 
-const BoardItemMenu = ({ isHovered }) => {
+const BoardItemMenu = ({ isHovered, boardId, onViewBoard, onEdit, onArchive, onDelete }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const { up } = useBreakpoints();
   const upSm = up('sm');
@@ -67,10 +80,21 @@ const BoardItemMenu = ({ isHovered }) => {
         {menuItems.map((item) => (
           <MenuItem
             key={item.id}
-            sx={[{ textTransform: 'capitalize' }, item.id === 2 && { color: 'error.main' }]}
+            onClick={(e) => {
+              e.stopPropagation();
+              setAnchorEl(null);
+              if (item.id === 'viewBoard' && onViewBoard) onViewBoard(boardId);
+              if (item.id === 'edit' && onEdit) onEdit(boardId);
+              if (item.id === 'archive' && onArchive) onArchive(boardId);
+              if (item.id === 'delete' && onDelete) onDelete(boardId);
+            }}
+            sx={[{ textTransform: 'capitalize' }, item.color && { color: item.color }]}
             disableRipple
           >
-            {item.label}
+            <ListItemIcon sx={{ color: item.color || 'inherit', minWidth: 32 }}>
+              <IconifyIcon icon={item.icon} sx={{ fontSize: 18 }} />
+            </ListItemIcon>
+            <ListItemText>{item.label}</ListItemText>
           </MenuItem>
         ))}
       </Menu>

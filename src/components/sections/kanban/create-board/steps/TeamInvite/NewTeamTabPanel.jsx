@@ -71,10 +71,11 @@ const NewTeamTabPanel = ({ value, options }) => {
     }
 
     append({
+      id: selectedUser?.id || null,
       name: selectedUser?.name || '',
       email: emailToUse,
       avatar: selectedUser?.avatar || '',
-      role: 'Guest',
+      role: selectedUser?.orgRole ? (selectedUser.orgRole === 'member' ? 'Member' : 'Admin') : 'Guest',
     });
 
     setSelectedUser(null);
@@ -107,7 +108,6 @@ const NewTeamTabPanel = ({ value, options }) => {
             }}
             renderOption={(props, option) => {
               const { key, ...rest } = props;
-              console.log(key);
 
               return (
                 <Box key={key} component="li" {...rest}>

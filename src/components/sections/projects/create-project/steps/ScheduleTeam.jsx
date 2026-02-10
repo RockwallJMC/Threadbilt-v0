@@ -2,6 +2,8 @@
 
 import { Controller, useFormContext } from 'react-hook-form';
 import {
+  Avatar,
+  CircularProgress,
   FormControl,
   FormHelperText,
   InputLabel,
@@ -11,7 +13,7 @@ import {
   TextField,
 } from '@mui/material';
 import * as yup from 'yup';
-import { users } from 'data/users';
+import { useOrganizationManagers } from 'services/swr/api-hooks/useOrganizationMembersApi';
 
 export const scheduleTeamSchema = yup.object().shape({
   startDate: yup.string().required('Start date is required'),
@@ -25,6 +27,9 @@ const ScheduleTeam = () => {
     formState: { errors },
     control,
   } = useFormContext();
+
+  // Fetch eligible project managers (owner, admin, manager roles)
+  const { data: managers, isLoading, error } = useOrganizationManagers();
 
   return (
     <Stack direction="column" spacing={3}>
@@ -67,11 +72,29 @@ const ScheduleTeam = () => {
             <Select
               labelId="project-manager-label"
               inputProps={{ 'aria-label': 'Project Manager' }}
+              disabled={isLoading}
               {...field}
             >
-              {users.slice(0, 15).map((user) => (
-                <MenuItem key={user.id} value={user.id}>
-                  {user.name}
+              {isLoading && (
+                <MenuItem disabled>
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                  Loading managers...
+                </MenuItem>
+              )}
+              {error && (
+                <MenuItem disabled>Failed to load managers</MenuItem>
+              )}
+              {managers?.map((manager) => (
+                <MenuItem key={manager.id} value={manager.id}>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Avatar
+                      src={manager.avatar}
+                      sx={{ width: 24, height: 24 }}
+                    >
+                      {manager.name?.[0]}
+                    </Avatar>
+                    <span>{manager.name}</span>
+                  </Stack>
                 </MenuItem>
               ))}
             </Select>

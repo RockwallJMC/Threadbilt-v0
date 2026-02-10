@@ -93,6 +93,18 @@ export const TEST_DATA = {
     name: 'TechStart Customer LLC',
     industry: 'Manufacturing',
   },
+
+  // Acme Corporation Projects
+  ACME_PROJECT: {
+    id: 'pr100000-0000-0000-0000-000000000001',
+    name: 'Website Redesign Project',
+  },
+
+  // TechStart Industries Projects
+  TECHSTART_PROJECT: {
+    id: 'pr200000-0000-0000-0000-000000000001',
+    name: 'Mobile App Development',
+  },
 };
 
 /**

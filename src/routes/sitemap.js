@@ -598,6 +598,14 @@ const sitemap = [
         icon: 'material-symbols:calendar-add-on',
         active: true,
       },
+      {
+        name: 'Graph Explorer',
+        key: 'graph_explorer',
+        path: paths.graphExplorer,
+        pathName: 'graph-explorer',
+        icon: 'material-symbols:hub-outline',
+        active: true,
+      },
     ],
   },
   {

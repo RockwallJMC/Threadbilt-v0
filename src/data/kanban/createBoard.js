@@ -1,5 +1,4 @@
 import { initialConfig } from 'config';
-import { users } from 'data/users';
 
 const bgImage = (index) => `${initialConfig.assetsDir}/images/kanban/background/${index}.webp`;
 
@@ -89,8 +88,5 @@ export const backgroundColorOptions = [
   },
 ];
 
-export const initialTeamTableData = [
-  { ...users[0], role: 'Member' },
-  { ...users[1], role: 'Member' },
-  { ...users[7], role: 'Admin' },
-];
+// Team members are now loaded from the organization via useOrganizationMembers hook
+export const initialTeamTableData = [];

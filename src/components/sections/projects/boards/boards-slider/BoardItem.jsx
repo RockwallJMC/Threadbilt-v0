@@ -19,7 +19,7 @@ import BoardItemMenu from './BoardItemMenu';
 
 dayjs.extend(relativeTime);
 
-const BoardItem = ({ board, size, isSelected = false, onSelect = null }) => {
+const BoardItem = ({ board, size, isSelected = false, onSelect = null, onViewBoard = null, onEdit = null, onArchive = null, onDelete = null }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { image, name, lastViewAt, assignee = [] } = board;
 
@@ -47,10 +47,17 @@ const BoardItem = ({ board, size, isSelected = false, onSelect = null }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <BoardItemMenu isHovered={isHovered} />
+      <BoardItemMenu
+        isHovered={isHovered}
+        boardId={board.id}
+        onViewBoard={onViewBoard}
+        onEdit={onEdit}
+        onArchive={onArchive}
+        onDelete={onDelete}
+      />
 
       <CardActionArea
-        href={onSelect ? undefined : paths.projectBoards}
+        href={onSelect ? undefined : paths.projectBoardDetail(board.id)}
         onClick={handleClick}
       >
         <CardMedia

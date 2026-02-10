@@ -100,6 +100,7 @@ const paths = {
   createBoard: `/${rootPaths.appsRoot}/${rootPaths.kanbanRoot}/create-board`,
 
   projectBoards: `/${rootPaths.appsRoot}/${rootPaths.projectsRoot}/boards`,
+  projectBoardDetail: (id) => `/${rootPaths.appsRoot}/${rootPaths.projectsRoot}/boards/${id}`,
   createProject: `/${rootPaths.appsRoot}/${rootPaths.projectsRoot}/create-project`,
 
   createEvent: `/${rootPaths.appsRoot}/${rootPaths.eventsRoot}/create-event`,
@@ -138,6 +139,8 @@ const paths = {
 
   calendar: `/${rootPaths.appsRoot}/${rootPaths.calendarRoot}`,
   scheduler: `/${rootPaths.appsRoot}/${rootPaths.schedulerRoot}`,
+
+  graphExplorer: `/${rootPaths.appsRoot}/graph-explorer`,
 
   landingHomepage: `/${rootPaths.pagesRoot}/${rootPaths.landingRoot}/homepage`,
   landingAbout: `/${rootPaths.pagesRoot}/${rootPaths.landingRoot}/about-us`,

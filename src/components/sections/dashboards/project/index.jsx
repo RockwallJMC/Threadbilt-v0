@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import Grid from '@mui/material/Grid';
+import { useSnackbar } from 'notistack';
 import {
   deadlineMetrics,
   events,
@@ -13,11 +15,29 @@ import {
 } from 'data/project/dashboard';
 import { recentProjects as staticRecentProjects } from 'data/projects/boards';
 import { useBreakpoints } from 'providers/BreakpointsProvider';
+import paths from 'routes/paths';
 import {
   useRecentProjects,
   useUpdateLastViewed,
   useProjectTaskMetrics,
+  useUpdateProject,
+  useDeleteProject,
+  useProjectGanttData,
+  useProjectDeadlineMetrics,
+  useProjectRoadmap,
+  useProjectMeetings,
+  useProjectEvents,
+  useProjectHours,
+  useSeedProjectData,
 } from 'services/swr/api-hooks/useProjectApi';
+import {
+  transformTasksToGanttFormat,
+  transformTasksToDeadlineMetrics,
+  transformProjectToRoadmapFormat,
+  transformMeetingsToScheduleFormat,
+  transformEventsToCalendarFormat,
+  transformTimeEntriesToChartFormat,
+} from 'helpers/project-data-transformers';
 import BoardsSlider from 'components/sections/projects/boards/boards-slider/BoardsSlider';
 import Events from 'components/sections/dashboards/project/events/Events';
 import HoursCompleted from 'components/sections/dashboards/project/hours-completed/HoursCompleted';
@@ -30,16 +50,87 @@ import TaskSummary from 'components/sections/dashboards/project/task-summary/Tas
 const ProjectManagement = () => {
   const { up } = useBreakpoints();
   const upXl = up('xl');
+  const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
 
   // Fetch recent projects from database
-  const { data: recentProjectsData, isLoading: projectsLoading } = useRecentProjects(10);
+  const { data: recentProjectsData, isLoading: projectsLoading, mutate: mutateProjects } = useRecentProjects(10);
   const { trigger: updateLastViewed } = useUpdateLastViewed();
+  const { trigger: updateProject } = useUpdateProject();
+  const { trigger: deleteProject } = useDeleteProject();
 
   // Track selected project
   const [selectedProjectId, setSelectedProjectId] = useState(null);
 
   // Fetch task metrics for selected project
   const { data: projectTaskMetrics } = useProjectTaskMetrics(selectedProjectId);
+
+  // Fetch data for dashboard widgets
+  const { data: ganttRawData, mutate: mutateGantt } = useProjectGanttData(selectedProjectId);
+  const { data: deadlineRawData, mutate: mutateDeadline } = useProjectDeadlineMetrics(selectedProjectId);
+  const { data: roadmapRawData, mutate: mutateRoadmap } = useProjectRoadmap(selectedProjectId);
+  const { data: meetingsRawData } = useProjectMeetings(selectedProjectId);
+  const { data: eventsRawData } = useProjectEvents(selectedProjectId);
+  const { data: hoursRawData } = useProjectHours(selectedProjectId);
+
+  // Seed hook for development
+  const { trigger: seedProject, isMutating: isSeeding } = useSeedProjectData();
+
+  // Auto-seed project if it has no data
+  useEffect(() => {
+    const autoSeed = async () => {
+      if (selectedProjectId && ganttRawData && !ganttRawData.tasks?.length && !ganttRawData.columns?.length) {
+        try {
+          await seedProject({ projectId: selectedProjectId });
+          // Refresh data after seeding
+          mutateGantt();
+          mutateDeadline();
+          mutateRoadmap();
+        } catch {
+          // Silently fail - seed might not be needed
+        }
+      }
+    };
+    autoSeed();
+  }, [selectedProjectId, ganttRawData, seedProject, mutateGantt, mutateDeadline, mutateRoadmap]);
+
+  // Get selected project name for hours chart
+  const selectedProjectName = useMemo(() => {
+    if (!recentProjectsData?.boards || !selectedProjectId) return 'Project';
+    const project = recentProjectsData.boards.find((p) => p.id === selectedProjectId);
+    return project?.name || 'Project';
+  }, [recentProjectsData, selectedProjectId]);
+
+  // Transform data for widgets
+  const displayGanttData = useMemo(() => {
+    if (!ganttRawData?.tasks?.length) return projectTimelineData;
+    return transformTasksToGanttFormat(ganttRawData.tasks, ganttRawData.columns);
+  }, [ganttRawData]);
+
+  const displayDeadlineMetrics = useMemo(() => {
+    if (!deadlineRawData?.tasks?.length) return deadlineMetrics;
+    return transformTasksToDeadlineMetrics(deadlineRawData.tasks, deadlineRawData.columns);
+  }, [deadlineRawData]);
+
+  const displayRoadmapData = useMemo(() => {
+    if (!roadmapRawData) return projectsInfos;
+    return transformProjectToRoadmapFormat(roadmapRawData, roadmapRawData.columns || []);
+  }, [roadmapRawData]);
+
+  const displayMeetingsData = useMemo(() => {
+    if (!meetingsRawData?.length) return upcomingMeetings;
+    return transformMeetingsToScheduleFormat(meetingsRawData);
+  }, [meetingsRawData]);
+
+  const displayEventsData = useMemo(() => {
+    if (!eventsRawData?.length) return events;
+    return transformEventsToCalendarFormat(eventsRawData);
+  }, [eventsRawData]);
+
+  const displayHoursData = useMemo(() => {
+    if (!hoursRawData?.length) return projectHours;
+    return transformTimeEntriesToChartFormat(hoursRawData, selectedProjectName);
+  }, [hoursRawData, selectedProjectName]);
 
   // Auto-select first project when data loads
   useEffect(() => {
@@ -54,69 +145,110 @@ const ProjectManagement = () => {
     updateLastViewed({ id: projectId });
   };
 
+  // Handle project edit
+  const handleProjectEdit = (projectId) => {
+    router.push(`${paths.projectBoards}/${projectId}`);
+  };
+
+  // Handle project archive
+  const handleProjectArchive = async (projectId) => {
+    try {
+      await updateProject({ id: projectId, updates: { status: 'archived' } });
+      enqueueSnackbar('Project archived', { variant: 'success' });
+      mutateProjects();
+    } catch (error) {
+      enqueueSnackbar(error.message || 'Failed to archive project', { variant: 'error' });
+    }
+  };
+
+  // Handle project delete
+  const handleProjectDelete = async (projectId) => {
+    try {
+      await deleteProject({ id: projectId });
+      enqueueSnackbar('Project deleted', { variant: 'success' });
+      mutateProjects();
+      if (selectedProjectId === projectId) {
+        setSelectedProjectId(null);
+      }
+    } catch (error) {
+      enqueueSnackbar(error.message || 'Failed to delete project', { variant: 'error' });
+    }
+  };
+
   // Use database data if available, fallback to static data
   const displayProjects = recentProjectsData || staticRecentProjects;
 
   // Use project-specific task metrics if available, fallback to static
   const displayTaskMetrics = projectTaskMetrics
-    ? {
-        todo: { amount: projectTaskMetrics.todoTasks, label: 'To Do' },
-        progress: { amount: projectTaskMetrics.inProgressTasks, label: 'In Progress' },
-        completed: { amount: projectTaskMetrics.completedTasks, label: 'Completed' },
-        overdue: { amount: projectTaskMetrics.highPriorityTasks, label: 'High Priority' },
-      }
+    ? [
+        {
+          title: 'To Do',
+          count: projectTaskMetrics.todoTasks || 0,
+          icon: { name: 'material-symbols:note-outline', color: 'primary' },
+        },
+        {
+          title: 'In Progress',
+          count: projectTaskMetrics.inProgressTasks || 0,
+          icon: { name: 'material-symbols:pending-outline', color: 'info' },
+        },
+        {
+          title: 'Completed',
+          count: projectTaskMetrics.completedTasks || 0,
+          icon: { name: 'material-symbols:check-box-outline', color: 'success' },
+        },
+      ]
     : taskMetrics;
 
   return (
     <Grid container>
-      <Grid size={12}>
-        <BoardsSlider
-          boardList={displayProjects}
-          size="small"
-          showControls
-          selectedId={selectedProjectId}
-          onSelect={handleProjectSelect}
-          isLoading={projectsLoading}
-        />
-      </Grid>
-
+      {/* Top section: Left column (BoardsSlider + TaskSummary + ProjectTimeline) + Right column (ProjectDeadlines) */}
       <Grid container size={12}>
-        {!upXl && (
+        {/* Left column: stacked content */}
+        <Grid container size={{ xs: 12, lg: 7, xl: 9 }}>
+          <Grid size={12}>
+            <BoardsSlider
+              boardList={displayProjects}
+              size="small"
+              showControls
+              selectedId={selectedProjectId}
+              onSelect={handleProjectSelect}
+              onViewBoard={handleProjectEdit}
+              onEdit={handleProjectEdit}
+              onArchive={handleProjectArchive}
+              onDelete={handleProjectDelete}
+              isLoading={projectsLoading}
+            />
+          </Grid>
           <Grid size={12}>
             <TaskSummary taskMetrics={displayTaskMetrics} />
           </Grid>
-        )}
-
-        <Grid container size={{ xs: 12, lg: 7, xl: 9 }}>
-          {upXl && (
-            <Grid size={12}>
-              <TaskSummary taskMetrics={displayTaskMetrics} />
-            </Grid>
-          )}
           <Grid size={12}>
-            <ProjectTimeline projectTimelineData={projectTimelineData} />
+            <ProjectTimeline projectTimelineData={displayGanttData} />
           </Grid>
         </Grid>
 
+        {/* Right column: ProjectDeadlines spans full height */}
         <Grid size={{ xs: 12, sm: 6, lg: 5, xl: 3 }}>
-          <ProjectDeadlines deadlineMetrics={deadlineMetrics} />
+          <ProjectDeadlines deadlineMetrics={displayDeadlineMetrics} />
+        </Grid>
+      </Grid>
+
+      <Grid container size={12}>
+        <Grid size={{ xs: 12, lg: 7, xl: 9 }}>
+          <ProductRoadmap projectInfos={displayRoadmapData} />
         </Grid>
 
-        <Grid size={{ xs: 12, lg: 7, xl: 9 }} order={{ sm: 1, lg: 0 }}>
-          <ProductRoadmap projectInfos={projectsInfos} />
-        </Grid>
-
         <Grid size={{ xs: 12, sm: 6, lg: 5, xl: 3 }}>
-          <ScheduleMeeting upcomingMeetings={upcomingMeetings} />
+          <ScheduleMeeting upcomingMeetings={displayMeetingsData} />
         </Grid>
       </Grid>
 
       <Grid size={{ xs: 12, xl: 7 }}>
-        <Events events={events} />
+        <Events events={displayEventsData} />
       </Grid>
 
       <Grid size={{ xs: 12, xl: 5 }}>
-        <HoursCompleted projectHours={projectHours} />
+        <HoursCompleted projectHours={displayHoursData} />
       </Grid>
     </Grid>
   );

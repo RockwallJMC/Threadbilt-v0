@@ -39,6 +39,10 @@ const BoardsSlider = ({
   showControls = false,
   selectedId = null,
   onSelect = null,
+  onViewBoard = null,
+  onEdit = null,
+  onArchive = null,
+  onDelete = null,
   isLoading = false,
 }) => {
   const { title, boards } = boardList || { title: 'Projects', boards: [] };
@@ -200,6 +204,10 @@ const BoardsSlider = ({
                 size={size}
                 isSelected={selectedId === board.id}
                 onSelect={onSelect}
+                onViewBoard={onViewBoard}
+                onEdit={onEdit}
+                onArchive={onArchive}
+                onDelete={onDelete}
               />
             </SwiperSlide>
           ))}
