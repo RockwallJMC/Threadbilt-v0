@@ -607,7 +607,7 @@ const SiteBoxCanvas = ({
 
       // Extract icon name from the full Iconify icon string (e.g. 'material-symbols:door-front' -> 'door-front')
       const iconName = config.icon.split(':')[1] || 'devices-other';
-      const iconUrl = `https://api.iconify.design/material-symbols/${iconName}.svg?color=${encodeURIComponent('#fff')}&width=16&height=16`;
+      const iconUrl = `https://api.iconify.design/material-symbols/${iconName}.svg?color=${encodeURIComponent(markerColor)}&width=16&height=16`;
 
       // Create custom teardrop HTML element
       const el = document.createElement('div');
@@ -616,13 +616,13 @@ const SiteBoxCanvas = ({
       el.style.position = 'relative';
       el.style.cursor = 'pointer';
 
-      // SVG teardrop with white circle and icon inside
+      // SVG teardrop with white circle (no embedded image - use HTML img overlay instead)
       el.innerHTML = `
         <svg width="32" height="44" viewBox="0 0 32 44" xmlns="http://www.w3.org/2000/svg">
           <path d="M16 0C7.16 0 0 7.16 0 16c0 12 16 28 16 28s16-16 16-28C32 7.16 24.84 0 16 0z" fill="${markerColor}" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>
           <circle cx="16" cy="16" r="10" fill="white"/>
-          <image href="${iconUrl}" x="8" y="8" width="16" height="16"/>
         </svg>
+        <img src="${iconUrl}" width="16" height="16" style="position:absolute;top:8px;left:8px;pointer-events:none;" />
       `;
 
       // Selection effect

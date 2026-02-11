@@ -711,6 +711,8 @@ const SiteBox = ({ projectId, drawingId }) => {
         onSave={handlePinSave}
         onDelete={handlePinDelete}
         onClose={handlePopoverClose}
+        dialogTitle={pendingPin?._deviceType ? `Add ${DEVICE_TYPES[pendingPin._deviceType]?.label || 'Device'}` : undefined}
+        hideColorPicker={Boolean(pendingPin?._deviceType)}
       />
 
       {/* Text Editor */}

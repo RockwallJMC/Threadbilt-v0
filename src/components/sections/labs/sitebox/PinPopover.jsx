@@ -23,7 +23,7 @@ const PRESET_COLORS = [
   { name: 'Purple', value: '#8B5CF6' },
 ];
 
-const PinPopover = ({ open, anchorPosition, annotation, onSave, onDelete, onClose }) => {
+const PinPopover = ({ open, anchorPosition, annotation, onSave, onDelete, onClose, dialogTitle, hideColorPicker }) => {
   const [title, setTitle] = useState('');
   const [selectedColor, setSelectedColor] = useState('#EF4444');
 
@@ -67,7 +67,7 @@ const PinPopover = ({ open, anchorPosition, annotation, onSave, onDelete, onClos
       }}
     >
       <DialogTitle sx={{ color: 'rgba(255,255,255,0.9)' }}>
-        {annotation ? 'Edit Pin' : 'Add Pin'}
+        {dialogTitle || (annotation ? 'Edit Pin' : 'Add Pin')}
       </DialogTitle>
 
       <DialogContent>
@@ -98,47 +98,49 @@ const PinPopover = ({ open, anchorPosition, annotation, onSave, onDelete, onClos
         />
 
         {/* Color Picker */}
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1.5 }}>
-            Color
-          </Typography>
-          <Stack direction="row" spacing={1.5}>
-            {PRESET_COLORS.map((color) => (
-              <Box
-                key={color.value}
-                onClick={() => setSelectedColor(color.value)}
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: '50%',
-                  bgcolor: color.value,
-                  cursor: 'pointer',
-                  border: selectedColor === color.value ? '2px solid white' : '2px solid transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s',
-                  position: 'relative',
-                  '&:hover': {
-                    transform: 'scale(1.15)',
-                    border: '2px solid rgba(255,255,255,0.7)',
-                  },
-                }}
-              >
-                {selectedColor === color.value && (
-                  <IconifyIcon
-                    icon="material-symbols:check"
-                    sx={{
-                      fontSize: 20,
-                      color: 'white',
-                      filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
-                    }}
-                  />
-                )}
-              </Box>
-            ))}
-          </Stack>
-        </Box>
+        {!hideColorPicker && (
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1.5 }}>
+              Color
+            </Typography>
+            <Stack direction="row" spacing={1.5}>
+              {PRESET_COLORS.map((color) => (
+                <Box
+                  key={color.value}
+                  onClick={() => setSelectedColor(color.value)}
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    bgcolor: color.value,
+                    cursor: 'pointer',
+                    border: selectedColor === color.value ? '2px solid white' : '2px solid transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s',
+                    position: 'relative',
+                    '&:hover': {
+                      transform: 'scale(1.15)',
+                      border: '2px solid rgba(255,255,255,0.7)',
+                    },
+                  }}
+                >
+                  {selectedColor === color.value && (
+                    <IconifyIcon
+                      icon="material-symbols:check"
+                      sx={{
+                        fontSize: 20,
+                        color: 'white',
+                        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
+                      }}
+                    />
+                  )}
+                </Box>
+              ))}
+            </Stack>
+          </Box>
+        )}
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
