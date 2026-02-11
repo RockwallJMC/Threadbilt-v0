@@ -12,11 +12,38 @@ import ReactEchart from 'components/base/ReactEchart';
 
 echarts.use([GridComponent, CanvasRenderer, LineChart]);
 
+const seriesColors = ['primary.main', 'warning.main', 'chBlue.200', 'success.main', 'error.main'];
+
+const getColorValue = (vars, colorPath) => {
+  const parts = colorPath.split('.');
+  let value = vars.palette;
+  for (const part of parts) {
+    value = value?.[part];
+  }
+  return value;
+};
+
 const HoursCompletedChart = ({ sx, data, ref }) => {
   const { vars } = useTheme();
   const { getThemeColor } = useSettingsContext();
 
   const getOptions = useMemo(() => {
+    const entries = Object.entries(data || {});
+    const series = entries.map(([name, hours], index) => ({
+      name,
+      type: 'line',
+      data: hours || [],
+      zlevel: index + 1,
+      lineStyle: {
+        color: getThemeColor(getColorValue(vars, seriesColors[index % seriesColors.length])),
+        width: index === 0 ? 2 : 1,
+      },
+      itemStyle: {
+        color: getThemeColor(getColorValue(vars, seriesColors[index % seriesColors.length])),
+      },
+      showSymbol: false,
+    }));
+
     return {
       tooltip: {
         trigger: 'axis',
@@ -71,49 +98,7 @@ const HoursCompletedChart = ({ sx, data, ref }) => {
           },
         },
       },
-      series: [
-        {
-          name: 'Aurora',
-          type: 'line',
-          data: data.aurora,
-          zlevel: 1,
-          lineStyle: {
-            color: getThemeColor(vars.palette.primary.main),
-            width: 1,
-          },
-          itemStyle: {
-            color: getThemeColor(vars.palette.primary.main),
-          },
-          showSymbol: false,
-        },
-        {
-          name: 'Falcon',
-          type: 'line',
-          data: data.falcon,
-          zlevel: 2,
-          lineStyle: {
-            color: getThemeColor(vars.palette.warning.main),
-            width: 2,
-          },
-          itemStyle: {
-            color: getThemeColor(vars.palette.warning.main),
-          },
-          showSymbol: false,
-        },
-        {
-          name: 'Phoenix',
-          type: 'line',
-          data: data.phoenix,
-          lineStyle: {
-            color: getThemeColor(vars.palette.chBlue[200]),
-            width: 1,
-          },
-          itemStyle: {
-            color: getThemeColor(vars.palette.chBlue[200]),
-          },
-          showSymbol: false,
-        },
-      ],
+      series,
       grid: {
         left: 30,
         right: 20,

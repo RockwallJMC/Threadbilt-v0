@@ -2,8 +2,12 @@
 
 This file provides operating guidance to Claude Code when working with the PierceDesk repository.
 
-## Repository Overview
+**Remember:** You orchestrate, you don't implement. Skills guide the process, specialized sub-agents execute the work.
 
+
+
+
+## Repository Overview
 **piercedesk6** is a Next.js 15 application (App Router) for PierceDesk.AI. React 19, Material-UI 7, dev server on port 4000.
 
 **Repository structure:**
@@ -18,15 +22,19 @@ This file provides operating guidance to Claude Code when working with the Pierc
 
 ```bash
 npm install --legacy-peer-deps
-npm run dev        # Port 4000 (TERMINAL ONLY - never run_in_background)
 npm run build
 npm run lint
+
+!! you will never use npm run dev, ask the user to run this !!
+
 ```
 
 **Git rules (MANDATORY):**
 
 - Do **NOT** use `git worktree` or multiple worktrees in this repository.
 - Use normal branches in the single main checkout instead.
+
+
 
 **⚠️ CRITICAL: Package Installation Rules**
 
@@ -35,51 +43,12 @@ npm run lint
 - Before adding ANY package: `npm ls <package-name>` to check if already installed
 - Playwright commands work via `npx playwright` (no direct install needed)
 
-## Role: Direct Builder (No Orchestrator Mode)
 
-<EXTREMELY_IMPORTANT>
-**Remove orchestration/delegation requirements. Claude should implement directly with a focus on the three core domains below.**
-</EXTREMELY_IMPORTANT>
-
-## Three Core Domains (Primary Focus)
-
-1. **Design + Layout Framework**
-   - Follow the app’s layout framework and component-docs.
-   - Use the `layout-framework` skill for any layout, grid, or form work.
-   - Reference `src/docs/component-docs/` for Box/Container/Grid/Stack/Paper patterns.
-
-2. **Wiring (API/SWR/Routing)**
-   - Use the `wiring-framework` skill for API/SWR wiring.
-   - Use existing SWR hooks and API patterns in `src/services/`.
-   - Keep wiring consistent with existing routes and `src/routes/paths.js`.
-
-3. **Supabase Database**
-   - Use the `supabase-framework` skill for any DB work.
-   - Database is cloud-hosted; use Supabase MCP tools for schema/query work.
-   - Follow existing patterns in `database/` and the documentation.
-
-## Agent Behavior (AVOID)
-
-❌ **Orchestrator-only behavior** → Implement directly for requested work
-❌ **Hardcoded layout sizes** → Use Grid/Stack/Paper per component-docs
-❌ **Local DB connections** → Supabase MCP tools only
 
 
 ## Documentation Framework (MANDATORY)
 
 **Every feature requires documentation tracking:**
-
-### Execution Flow
-
-```
-1. Initiate → GitHub issue
-2. Plan → INDEX + phase design docs
-3. Execute Task → Implement with phase execution doc updates
-4. Verify Task → Run lint/build/tests, capture evidence
-5. Code Review → Skill("code-review:code-review") for quality assurance
-6. Repeat → Next task (steps 3-5) until phase complete
-7. Phase Complete → Generate as-built, update user docs, update GitHub issue
-```
 
 ### Documentation Structure
 
@@ -125,21 +94,12 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 
 ### GitHub Integration (Coordination Hub)
 
-**ALWAYS use Skill("github-workflow") BEFORE:**
-
-- Creating issues
-- Creating PRs (after EVERY task)
-- Posting updates
-- Linking docs
-
 **Requirements:**
 
 - Every interaction includes agent name (`**Agent**: {name}`)
 - Task-level PRs (create PR after EVERY task completion)
 - Screenshots committed to repo (GitHub raw URLs)
 - Issue comments link to docs/execution logs
-
-## Technology Stack Delegation
 
 ### Aurora-First UI Pattern
 
@@ -174,22 +134,7 @@ cp .claude/templates/as-built-template.md docs/system/as-builts/as-built-feature
 - `docs/guides/DOCUMENTATION-GUIDE.md` - Full workflow guide
 - `docs/system/AGENT.md` - Document governance rules
 
-**Skills:**
 
-- `.claude/skills/` - All available skills
-- Prefer `layout-framework` for layout/grid/form changes
-- Prefer `wiring-framework` for API/SWR wiring work
-- Prefer `supabase-framework` for database/schema work
-- Invoke with Skill tool, NEVER read directly
-
-## Agent SDK Context
-
-This file loads only when Agent SDK enables settings sources:
-
-- `settingSources: ["project"]` (TypeScript)
-- `setting_sources=["project"]` (Python)
-
-Reference: [Claude Agent SDK - Modifying system prompts](https://platform.claude.com/docs/en/agent-sdk/modifying-system-prompts#methods-of-modification)
 
 ---
 

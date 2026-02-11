@@ -36,7 +36,7 @@ const ProductRoadmap = ({ projectInfos }) => {
         }
       />
       <Stack direction="column" spacing={3}>
-        {projectInfos.map((projectInfo) => (
+        {(projectInfos || []).map((projectInfo) => (
           <ProjectDataTable key={projectInfo.id} projectInfo={projectInfo} />
         ))}
       </Stack>

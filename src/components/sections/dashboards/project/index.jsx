@@ -4,17 +4,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Grid from '@mui/material/Grid';
 import { useSnackbar } from 'notistack';
-import {
-  deadlineMetrics,
-  events,
-  projectHours,
-  projectsInfos,
-  projectTimelineData,
-  taskMetrics,
-  upcomingMeetings,
-} from 'data/project/dashboard';
-import { recentProjects as staticRecentProjects } from 'data/projects/boards';
-import { useBreakpoints } from 'providers/BreakpointsProvider';
 import paths from 'routes/paths';
 import {
   useRecentProjects,
@@ -28,7 +17,6 @@ import {
   useProjectMeetings,
   useProjectEvents,
   useProjectHours,
-  useSeedProjectData,
 } from 'services/swr/api-hooks/useProjectApi';
 import {
   transformTasksToGanttFormat,
@@ -48,8 +36,6 @@ import ScheduleMeeting from 'components/sections/dashboards/project/schedule-mee
 import TaskSummary from 'components/sections/dashboards/project/task-summary/TaskSummary';
 
 const ProjectManagement = () => {
-  const { up } = useBreakpoints();
-  const upXl = up('xl');
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -66,33 +52,12 @@ const ProjectManagement = () => {
   const { data: projectTaskMetrics } = useProjectTaskMetrics(selectedProjectId);
 
   // Fetch data for dashboard widgets
-  const { data: ganttRawData, mutate: mutateGantt } = useProjectGanttData(selectedProjectId);
-  const { data: deadlineRawData, mutate: mutateDeadline } = useProjectDeadlineMetrics(selectedProjectId);
-  const { data: roadmapRawData, mutate: mutateRoadmap } = useProjectRoadmap(selectedProjectId);
+  const { data: ganttRawData } = useProjectGanttData(selectedProjectId);
+  const { data: deadlineRawData } = useProjectDeadlineMetrics(selectedProjectId);
+  const { data: roadmapRawData } = useProjectRoadmap(selectedProjectId);
   const { data: meetingsRawData } = useProjectMeetings(selectedProjectId);
   const { data: eventsRawData } = useProjectEvents(selectedProjectId);
   const { data: hoursRawData } = useProjectHours(selectedProjectId);
-
-  // Seed hook for development
-  const { trigger: seedProject, isMutating: isSeeding } = useSeedProjectData();
-
-  // Auto-seed project if it has no data
-  useEffect(() => {
-    const autoSeed = async () => {
-      if (selectedProjectId && ganttRawData && !ganttRawData.tasks?.length && !ganttRawData.columns?.length) {
-        try {
-          await seedProject({ projectId: selectedProjectId });
-          // Refresh data after seeding
-          mutateGantt();
-          mutateDeadline();
-          mutateRoadmap();
-        } catch {
-          // Silently fail - seed might not be needed
-        }
-      }
-    };
-    autoSeed();
-  }, [selectedProjectId, ganttRawData, seedProject, mutateGantt, mutateDeadline, mutateRoadmap]);
 
   // Get selected project name for hours chart
   const selectedProjectName = useMemo(() => {
@@ -101,35 +66,33 @@ const ProjectManagement = () => {
     return project?.name || 'Project';
   }, [recentProjectsData, selectedProjectId]);
 
-  // Transform data for widgets
+  // Transform data for widgets - no mock fallback, show blank if no data
   const displayGanttData = useMemo(() => {
-    if (!ganttRawData?.tasks?.length) return projectTimelineData;
+    if (!ganttRawData?.tasks?.length) return [];
     return transformTasksToGanttFormat(ganttRawData.tasks, ganttRawData.columns);
   }, [ganttRawData]);
 
   const displayDeadlineMetrics = useMemo(() => {
-    if (!deadlineRawData?.tasks?.length) return deadlineMetrics;
-    return transformTasksToDeadlineMetrics(deadlineRawData.tasks, deadlineRawData.columns);
+    return transformTasksToDeadlineMetrics(deadlineRawData?.tasks || [], deadlineRawData?.columns || []);
   }, [deadlineRawData]);
 
   const displayRoadmapData = useMemo(() => {
-    if (!roadmapRawData) return projectsInfos;
+    if (!roadmapRawData) return [];
     return transformProjectToRoadmapFormat(roadmapRawData, roadmapRawData.columns || []);
   }, [roadmapRawData]);
 
   const displayMeetingsData = useMemo(() => {
-    if (!meetingsRawData?.length) return upcomingMeetings;
+    if (!meetingsRawData?.length) return [];
     return transformMeetingsToScheduleFormat(meetingsRawData);
   }, [meetingsRawData]);
 
   const displayEventsData = useMemo(() => {
-    if (!eventsRawData?.length) return events;
+    if (!eventsRawData?.length) return [];
     return transformEventsToCalendarFormat(eventsRawData);
   }, [eventsRawData]);
 
   const displayHoursData = useMemo(() => {
-    if (!hoursRawData?.length) return projectHours;
-    return transformTimeEntriesToChartFormat(hoursRawData, selectedProjectName);
+    return transformTimeEntriesToChartFormat(hoursRawData || [], selectedProjectName);
   }, [hoursRawData, selectedProjectName]);
 
   // Auto-select first project when data loads
@@ -175,29 +138,27 @@ const ProjectManagement = () => {
     }
   };
 
-  // Use database data if available, fallback to static data
-  const displayProjects = recentProjectsData || staticRecentProjects;
+  // Use database data only - no static fallback
+  const displayProjects = recentProjectsData || { boards: [], total: 0 };
 
-  // Use project-specific task metrics if available, fallback to static
-  const displayTaskMetrics = projectTaskMetrics
-    ? [
-        {
-          title: 'To Do',
-          count: projectTaskMetrics.todoTasks || 0,
-          icon: { name: 'material-symbols:note-outline', color: 'primary' },
-        },
-        {
-          title: 'In Progress',
-          count: projectTaskMetrics.inProgressTasks || 0,
-          icon: { name: 'material-symbols:pending-outline', color: 'info' },
-        },
-        {
-          title: 'Completed',
-          count: projectTaskMetrics.completedTasks || 0,
-          icon: { name: 'material-symbols:check-box-outline', color: 'success' },
-        },
-      ]
-    : taskMetrics;
+  // Use project-specific task metrics - show zeros if no data
+  const displayTaskMetrics = [
+    {
+      title: 'To Do',
+      count: projectTaskMetrics?.todoTasks || 0,
+      icon: { name: 'material-symbols:note-outline', color: 'primary' },
+    },
+    {
+      title: 'In Progress',
+      count: projectTaskMetrics?.inProgressTasks || 0,
+      icon: { name: 'material-symbols:pending-outline', color: 'info' },
+    },
+    {
+      title: 'Completed',
+      count: projectTaskMetrics?.completedTasks || 0,
+      icon: { name: 'material-symbols:check-box-outline', color: 'success' },
+    },
+  ];
 
   return (
     <Grid container>

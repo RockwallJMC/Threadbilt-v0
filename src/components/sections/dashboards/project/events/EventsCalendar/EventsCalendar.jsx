@@ -22,7 +22,7 @@ const EventsCalendar = ({ events, setEvents, onOpenDrawer }) => {
   const calendarRef = useRef(null);
   const { up } = useBreakpoints();
   const [selectedEvent, setSelectedEvent] = useState();
-  const [currentMonth, setCurrentMonth] = useState(dayjs(events[0].startDate));
+  const [currentMonth, setCurrentMonth] = useState(dayjs(events?.[0]?.startDate || undefined));
   const [selectedDates, setSelectedDates] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const upSm = up('sm');
@@ -32,7 +32,7 @@ const EventsCalendar = ({ events, setEvents, onOpenDrawer }) => {
     setDialogOpen(false);
   };
   const handleDateSelect = (info) => {
-    const existingEvent = events.find((event) => {
+    const existingEvent = (events || []).find((event) => {
       return dayjs(info.startStr).isBetween(
         event.startDate,
         event.endDate ? event.endDate : event.startDate,
@@ -70,7 +70,7 @@ const EventsCalendar = ({ events, setEvents, onOpenDrawer }) => {
   };
   const getEvents = useMemo(
     () =>
-      events.map((event) => ({
+      (events || []).map((event) => ({
         title: event.title,
         start: event.startDate,
         end: event.endDate
@@ -188,7 +188,7 @@ const EventsCalendar = ({ events, setEvents, onOpenDrawer }) => {
             fixedWeekCount={false}
             dayMaxEventRows={1}
             editable
-            initialDate={new Date(events[0].startDate)}
+            initialDate={events?.[0]?.startDate ? new Date(events[0].startDate) : new Date()}
             select={handleDateSelect}
             datesSet={(dateInfo) => setCurrentMonth(dayjs(dateInfo.start).add(15, 'day'))}
           />

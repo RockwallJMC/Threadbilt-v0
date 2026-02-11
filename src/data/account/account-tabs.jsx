@@ -1,3 +1,5 @@
+'use client';
+
 import AccessibilityTabPanel from 'components/sections/account/accessibility/AccessibilityTabPanel';
 import AudioVideoTabPanel from 'components/sections/account/audio-video/AudioVideoTabPanel';
 import ChatPreferencesTabPanel from 'components/sections/account/chat-preferences/ChatPreferencesTabPanel';
@@ -5,6 +7,7 @@ import CreditCardInfoTabPanel from 'components/sections/account/credit-card/Cred
 import DateTimeTabPanel from 'components/sections/account/date-time/DateTimeTabPanel';
 import LanguageRegionTabPanel from 'components/sections/account/language-region/LanguageRegionTabPanel';
 import NotificationAlertsTabPanel from 'components/sections/account/notification-alerts/NotificationAlertsTabPanel';
+import OrganizationHierarchyTabPanel from 'components/sections/account/organization-hierarchy/OrganizationHierarchyTabPanel';
 import PersonalInfoTabPanel from 'components/sections/account/personal-info/PersonalInfoTabPanel';
 import PrivacyProtectionTabPanel from 'components/sections/account/privacy-protection/PrivacyProtectionTabPanel';
 import ShippingBillingAddressTabPanel from 'components/sections/account/shipping-billing-address/ShippingBillingAddressTabPanel';
@@ -97,6 +100,15 @@ export const accountTabs = [
   },
   {
     id: 10,
+    label: 'Organization Hierarchy',
+    title: 'Organization Hierarchy',
+    value: 'organization_hierarchy',
+    icon: 'material-symbols:account-tree-outline',
+    panelIcon: 'material-symbols:account-tree-outline',
+    tabPanel: <OrganizationHierarchyTabPanel />,
+  },
+  {
+    id: 11,
     label: 'Shipping & Billing Address',
     title: 'Shipping & Billing Address',
     value: 'shipping_billing_address',
@@ -105,7 +117,7 @@ export const accountTabs = [
     tabPanel: <ShippingBillingAddressTabPanel />,
   },
   {
-    id: 11,
+    id: 12,
     label: 'Storage',
     title: 'Storage',
     value: 'storage',
@@ -114,7 +126,7 @@ export const accountTabs = [
     tabPanel: <StorageTabPanel />,
   },
   {
-    id: 12,
+    id: 13,
     label: 'Fingerprint Access Setup',
     title: 'Fingerprint Access Setup',
     value: 'touch_id',
@@ -123,7 +135,7 @@ export const accountTabs = [
     tabPanel: <TouchIDTabPanel />,
   },
   {
-    id: 13,
+    id: 14,
     label: 'Audio & Video',
     title: 'Audio & Video',
     value: 'audio_video',
@@ -132,7 +144,7 @@ export const accountTabs = [
     tabPanel: <AudioVideoTabPanel />,
   },
   {
-    id: 14,
+    id: 15,
     label: 'Chat Preferences',
     title: 'Chat Preferences',
     value: 'chat_preferences',

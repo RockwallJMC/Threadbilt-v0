@@ -3,7 +3,7 @@ import AddNewTask from 'components/sections/kanban/kanban/task-card/AddNewTask';
 import AddNewTaskForm from 'components/sections/kanban/kanban/task-card/AddNewTaskForm';
 import SortableTaskItem from 'components/sections/kanban/kanban/task-card/SortableTaskItem';
 
-const TaskItems = ({ listId, tasks, isAddNewTaskFormOpen, handleAddNewTaskFormClose }) => {
+const TaskItems = ({ listId, tasks, isAddNewTaskFormOpen, handleAddNewTaskFormClose, addLabel }) => {
   return (
     <Stack direction="column" sx={{ gap: 2, p: 1, pb: 3 }}>
       {isAddNewTaskFormOpen && (
@@ -16,7 +16,7 @@ const TaskItems = ({ listId, tasks, isAddNewTaskFormOpen, handleAddNewTaskFormCl
       {tasks.map((item) => (
         <SortableTaskItem key={item.id} task={item} />
       ))}
-      <AddNewTask listId={listId} />
+      <AddNewTask listId={listId} addLabel={addLabel} />
     </Stack>
   );
 };

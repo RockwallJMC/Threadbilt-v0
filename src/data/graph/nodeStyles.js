@@ -5,6 +5,32 @@
 
 // Node type configuration with colors and icons
 export const nodeTypeConfig = {
+  // Organization role types (for hierarchy visualization)
+  owner: {
+    color: 'orange.500',
+    icon: 'material-symbols:star',
+    label: 'Owner',
+    baseSize: 60,
+  },
+  admin: {
+    color: 'blue.500',
+    icon: 'material-symbols:shield',
+    label: 'Admin',
+    baseSize: 50,
+  },
+  manager: {
+    color: 'green.500',
+    icon: 'material-symbols:group',
+    label: 'Manager',
+    baseSize: 45,
+  },
+  member: {
+    color: 'grey.500',
+    icon: 'material-symbols:person',
+    label: 'Member',
+    baseSize: 40,
+  },
+  // Entity types (for graph explorer)
   user_profiles: {
     color: 'blue.500',
     icon: 'material-symbols:person',

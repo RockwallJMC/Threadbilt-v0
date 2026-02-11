@@ -86,7 +86,7 @@ const MeetingCard = ({ meeting }) => {
           }}
         >
           {attendants.map((attendant) => (
-            <Tooltip key={attendant.name} title={attendant.name}>
+            <Tooltip key={attendant.id} title={attendant.name}>
               <Avatar src={attendant.avatar} alt={attendant.name} />
             </Tooltip>
           ))}

@@ -1,13 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Drawer, drawerClasses, Paper, Stack } from '@mui/material';
 import EventsCalendar from './EventsCalendar/EventsCalendar';
 import EventsTimeline from './EventsTimeline';
 
 const Events = ({ events }) => {
-  const [currentEvents, setCurrentEvents] = useState(events);
+  const [currentEvents, setCurrentEvents] = useState(events || []);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Sync state when events prop changes (e.g. when SWR data arrives)
+  useEffect(() => {
+    setCurrentEvents(events || []);
+  }, [events]);
 
   const handleDrawerOpen = () => {
     setDrawerOpen(true);

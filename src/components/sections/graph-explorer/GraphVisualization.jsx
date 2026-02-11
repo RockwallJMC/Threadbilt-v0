@@ -129,6 +129,24 @@ const GraphVisualization = forwardRef(function GraphVisualization(
     };
   }, [nodes, edges, loading, theme, getThemeColor, onNodeSelect, onNodeDoubleClick, onEdgeSelect, isWidget]);
 
+  // Handle container resize (fixes hidden container issue, e.g. TabPanel)
+  useEffect(() => {
+    if (!containerRef.current || !cyRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect.width > 0 && entry.contentRect.height > 0 && cyRef.current) {
+          cyRef.current.resize();
+          cyRef.current.fit();
+        }
+      }
+    });
+
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, [nodes, edges, loading]);
+
   // Handle selected node highlighting
   useEffect(() => {
     if (!cyRef.current) return;

@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
+  Grid,
   InputLabel,
   MenuItem,
   Select,
@@ -96,109 +97,121 @@ const AddTaskDialog = () => {
     >
       <DialogTitle>Add New Task</DialogTitle>
       <DialogContent>
-        <Stack spacing={3} sx={{ mt: 1 }}>
-          {/* Title */}
-          <TextField
-            label="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            fullWidth
-            required
-            autoFocus
-          />
-
-          {/* Description */}
-          <TextField
-            label="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            fullWidth
-            multiline
-            rows={3}
-          />
-
-          {/* Column Selection */}
-          <FormControl fullWidth required>
-            <InputLabel>Column</InputLabel>
-            <Select
-              value={columnId || addTaskColumnId || ''}
-              onChange={(e) => setColumnId(e.target.value)}
-              label="Column"
-            >
-              {columns.map((col) => (
-                <MenuItem key={col.id} value={col.id}>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <Box
-                      sx={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: '50%',
-                        bgcolor: col.color || 'primary.main',
-                      }}
-                    />
-                    <span>{col.name}</span>
-                  </Stack>
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {/* Priority */}
-          <FormControl fullWidth>
-            <InputLabel>Priority</InputLabel>
-            <Select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-              label="Priority"
-            >
-              {priorities.map((p) => (
-                <MenuItem key={p.value} value={p.value}>
-                  {p.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {/* Due Date */}
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Due Date"
-              value={dueDate}
-              onChange={setDueDate}
-              slotProps={{
-                textField: { fullWidth: true },
-              }}
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          {/* Title - Full width */}
+          <Grid size={12}>
+            <TextField
+              label="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              fullWidth
+              required
+              autoFocus
             />
-          </LocalizationProvider>
+          </Grid>
 
-          {/* Assignee */}
-          {members.length > 0 && (
-            <FormControl fullWidth>
-              <InputLabel>Assignee</InputLabel>
+          {/* Description - Full width */}
+          <Grid size={12}>
+            <TextField
+              label="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              fullWidth
+              multiline
+              rows={3}
+            />
+          </Grid>
+
+          {/* Column Selection - Half width on desktop */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <FormControl fullWidth required>
+              <InputLabel>Column</InputLabel>
               <Select
-                value={assigneeId}
-                onChange={(e) => setAssigneeId(e.target.value)}
-                label="Assignee"
+                value={columnId || addTaskColumnId || ''}
+                onChange={(e) => setColumnId(e.target.value)}
+                label="Column"
               >
-                <MenuItem value="">
-                  <em>Unassigned</em>
-                </MenuItem>
-                {members.map((member) => (
-                  <MenuItem key={member.user_id} value={member.user_id}>
+                {columns.map((col) => (
+                  <MenuItem key={col.id} value={col.id}>
                     <Stack direction="row" alignItems="center" spacing={1}>
-                      <Avatar
-                        src={member.user?.avatar_url}
-                        alt={member.user?.full_name}
-                        sx={{ width: 24, height: 24 }}
+                      <Box
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: '50%',
+                          bgcolor: col.color || 'primary.main',
+                        }}
                       />
-                      <span>{member.user?.full_name || member.user?.email}</span>
+                      <span>{col.name}</span>
                     </Stack>
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
+          </Grid>
+
+          {/* Priority - Half width on desktop */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <FormControl fullWidth>
+              <InputLabel>Priority</InputLabel>
+              <Select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                label="Priority"
+              >
+                {priorities.map((p) => (
+                  <MenuItem key={p.value} value={p.value}>
+                    {p.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Due Date - Half width on desktop */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Due Date"
+                value={dueDate}
+                onChange={setDueDate}
+                slotProps={{
+                  textField: { fullWidth: true },
+                }}
+              />
+            </LocalizationProvider>
+          </Grid>
+
+          {/* Assignee - Half width on desktop */}
+          {members.length > 0 && (
+            <Grid size={{ xs: 12, md: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>Assignee</InputLabel>
+                <Select
+                  value={assigneeId}
+                  onChange={(e) => setAssigneeId(e.target.value)}
+                  label="Assignee"
+                >
+                  <MenuItem value="">
+                    <em>Unassigned</em>
+                  </MenuItem>
+                  {members.map((member) => (
+                    <MenuItem key={member.user_id} value={member.user_id}>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <Avatar
+                          src={member.user?.avatar_url}
+                          alt={member.user?.full_name}
+                          sx={{ width: 24, height: 24 }}
+                        />
+                        <span>{member.user?.full_name || member.user?.email}</span>
+                      </Stack>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
           )}
-        </Stack>
+        </Grid>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>

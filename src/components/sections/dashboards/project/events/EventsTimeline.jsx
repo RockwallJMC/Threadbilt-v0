@@ -91,8 +91,8 @@ const EventsTimeline = ({ events, handleDrawerClose }) => {
                       },
                     }}
                   >
-                    {event.members.map((member) => (
-                      <Tooltip title={member.name} key={member.name}>
+                    {event.members.map((member, index) => (
+                      <Tooltip title={member.name} key={member.id || index}>
                         <Avatar alt={member.name} src={member.avatar} />
                       </Tooltip>
                     ))}

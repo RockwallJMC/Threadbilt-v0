@@ -80,7 +80,6 @@ const Account = () => {
               sx={{
                 px: { xs: 3, md: 5 },
                 py: 5,
-                maxWidth: { xs: 628, md: 660 },
                 overflowY: 'hidden',
                 height: downMd ? 1 : 'auto',
               }}

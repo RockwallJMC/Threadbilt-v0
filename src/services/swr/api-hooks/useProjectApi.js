@@ -497,7 +497,7 @@ const projectTimelineFetcher = async (projectId) => {
     .select(`
       *,
       column:project_columns(name, color),
-      assignee:user_profiles(*)
+      assignee:user_profiles!assignee_id(*)
     `)
     .eq('project_id', projectId)
     .not('due_date', 'is', null)
@@ -541,7 +541,7 @@ const projectDeadlinesFetcher = async (projectId) => {
     .select(`
       id, title, due_date, priority,
       column:project_columns(name),
-      assignee:user_profiles(full_name, avatar_url)
+      assignee:user_profiles!assignee_id(full_name, avatar_url)
     `)
     .eq('project_id', projectId)
     .gte('due_date', today)
@@ -597,7 +597,7 @@ const projectGanttFetcher = async (projectId) => {
     .from('project_tasks')
     .select(`
       id, title, column_id, due_date, created_at, updated_at,
-      assignee:user_profiles(full_name, avatar_url)
+      assignee:user_profiles!assignee_id(full_name, avatar_url)
     `)
     .eq('project_id', projectId)
     .order('sort_order');
@@ -687,7 +687,7 @@ const projectRoadmapFetcher = async (projectId) => {
       columns:project_columns(id, name, sort_order),
       tasks:project_tasks(
         id, title, column_id, due_date, priority,
-        assignee:user_profiles(id, full_name, email, avatar_url)
+        assignee:user_profiles!assignee_id(id, full_name, email, avatar_url)
       ),
       members:project_members(
         user_id, role,

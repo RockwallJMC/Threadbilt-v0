@@ -10,7 +10,7 @@ import ListHeader from './ListHeader';
 import TaskItems from './TaskItems';
 
 const ListContainer = ({ taskList, listeners, dragHandleRef }) => {
-  const { id, title, tasks, compactMode } = taskList;
+  const { id, title, tasks, compactMode, addLabel } = taskList;
   const [isAddNewTaskFormOpen, setIsAddNewTaskFormOpen] = useState(false);
   const theme = useTheme();
 
@@ -88,6 +88,7 @@ const ListContainer = ({ taskList, listeners, dragHandleRef }) => {
             isAddNewTaskFormOpen={isAddNewTaskFormOpen}
             handleAddNewTaskFormClose={() => setIsAddNewTaskFormOpen(false)}
             tasks={tasks}
+            addLabel={addLabel}
           />
         </Stack>
       )}

@@ -1,10 +1,12 @@
 import { InputAdornment } from '@mui/material';
 import Button, { buttonClasses } from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import { kanbanBoard } from 'data/kanban/kanban';
 import { useBreakpoints } from 'providers/BreakpointsProvider';
+import { useKanbanContext } from 'providers/KanbanProvider';
 import IconifyIcon from 'components/base/IconifyIcon';
 import StyledTextField from 'components/styled/StyledTextField';
 import BoardMembers from './BoardMembers';
@@ -17,6 +19,7 @@ const KanbanHeader = () => {
   const { up } = useBreakpoints();
   const upXl = up('xl');
   const upSm = up('sm');
+  const { toggleFileSidebar, fileSidebarOpen } = useKanbanContext();
 
   const handleSearch = (e) => {
     console.log(e.target.value);
@@ -34,6 +37,16 @@ const KanbanHeader = () => {
       }}
     >
       <Stack spacing={{ xs: 1, xl: 2 }} sx={{ width: { xs: 1, sm: 'auto' }, alignItems: 'center' }}>
+        {toggleFileSidebar && (
+          <Tooltip title={fileSidebarOpen ? 'Hide Files' : 'Show Files'}>
+            <IconButton onClick={toggleFileSidebar} size="small">
+              <IconifyIcon
+                icon={fileSidebarOpen ? 'material-symbols:left-panel-close-outline' : 'material-symbols:left-panel-open-outline'}
+                sx={{ fontSize: 22, color: 'text.primary' }}
+              />
+            </IconButton>
+          </Tooltip>
+        )}
         <HeaderMenu />
         <BoardMembers
           members={kanbanBoard.assignee}

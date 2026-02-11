@@ -59,7 +59,7 @@ const ProjectDeadlines = ({ deadlineMetrics }) => {
         }}
       >
         <Stack spacing={1} direction="column">
-          {deadlineMetrics.map((metricData) => {
+          {(deadlineMetrics || []).map((metricData) => {
             const { prevCompleteCount, count, completed } = metricData;
             const percentageIncrement = getPercentage(count - prevCompleteCount, prevCompleteCount);
 

@@ -27,11 +27,11 @@ const DeadlineChart = ({ sx, data }) => {
   const { getThemeColor } = useSettingsContext();
   const chartData = useMemo(
     () =>
-      data.map((metric, index) => ({
+      (data || []).map((metric, index) => ({
         ...metric,
         radius: `${(85 - index * 15) * 0.8}%`,
         color: getCompletionColor(metric.completed, vars, getThemeColor),
-        totalProjects: data.reduce((sum, project) => project.count + sum, 0),
+        totalProjects: (data || []).reduce((sum, project) => project.count + sum, 0),
       })),
     [data, vars.palette, getThemeColor],
   );

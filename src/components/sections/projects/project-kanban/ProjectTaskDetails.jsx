@@ -111,7 +111,7 @@ const ProjectTaskDetails = () => {
       open={taskDrawerOpen}
       onClose={handleClose}
       PaperProps={{
-        sx: { width: { xs: '100%', sm: 400 }, p: 0 },
+        sx: { width: { xs: '100%', sm: 480, md: 560 }, p: 0 },
       }}
     >
       {/* Header */}
@@ -119,7 +119,7 @@ const ProjectTaskDetails = () => {
         direction="row"
         alignItems="center"
         justifyContent="space-between"
-        sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}
+        sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}
       >
         <Typography variant="h6">Task Details</Typography>
         <Stack direction="row" spacing={1}>
@@ -135,7 +135,7 @@ const ProjectTaskDetails = () => {
       </Stack>
 
       {/* Content */}
-      <Box sx={{ p: 2, overflow: 'auto', flex: 1 }}>
+      <Box sx={{ p: 3, overflow: 'auto', flex: 1 }}>
         <Stack spacing={3}>
           {/* Title */}
           {isEditing ? (
@@ -356,7 +356,7 @@ const ProjectTaskDetails = () => {
       <Stack
         direction="row"
         spacing={2}
-        sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}
+        sx={{ p: 3, borderTop: 1, borderColor: 'divider' }}
       >
         {isEditing ? (
           <>

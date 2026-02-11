@@ -290,14 +290,14 @@ const ProfileMenu = ({ type = 'default' }) => {
           <ProfileMenuItem
             icon="material-symbols:manage-accounts-outline-rounded"
             onClick={handleClose}
-            href="#!"
+            href={paths.account}
           >
             Account Settings
           </ProfileMenuItem>
           <ProfileMenuItem
             icon="material-symbols:question-mark-rounded"
             onClick={handleClose}
-            href="#!"
+            href={paths.faq}
           >
             Help Center
           </ProfileMenuItem>

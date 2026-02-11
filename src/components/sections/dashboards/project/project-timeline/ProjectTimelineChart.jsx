@@ -26,11 +26,13 @@ const ProjectTimelineChart = ({
   const [tableWidth, setTableWidth] = useState(expandedWidth);
 
   const ganttData = useMemo(
-    () => transformProjectTimelineData(projectTimelineData),
+    () => (projectTimelineData?.length ? transformProjectTimelineData(projectTimelineData) : { rows: [], tasks: [] }),
     [projectTimelineData],
   );
 
-  const { from: dataFrom, to: dataTo } = getFromToDates(ganttData.tasks);
+  const { from: dataFrom, to: dataTo } = ganttData.tasks.length
+    ? getFromToDates(ganttData.tasks)
+    : { from: dayjs().startOf('month').valueOf(), to: dayjs().endOf('month').valueOf() };
 
   const { from, to } = useMemo(() => {
     if (!hourRange) {

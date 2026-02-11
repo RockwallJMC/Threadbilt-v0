@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import IconifyIcon from 'components/base/IconifyIcon';
 import AddNewTaskForm from './AddNewTaskForm';
 
-const AddNewTask = ({ listId }) => {
+const AddNewTask = ({ listId, addLabel }) => {
   const [isFormActive, setIsFormActive] = useState(false);
 
   return isFormActive ? (
@@ -24,7 +24,7 @@ const AddNewTask = ({ listId }) => {
         }
         fullWidth
       >
-        Add New Task
+        {addLabel || 'Add New Task'}
       </Button>
     </Box>
   );

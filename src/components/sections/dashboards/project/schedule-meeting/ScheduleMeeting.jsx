@@ -27,7 +27,7 @@ const ScheduleMeeting = ({ upcomingMeetings }) => {
         }}
       >
         <Stack spacing={1} flexDirection="column">
-          {upcomingMeetings.map((meeting) => (
+          {(upcomingMeetings || []).map((meeting) => (
             <MeetingCard key={meeting.id} meeting={meeting} />
           ))}
         </Stack>
