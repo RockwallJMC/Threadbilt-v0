@@ -445,16 +445,23 @@ const SiteBoxCanvas = ({
           throw new Error('Unsupported file type');
         }
 
+        // Normalize dimensions to fit within valid Mapbox geographic bounds
+        // Latitude must be -90 to 90, longitude -180 to 180
+        const maxDim = Math.max(width, height);
+        const scale = 80 / maxDim; // Map largest dimension to 80 degrees
+        const nw = width * scale;
+        const nh = height * scale;
+
         // Add image source to Mapbox
-        // Use pixel coordinates - top-left is [0, height], bottom-right is [width, 0]
+        // Use normalized coordinates - top-left is [0, nh], bottom-right is [nw, 0]
         map.addSource('drawing', {
           type: 'image',
           url: imageUrl,
           coordinates: [
-            [0, height], // top-left
-            [width, height], // top-right
-            [width, 0], // bottom-right
-            [0, 0], // bottom-left
+            [0, nh],   // top-left
+            [nw, nh],  // top-right
+            [nw, 0],   // bottom-right
+            [0, 0],    // bottom-left
           ],
         });
 
@@ -471,7 +478,7 @@ const SiteBoxCanvas = ({
         // Save bounds for fit-to-view
         drawingBoundsRef.current = [
           [0, 0],
-          [width, height],
+          [nw, nh],
         ];
 
         // Fit to drawing
