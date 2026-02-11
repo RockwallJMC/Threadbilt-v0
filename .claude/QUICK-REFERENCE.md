@@ -187,16 +187,18 @@ Task(supabase - database - architect, 'Create user_profiles table with RLS');
 
 ## 🚫 Common Mistakes
 
-| ❌ Don't                     | ✅ Do                                  |
-| ---------------------------- | -------------------------------------- |
-| Skip skills invocation       | Always invoke relevant skills          |
-| Execute work directly        | Use Task tool with agents              |
-| Claim without evidence       | Show command output                    |
-| Build UI from scratch        | Aurora-first pattern                   |
-| Connect database locally     | Use Supabase MCP tools                 |
-| Sequential independent tasks | Parallel Task calls                    |
-| Use TodoWrite for execution  | TodoWrite = tracking, Task = execution |
-| Skip TDD                     | Write tests first                      |
+| ❌ Don't                                    | ✅ Do                                           |
+| ------------------------------------------- | ----------------------------------------------- |
+| Skip skills invocation                      | Always invoke relevant skills                   |
+| Execute work directly                       | Use Task tool with agents                       |
+| Use Edit/Write on source code directly      | Delegate ALL code edits to sub-agents via Task  |
+| Use Bash to modify source files             | Bash is for build/test/lint/git commands only   |
+| Claim without evidence                      | Show command output                             |
+| Build UI from scratch                       | Aurora-first pattern                            |
+| Connect database locally                    | Use Supabase MCP tools                          |
+| Sequential independent tasks                | Parallel Task calls                             |
+| Use TodoWrite for execution                 | TodoWrite = tracking, Task = execution          |
+| Skip TDD                                    | Write tests first                               |
 
 ## 🔧 Automation Helpers
 

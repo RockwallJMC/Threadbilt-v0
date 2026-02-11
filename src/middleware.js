@@ -30,21 +30,26 @@ export async function middleware(request) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect dashboard routes - redirect to login if not authenticated
-  if ((request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/dashboards')) && !user) {
+  const isProtectedPath =
+    request.nextUrl.pathname.startsWith('/dashboard') ||
+    request.nextUrl.pathname.startsWith('/dashboards') ||
+    request.nextUrl.pathname.startsWith('/apps')
+
+  // Protect authenticated app routes - redirect to login if not authenticated
+  if (isProtectedPath && !user) {
     const loginUrl = new URL('/authentication/default/jwt/login', request.url)
     return NextResponse.redirect(loginUrl)
   }
 
   // Redirect authenticated users from root to CRM app
   if (request.nextUrl.pathname === '/' && user) {
-    const crmUrl = new URL('/apps/crm', request.url)
+    const crmUrl = new URL('/apps/crm/deals', request.url)
     return NextResponse.redirect(crmUrl)
   }
 
   // Redirect authenticated users away from auth pages
   if (request.nextUrl.pathname.startsWith('/authentication') && user) {
-    const dashboardUrl = new URL('/apps/crm', request.url)
+    const dashboardUrl = new URL('/apps/crm/deals', request.url)
     return NextResponse.redirect(dashboardUrl)
   }
 
@@ -54,6 +59,7 @@ export async function middleware(request) {
 export const config = {
   matcher: [
     '/',
+    '/apps/:path*',
     '/dashboard/:path*',
     '/dashboards/:path*',
     '/authentication/:path*',

@@ -98,7 +98,7 @@ const recentProjectsFetcher = async (limit = 10) => {
     boards: (data || []).map(project => ({
       id: project.id,
       name: project.name,
-      image: project.background_image || '/assets/images/kanban/boards/1.webp',
+      image: project.background_image || '/assets/images/background/1.webp',
       lastViewAt: formatLastViewed(project.last_viewed_at),
       assignee: (project.members || []).map(m => ({
         name: m.user?.full_name || m.user?.email || 'User',

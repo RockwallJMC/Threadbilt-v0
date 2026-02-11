@@ -19,7 +19,7 @@ const Login = () => {
       return { error: { message: error.message }, ok: false };
     }
 
-    router.push('/apps/crm');
+    router.push('/apps/crm/deals');
     return { ok: true };
   };
 

@@ -239,6 +239,8 @@ Repository Documentation Structure:
 
 - Skip skills invocation (even 1% chance = invoke)
 - Execute implementation work directly
+- **Use Edit/Write/NotebookEdit on source code files** (`.jsx`, `.js`, `.ts`, `.tsx`, `.css`, `.sql`) - delegate to sub-agents via Task
+- **Use Bash to generate or modify source code** (no sed/awk/echo on source files)
 - Claim completion without verification
 - Use TodoWrite for execution (it's for tracking only)
 - Build UI from scratch (Aurora-first pattern)
@@ -248,7 +250,8 @@ Repository Documentation Structure:
 ### ✅ Always Do
 
 - Invoke skills before actions
-- Use Task tool for all execution
+- **Use Task tool for ALL code implementation** - every file edit goes through a sub-agent
+- **Use Read/Glob/Grep for discovery** - orchestrator searches and understands, agents implement
 - Show command output as evidence
 - Follow Aurora copy-then-modify pattern
 - Use Supabase MCP tools for database

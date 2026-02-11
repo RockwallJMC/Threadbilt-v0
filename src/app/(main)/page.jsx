@@ -10,7 +10,7 @@ const page = async () => {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
-      redirect('/apps/crm');
+      redirect('/apps/crm/deals');
     }
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {

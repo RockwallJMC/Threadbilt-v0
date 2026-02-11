@@ -10,6 +10,7 @@ import {
   useCreateTask,
   useCreateColumn,
 } from 'services/swr/api-hooks/useProjectKanbanApi';
+import { useProjectDrawings } from 'services/swr/api-hooks/useProjectDrawingsApi';
 import { transformKanbanResponse } from 'helpers/project-kanban-transformers';
 import { KanbanContext } from 'providers/KanbanProvider';
 
@@ -81,10 +82,22 @@ const findTaskList = (id, listItems) => {
 const projectBoardReducer = (state, action) => {
   switch (action.type) {
     case SYNC_DATA: {
+      let listItems = ensurePinnedLanesFirst(action.payload.listItems);
+
+      // Inject drawings into the Drawings lane after pinned lanes are resolved
+      if (action.payload.drawings) {
+        listItems = listItems.map((item) => {
+          if (item.title?.toLowerCase() === 'drawings' || item.id === '__drawings__') {
+            return { ...item, tasks: action.payload.drawings };
+          }
+          return item;
+        });
+      }
+
       return {
         ...state,
         kanbanBoard: action.payload.kanbanBoard,
-        listItems: ensurePinnedLanesFirst(action.payload.listItems),
+        listItems,
       };
     }
 
@@ -281,6 +294,7 @@ const ProjectKanbanBridge = ({ project, children }) => {
     () => (rawData ? transformKanbanResponse(rawData) : null),
     [rawData],
   );
+  const { data: drawings, mutate: mutateDrawings } = useProjectDrawings(projectId);
 
   // Mutation hooks for persistence
   const { trigger: moveTaskApi } = useMoveTask(projectId);
@@ -313,11 +327,12 @@ const ProjectKanbanBridge = ({ project, children }) => {
             },
           },
           listItems: kanbanData.listItems || [],
+          drawings: drawings || [],
         },
       });
       hasSynced.current = true;
     }
-  }, [kanbanData]);
+  }, [kanbanData, drawings]);
 
   // Drag handlers
   const handleDragStart = useCallback((event) => {
@@ -476,8 +491,10 @@ const ProjectKanbanBridge = ({ project, children }) => {
       // Expose loading/error for the page wrapper
       isLoading,
       error,
+      // Drawings mutate function for revalidation
+      mutateDrawings,
     }),
-    [state, handleDragStart, handleDragOver, handleDragEnd, kanbanDispatch, fileSidebarOpen, toggleFileSidebar, isLoading, error],
+    [state, handleDragStart, handleDragOver, handleDragEnd, kanbanDispatch, fileSidebarOpen, toggleFileSidebar, isLoading, error, mutateDrawings],
   );
 
   return <KanbanContext value={contextValue}>{children}</KanbanContext>;

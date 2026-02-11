@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 
-const AuthedRedirect = ({ to = '/apps/crm' }) => {
+const AuthedRedirect = ({ to = '/apps/crm/deals' }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading } = useSupabaseAuth();
