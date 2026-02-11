@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { useProjectDrawings } from 'services/swr/api-hooks/useProjectDrawingsApi';
@@ -19,6 +19,10 @@ import PinPopover from './PinPopover';
 import TextEditor from './TextEditor';
 import StrokeOptions from './StrokeOptions';
 import CalibrationDialog from './CalibrationDialog';
+import MarkerRadialMenu from './MarkerRadialMenu';
+import DeleteMarkerDialog from './DeleteMarkerDialog';
+import MarkerInfoPopover from './MarkerInfoPopover';
+import MarkerDetailDrawer from './MarkerDetailDrawer';
 
 const SiteBox = ({ projectId, drawingId }) => {
   const router = useRouter();
@@ -45,8 +49,16 @@ const SiteBox = ({ projectId, drawingId }) => {
   const [calibrationPoints, setCalibrationPoints] = useState({ pointA: null, pointB: null });
   const [measurePoints, setMeasurePoints] = useState({ pointA: null, pointB: null });
   const [calibrationDialogOpen, setCalibrationDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteAnnotation_, setDeleteAnnotation_] = useState(null);
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
+  const radialMenuRef = useRef(null);
+  const [infoPopoverOpen, setInfoPopoverOpen] = useState(false);
+  const [infoAnnotation, setInfoAnnotation] = useState(null);
+  const [infoPosition, setInfoPosition] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerAnnotation, setDrawerAnnotation] = useState(null);
 
   // Compute save status from mutation state
   const saveStatus = (isCreating || isUpdating || isDeleting) ? 'saving' : 'saved';
@@ -138,6 +150,7 @@ const SiteBox = ({ projectId, drawingId }) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
+        radialMenuRef.current?.hide();
         setActiveTool('select');
         handlePopoverClose();
         handleTextEditorClose();
@@ -223,9 +236,8 @@ const SiteBox = ({ projectId, drawingId }) => {
       return;
     }
 
-    setSelectedAnnotation(annotation);
-    setPendingPin(null);
-    setPopoverPosition(screenPosition);
+    // Show radial menu instead of PinPopover
+    radialMenuRef.current?.show(screenPosition.x, screenPosition.y, annotation);
   };
 
   // Handle clicking an existing text annotation
@@ -463,6 +475,79 @@ const SiteBox = ({ projectId, drawingId }) => {
     setCalibrationPoints({ pointA: null, pointB: null });
   };
 
+  // Radial menu action handlers
+  const handleRadialInfo = () => {
+    const annotation = radialMenuRef.current?.getAnnotation();
+    if (annotation) {
+      // Get the marker's screen position from the map
+      const map = mapInstance;
+      let pos;
+      if (map && annotation.geometry?.coordinates) {
+        const point = map.project(annotation.geometry.coordinates);
+        pos = { x: point.x, y: point.y };
+      } else {
+        pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+      }
+      setInfoAnnotation(annotation);
+      setInfoPosition(pos);
+      setInfoPopoverOpen(true);
+    }
+    radialMenuRef.current?.hide();
+  };
+
+  const handleRadialView = () => {
+    const annotation = radialMenuRef.current?.getAnnotation();
+    if (annotation) {
+      setDrawerAnnotation(annotation);
+      setDrawerOpen(true);
+    }
+    radialMenuRef.current?.hide();
+  };
+
+  const handleRadialDelete = () => {
+    const annotation = radialMenuRef.current?.getAnnotation();
+    if (annotation) {
+      setDeleteAnnotation_(annotation);
+      setDeleteDialogOpen(true);
+    }
+    radialMenuRef.current?.hide();
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteAnnotation_) {
+      try {
+        await deleteAnnotation({ annotationId: deleteAnnotation_.id });
+        recordAction({ action: 'delete', annotationData: deleteAnnotation_ });
+      } catch (error) {
+        console.error('Failed to delete annotation:', error);
+      }
+    }
+    setDeleteDialogOpen(false);
+    setDeleteAnnotation_(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setDeleteAnnotation_(null);
+  };
+
+  const handleInfoPopoverClose = () => {
+    setInfoPopoverOpen(false);
+    setInfoAnnotation(null);
+    setInfoPosition(null);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+    setDrawerAnnotation(null);
+  };
+
+  const handleDrawerEdit = (annotation) => {
+    // Open PinPopover for editing
+    setSelectedAnnotation(annotation);
+    setPopoverPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  };
+
   if (isLoading) {
     return (
       <Box
@@ -563,6 +648,38 @@ const SiteBox = ({ projectId, drawingId }) => {
         measurePoints={measurePoints}
         onEraserDelete={handleEraserDelete}
         onMarkerDragEnd={handleMarkerDragEnd}
+      />
+
+      {/* Radial Menu for Pin Markers */}
+      <MarkerRadialMenu
+        ref={radialMenuRef}
+        onInfo={handleRadialInfo}
+        onView={handleRadialView}
+        onDelete={handleRadialDelete}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteMarkerDialog
+        open={deleteDialogOpen}
+        annotation={deleteAnnotation_}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
+
+      {/* Marker Info Popover */}
+      <MarkerInfoPopover
+        open={infoPopoverOpen}
+        anchorPosition={infoPosition}
+        annotation={infoAnnotation}
+        onClose={handleInfoPopoverClose}
+      />
+
+      {/* Marker Detail Drawer */}
+      <MarkerDetailDrawer
+        open={drawerOpen}
+        annotation={drawerAnnotation}
+        onClose={handleDrawerClose}
+        onEdit={handleDrawerEdit}
       />
 
       {/* Pin Popover */}

@@ -73,6 +73,7 @@
     "autosuggest-highlight": "^3.3.4",
     "axios": "^1.12.2",
     "clsx": "^2.1.1",
+    "customizable-radial-menu": "github:victorqribeiro/radialMenu",
     "cytoscape": "^3.33.1",
     "cytoscape-cola": "^2.5.1",
     "dayjs": "^1.11.18",
