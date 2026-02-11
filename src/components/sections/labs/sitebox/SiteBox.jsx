@@ -246,6 +246,18 @@ const SiteBox = ({ projectId, drawingId }) => {
     setTextEditorPosition(screenPosition);
   };
 
+  // Handle marker drag end
+  const handleMarkerDragEnd = async (annotationId, newLngLat) => {
+    try {
+      await updateAnnotation({
+        annotationId,
+        geometry: { type: 'Point', coordinates: [newLngLat.lng, newLngLat.lat] },
+      });
+    } catch (error) {
+      console.error('Failed to move annotation:', error);
+    }
+  };
+
   // Handle saving pin (create or update)
   const handlePinSave = async ({ title, color }) => {
     try {
@@ -550,6 +562,7 @@ const SiteBox = ({ projectId, drawingId }) => {
         calibrationPoints={calibrationPoints}
         measurePoints={measurePoints}
         onEraserDelete={handleEraserDelete}
+        onMarkerDragEnd={handleMarkerDragEnd}
       />
 
       {/* Pin Popover */}

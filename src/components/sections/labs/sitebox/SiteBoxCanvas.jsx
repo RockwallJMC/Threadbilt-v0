@@ -36,6 +36,7 @@ const SiteBoxCanvas = ({
   calibrationPoints,
   measurePoints,
   onEraserDelete,
+  onMarkerDragEnd,
 }) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -59,6 +60,7 @@ const SiteBoxCanvas = ({
   const shapeTypeRef = useRef(shapeType);
   const shapeStartRef = useRef(null);
   const onEraserDeleteRef = useRef(onEraserDelete);
+  const onMarkerDragEndRef = useRef(onMarkerDragEnd);
 
   // Keep refs in sync
   useEffect(() => {
@@ -72,6 +74,10 @@ const SiteBoxCanvas = ({
   useEffect(() => {
     onEraserDeleteRef.current = onEraserDelete;
   }, [onEraserDelete]);
+
+  useEffect(() => {
+    onMarkerDragEndRef.current = onMarkerDragEnd;
+  }, [onMarkerDragEnd]);
 
   useEffect(() => {
     strokeColorRef.current = strokeColor;
@@ -513,6 +519,7 @@ const SiteBoxCanvas = ({
     pinAnnotations.forEach((annotation) => {
       const el = document.createElement('div');
       const isSelected = annotation.id === selectedAnnotationId;
+      let wasDragged = false;
 
       // Style the pin marker
       el.style.width = '24px';
@@ -524,28 +531,42 @@ const SiteBoxCanvas = ({
         : '2px solid white';
       el.style.cursor = 'pointer';
       el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
-      el.style.transition = 'all 0.2s';
+      el.style.transition = 'box-shadow 0.2s';
 
       // Add hover effect
       el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.15)';
+        el.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.3)';
       });
       el.addEventListener('mouseleave', () => {
-        el.style.transform = 'scale(1)';
+        el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
       });
 
-      // Add click handler
+      // Add click handler - skip if marker was just dragged
       el.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (wasDragged) {
+          wasDragged = false;
+          return;
+        }
         if (onPinClick) {
           onPinClick(annotation, { x: e.clientX, y: e.clientY });
         }
       });
 
-      // Create and add marker
-      const marker = new mapboxgl.Marker({ element: el })
+      // Create draggable marker
+      const marker = new mapboxgl.Marker({ element: el, draggable: true })
         .setLngLat(annotation.geometry.coordinates)
         .addTo(map);
+
+      // Track drag to distinguish from click
+      marker.on('dragstart', () => {
+        wasDragged = true;
+      });
+
+      marker.on('dragend', () => {
+        const newLngLat = marker.getLngLat();
+        onMarkerDragEndRef.current?.(annotation.id, newLngLat);
+      });
 
       markersRef.current.push(marker);
     });
@@ -572,6 +593,7 @@ const SiteBoxCanvas = ({
     textAnnotations.forEach((annotation) => {
       const el = document.createElement('div');
       const isSelected = annotation.id === selectedAnnotationId;
+      let wasDragged = false;
 
       // Get font size
       const fontSizeMap = {
@@ -595,30 +617,44 @@ const SiteBoxCanvas = ({
       el.style.border = isSelected
         ? '2px solid rgba(255,255,255,0.6)'
         : '1px solid rgba(255,255,255,0.2)';
-      el.style.transition = 'all 0.2s';
+      el.style.transition = 'background-color 0.2s, box-shadow 0.2s';
 
       // Add hover effect
       el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.05)';
         el.style.backgroundColor = 'rgba(0,0,0,0.6)';
+        el.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.3)';
       });
       el.addEventListener('mouseleave', () => {
-        el.style.transform = 'scale(1)';
         el.style.backgroundColor = 'rgba(0,0,0,0.4)';
+        el.style.boxShadow = 'none';
       });
 
-      // Add click handler
+      // Add click handler - skip if marker was just dragged
       el.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (wasDragged) {
+          wasDragged = false;
+          return;
+        }
         if (onTextClick) {
           onTextClick(annotation, { x: e.clientX, y: e.clientY });
         }
       });
 
-      // Create and add marker
-      const marker = new mapboxgl.Marker({ element: el })
+      // Create draggable marker
+      const marker = new mapboxgl.Marker({ element: el, draggable: true })
         .setLngLat(annotation.geometry.coordinates)
         .addTo(map);
+
+      // Track drag to distinguish from click
+      marker.on('dragstart', () => {
+        wasDragged = true;
+      });
+
+      marker.on('dragend', () => {
+        const newLngLat = marker.getLngLat();
+        onMarkerDragEndRef.current?.(annotation.id, newLngLat);
+      });
 
       textMarkersRef.current.push(marker);
     });
@@ -707,6 +743,7 @@ const SiteBoxCanvas = ({
     }
 
     return () => {
+      if (!mapRef.current) return;
       calibrationMarkersRef.current.forEach((m) => m.remove());
       calibrationMarkersRef.current = [];
       if (map.getLayer('calibration-line')) map.removeLayer('calibration-line');
@@ -771,6 +808,7 @@ const SiteBoxCanvas = ({
 
     // Cleanup on unmount
     return () => {
+      if (!mapRef.current) return;
       freehandAnnotations.forEach((annotation) => {
         const id = `freehand-${annotation.id}`;
         if (map.getLayer(id)) {
@@ -840,6 +878,7 @@ const SiteBoxCanvas = ({
 
     // Cleanup on unmount
     return () => {
+      if (!mapRef.current) return;
       shapeAnnotations.forEach((annotation) => {
         const id = `shape-${annotation.id}`;
         if (map.getLayer(id)) {
@@ -918,6 +957,7 @@ const SiteBoxCanvas = ({
     });
 
     return () => {
+      if (!mapRef.current) return;
       measureAnnotations.forEach((a) => {
         const id = `measure-${a.id}`;
         if (map.getLayer(id)) map.removeLayer(id);
