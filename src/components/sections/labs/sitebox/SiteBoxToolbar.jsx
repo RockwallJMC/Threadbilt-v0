@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { Box, Chip, CircularProgress, IconButton, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import IconifyIcon from 'components/base/IconifyIcon';
+import DEVICE_TYPES from './deviceTypes';
 
 const TOOLS = [
   { id: 'select', icon: 'material-symbols:arrow-selector-tool', label: 'Select' },
+  { id: 'device', icon: 'material-symbols:devices-other', label: 'Device' },
   { id: 'pin', icon: 'material-symbols:location-on-outline', label: 'Pin' },
   { id: 'freehand', icon: 'material-symbols:draw-outline', label: 'Freehand' },
   { id: 'shape', icon: 'material-symbols:square-outline', label: 'Shape' },
@@ -29,6 +31,8 @@ const SiteBoxToolbar = ({
   onFitToView,
   shapeType,
   onShapeTypeChange,
+  deviceType,
+  onDeviceTypeChange,
   isCalibrated,
   onUndo,
   onRedo,
@@ -37,6 +41,7 @@ const SiteBoxToolbar = ({
   saveStatus,
 }) => {
   const [shapeMenuAnchor, setShapeMenuAnchor] = useState(null);
+  const [deviceMenuAnchor, setDeviceMenuAnchor] = useState(null);
 
   const handleShapeButtonClick = (e) => {
     if (activeTool === 'shape') {
@@ -56,6 +61,26 @@ const SiteBoxToolbar = ({
 
   const handleShapeMenuClose = () => {
     setShapeMenuAnchor(null);
+  };
+
+  const handleDeviceButtonClick = (e) => {
+    if (activeTool === 'device') {
+      // If device is already active, toggle the dropdown
+      setDeviceMenuAnchor(deviceMenuAnchor ? null : e.currentTarget);
+    } else {
+      // Activate device tool and show dropdown
+      onToolChange('device');
+      setDeviceMenuAnchor(e.currentTarget);
+    }
+  };
+
+  const handleDeviceTypeSelect = (type) => {
+    onDeviceTypeChange(type);
+    setDeviceMenuAnchor(null);
+  };
+
+  const handleDeviceMenuClose = () => {
+    setDeviceMenuAnchor(null);
   };
 
   return (
@@ -144,7 +169,13 @@ const SiteBoxToolbar = ({
           return (
             <IconButton
               key={tool.id}
-              onClick={tool.id === 'shape' ? handleShapeButtonClick : () => onToolChange(tool.id)}
+              onClick={
+                tool.id === 'shape'
+                  ? handleShapeButtonClick
+                  : tool.id === 'device'
+                    ? handleDeviceButtonClick
+                    : () => onToolChange(tool.id)
+              }
               aria-label={tool.label}
               sx={{
                 color: 'white',
@@ -205,6 +236,54 @@ const SiteBoxToolbar = ({
           >
             <IconifyIcon icon={shape.icon} fontSize={20} />
             <Typography variant="body2">{shape.label}</Typography>
+          </MenuItem>
+        ))}
+      </Menu>
+
+      {/* Device Type Menu */}
+      <Menu
+        anchorEl={deviceMenuAnchor}
+        open={Boolean(deviceMenuAnchor)}
+        onClose={handleDeviceMenuClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        sx={{
+          '& .MuiPaper-root': {
+            bgcolor: 'rgba(26,26,26,0.95)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            mt: 1,
+          },
+        }}
+      >
+        {Object.entries(DEVICE_TYPES).map(([key, device]) => (
+          <MenuItem
+            key={key}
+            onClick={() => handleDeviceTypeSelect(key)}
+            selected={deviceType === key}
+            sx={{
+              color: 'white',
+              gap: 1.5,
+              minWidth: 160,
+              '&:hover': {
+                bgcolor: 'rgba(255,255,255,0.08)',
+              },
+              '&.Mui-selected': {
+                bgcolor: 'rgba(255,255,255,0.15)',
+                '&:hover': {
+                  bgcolor: 'rgba(255,255,255,0.2)',
+                },
+              },
+            }}
+          >
+            <IconifyIcon icon={device.icon} fontSize={20} sx={{ color: device.color }} />
+            <Typography variant="body2">{device.label}</Typography>
           </MenuItem>
         ))}
       </Menu>

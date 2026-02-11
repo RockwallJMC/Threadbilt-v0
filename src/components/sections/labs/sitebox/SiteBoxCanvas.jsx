@@ -7,6 +7,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import * as pdfjsLib from 'pdfjs-dist';
 import IconifyIcon from 'components/base/IconifyIcon';
 import { supabase } from 'lib/supabase/client';
+import DEVICE_TYPES from './deviceTypes';
 
 // Set Mapbox access token
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
@@ -37,6 +38,7 @@ const SiteBoxCanvas = ({
   measurePoints,
   onEraserDelete,
   onMarkerDragEnd,
+  deviceType,
 }) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -45,6 +47,7 @@ const SiteBoxCanvas = ({
   const textMarkersRef = useRef([]);
   const calibrationMarkersRef = useRef([]);
   const measureMarkersRef = useRef([]);
+  const deviceMarkersRef = useRef([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
 
@@ -296,7 +299,7 @@ const SiteBoxCanvas = ({
         }
       }
 
-      if ((tool === 'pin' || tool === 'text' || tool === 'measure') && onCanvasClickRef.current) {
+      if ((tool === 'pin' || tool === 'text' || tool === 'measure' || tool === 'device') && onCanvasClickRef.current) {
         onCanvasClickRef.current(e.lngLat);
       }
     });
@@ -580,6 +583,99 @@ const SiteBoxCanvas = ({
     return () => {
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
+    };
+  }, [annotations, isLoading, selectedAnnotationId, onPinClick]);
+
+  // Render device markers from annotations
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !annotations || isLoading) return;
+
+    // Clean up old device markers
+    deviceMarkersRef.current.forEach((marker) => marker.remove());
+    deviceMarkersRef.current = [];
+
+    // Filter device annotations
+    const deviceAnnotations = annotations.filter((a) => a.type === 'device');
+
+    deviceAnnotations.forEach((annotation) => {
+      let wasDragged = false;
+      const dt = annotation.properties?.deviceType || 'camera';
+      const config = DEVICE_TYPES[dt] || DEVICE_TYPES.camera;
+      const markerColor = config.color;
+      const isSelected = annotation.id === selectedAnnotationId;
+
+      // Extract icon name from the full Iconify icon string (e.g. 'material-symbols:door-front' -> 'door-front')
+      const iconName = config.icon.split(':')[1] || 'devices-other';
+      const iconUrl = `https://api.iconify.design/material-symbols/${iconName}.svg?color=${encodeURIComponent('#fff')}&width=16&height=16`;
+
+      // Create custom teardrop HTML element
+      const el = document.createElement('div');
+      el.style.width = '32px';
+      el.style.height = '44px';
+      el.style.position = 'relative';
+      el.style.cursor = 'pointer';
+
+      // SVG teardrop with white circle and icon inside
+      el.innerHTML = `
+        <svg width="32" height="44" viewBox="0 0 32 44" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.16 0 0 7.16 0 16c0 12 16 28 16 28s16-16 16-28C32 7.16 24.84 0 16 0z" fill="${markerColor}" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>
+          <circle cx="16" cy="16" r="10" fill="white"/>
+          <image href="${iconUrl}" x="8" y="8" width="16" height="16"/>
+        </svg>
+      `;
+
+      // Selection effect
+      if (isSelected) {
+        el.style.filter = 'drop-shadow(0 0 4px rgba(255,255,255,0.8))';
+      }
+
+      // Hover effect
+      el.addEventListener('mouseenter', () => {
+        el.style.filter = isSelected
+          ? 'drop-shadow(0 0 6px rgba(255,255,255,0.9))'
+          : 'drop-shadow(0 0 4px rgba(255,255,255,0.6))';
+      });
+      el.addEventListener('mouseleave', () => {
+        el.style.filter = isSelected
+          ? 'drop-shadow(0 0 4px rgba(255,255,255,0.8))'
+          : 'none';
+      });
+
+      // Click handler - skip if marker was just dragged
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (wasDragged) {
+          wasDragged = false;
+          return;
+        }
+        if (onPinClick) {
+          onPinClick(annotation, { x: e.clientX, y: e.clientY });
+        }
+      });
+
+      // Create draggable marker with anchor at bottom (teardrop point)
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom', draggable: true })
+        .setLngLat(annotation.geometry.coordinates)
+        .addTo(map);
+
+      // Track drag to distinguish from click
+      marker.on('dragstart', () => {
+        wasDragged = true;
+      });
+
+      marker.on('dragend', () => {
+        const newLngLat = marker.getLngLat();
+        onMarkerDragEndRef.current?.(annotation.id, newLngLat);
+      });
+
+      deviceMarkersRef.current.push(marker);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      deviceMarkersRef.current.forEach((marker) => marker.remove());
+      deviceMarkersRef.current = [];
     };
   }, [annotations, isLoading, selectedAnnotationId, onPinClick]);
 
@@ -1019,17 +1115,19 @@ const SiteBoxCanvas = ({
           cursor:
             activeTool === 'eraser'
               ? 'not-allowed'
-              : activeTool === 'pin'
+              : activeTool === 'device'
                 ? 'crosshair'
-                : activeTool === 'text'
-                  ? 'text'
-                  : activeTool === 'freehand'
-                    ? 'crosshair'
-                    : activeTool === 'shape'
+                : activeTool === 'pin'
+                  ? 'crosshair'
+                  : activeTool === 'text'
+                    ? 'text'
+                    : activeTool === 'freehand'
                       ? 'crosshair'
-                      : activeTool === 'measure'
+                      : activeTool === 'shape'
                         ? 'crosshair'
-                        : 'default',
+                        : activeTool === 'measure'
+                          ? 'crosshair'
+                          : 'default',
         }}
       />
 

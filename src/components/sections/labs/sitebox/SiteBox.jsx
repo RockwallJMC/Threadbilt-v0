@@ -23,6 +23,7 @@ import MarkerRadialMenu from './MarkerRadialMenu';
 import DeleteMarkerDialog from './DeleteMarkerDialog';
 import MarkerInfoPopover from './MarkerInfoPopover';
 import MarkerDetailDrawer from './MarkerDetailDrawer';
+import DEVICE_TYPES from './deviceTypes';
 
 const SiteBox = ({ projectId, drawingId }) => {
   const router = useRouter();
@@ -45,6 +46,7 @@ const SiteBox = ({ projectId, drawingId }) => {
   const [strokeColor, setStrokeColor] = useState('#FF5252');
   const [strokeWidth, setStrokeWidth] = useState('medium');
   const [shapeType, setShapeType] = useState('rectangle');
+  const [deviceType, setDeviceType] = useState('camera');
   const [calibrationMode, setCalibrationMode] = useState(false);
   const [calibrationPoints, setCalibrationPoints] = useState({ pointA: null, pointB: null });
   const [measurePoints, setMeasurePoints] = useState({ pointA: null, pointB: null });
@@ -220,6 +222,19 @@ const SiteBox = ({ projectId, drawingId }) => {
       setSelectedAnnotation(null);
       // Position text editor near the click
       setTextEditorPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    } else if (activeTool === 'device') {
+      const deviceConfig = DEVICE_TYPES[deviceType];
+      const newPin = {
+        geometry: {
+          type: 'Point',
+          coordinates: [lngLat.lng, lngLat.lat],
+        },
+        _deviceType: deviceType,
+        _deviceColor: deviceConfig?.color || '#3B82F6',
+      };
+      setPendingPin(newPin);
+      setSelectedAnnotation(null);
+      setPopoverPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
     }
   };
 
@@ -274,11 +289,14 @@ const SiteBox = ({ projectId, drawingId }) => {
   const handlePinSave = async ({ title, color }) => {
     try {
       if (pendingPin) {
-        // Create new pin
+        // Create new pin or device
+        const isDevice = pendingPin._deviceType;
         const result = await createAnnotation({
-          type: 'pin',
+          type: isDevice ? 'device' : 'pin',
           geometry: pendingPin.geometry,
-          properties: { title, color },
+          properties: isDevice
+            ? { title, color: pendingPin._deviceColor, deviceType: pendingPin._deviceType }
+            : { title, color },
         });
         recordAction({ action: 'create', annotationId: result.id, annotationData: result });
       } else if (selectedAnnotation) {
@@ -611,6 +629,8 @@ const SiteBox = ({ projectId, drawingId }) => {
         onFitToView={handleFitToView}
         shapeType={shapeType}
         onShapeTypeChange={setShapeType}
+        deviceType={deviceType}
+        onDeviceTypeChange={setDeviceType}
         isCalibrated={Boolean(calibrationData?.calibration)}
         onUndo={handleUndo}
         onRedo={handleRedo}
@@ -648,6 +668,7 @@ const SiteBox = ({ projectId, drawingId }) => {
         measurePoints={measurePoints}
         onEraserDelete={handleEraserDelete}
         onMarkerDragEnd={handleMarkerDragEnd}
+        deviceType={deviceType}
       />
 
       {/* Radial Menu for Pin Markers */}
