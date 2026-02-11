@@ -10,6 +10,12 @@ const DEVICE_TYPES = {
   network:   { icon: 'material-symbols:lan',               color: '#F97316', label: 'Network' },
 };
 
+export const ANNOTATION_TYPES = {
+  observation: { icon: 'material-symbols:visibility',            color: '#06B6D4', label: 'Observation' },
+  rfi:         { icon: 'material-symbols:help-circle-outline',   color: '#F59E0B', label: 'RFI' },
+  note:        { icon: 'material-symbols:sticky-note-2',         color: '#94A3B8', label: 'Note' },
+};
+
 export const TAG_PREFIXES = {
   pin: 'MRK',
   device_door: 'DOR',
@@ -17,6 +23,9 @@ export const TAG_PREFIXES = {
   device_enclosure: 'ENC',
   device_alarm: 'ALM',
   device_network: 'NET',
+  observation: 'OBS',
+  rfi: 'RFI',
+  note: 'NTE',
 };
 
 export default DEVICE_TYPES;

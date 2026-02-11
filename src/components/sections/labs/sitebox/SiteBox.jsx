@@ -20,10 +20,11 @@ import TextEditor from './TextEditor';
 import StrokeOptions from './StrokeOptions';
 import CalibrationDialog from './CalibrationDialog';
 import MarkerRadialMenu from './MarkerRadialMenu';
+import CanvasRadialMenu from './CanvasRadialMenu';
 import DeleteMarkerDialog from './DeleteMarkerDialog';
 import MarkerInfoPopover from './MarkerInfoPopover';
 import MarkerDetailDrawer from './MarkerDetailDrawer';
-import DEVICE_TYPES, { TAG_PREFIXES } from './deviceTypes';
+import DEVICE_TYPES, { TAG_PREFIXES, ANNOTATION_TYPES } from './deviceTypes';
 
 /**
  * Compute the next sequential tag number for a given prefix within a drawing's annotations.
@@ -67,6 +68,7 @@ const SiteBox = ({ projectId, drawingId }) => {
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
   const radialMenuRef = useRef(null);
+  const canvasRadialMenuRef = useRef(null);
   const [infoPopoverOpen, setInfoPopoverOpen] = useState(false);
   const [infoAnnotation, setInfoAnnotation] = useState(null);
   const [infoPosition, setInfoPosition] = useState(null);
@@ -164,6 +166,7 @@ const SiteBox = ({ projectId, drawingId }) => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         radialMenuRef.current?.hide();
+        canvasRadialMenuRef.current?.hide();
         setActiveTool('select');
         handlePopoverClose();
         handleTextEditorClose();
@@ -246,6 +249,47 @@ const SiteBox = ({ projectId, drawingId }) => {
       setPendingPin(newPin);
       setSelectedAnnotation(null);
       setPopoverPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    } else if (activeTool === 'select') {
+      // Show canvas radial menu for creating annotations
+      if (mapInstance) {
+        const point = mapInstance.project([lngLat.lng, lngLat.lat]);
+        canvasRadialMenuRef.current?.show(point.x, point.y, lngLat);
+      }
+    }
+  };
+
+  // Handle canvas radial menu selection
+  const handleCanvasRadialSelect = (type, subType) => {
+    const lngLat = canvasRadialMenuRef.current?.getLngLat();
+    if (!lngLat) return;
+
+    if (type === 'pin') {
+      const newPin = {
+        geometry: { type: 'Point', coordinates: [lngLat.lng, lngLat.lat] },
+      };
+      setPendingPin(newPin);
+      setSelectedAnnotation(null);
+      setPopoverPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    } else if (type === 'device') {
+      const deviceConfig = DEVICE_TYPES[subType];
+      const newPin = {
+        geometry: { type: 'Point', coordinates: [lngLat.lng, lngLat.lat] },
+        _deviceType: subType,
+        _deviceColor: deviceConfig?.color || '#3B82F6',
+      };
+      setPendingPin(newPin);
+      setSelectedAnnotation(null);
+      setPopoverPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    } else if (type === 'observation' || type === 'rfi' || type === 'note') {
+      const config = ANNOTATION_TYPES[type];
+      const newPin = {
+        geometry: { type: 'Point', coordinates: [lngLat.lng, lngLat.lat] },
+        _annotationType: type,
+        _annotationColor: config?.color || '#94A3B8',
+      };
+      setPendingPin(newPin);
+      setSelectedAnnotation(null);
+      setPopoverPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
     }
   };
 
@@ -300,18 +344,33 @@ const SiteBox = ({ projectId, drawingId }) => {
   const handlePinSave = async ({ title, color }) => {
     try {
       if (pendingPin) {
-        // Create new pin or device
+        // Create new annotation
         const isDevice = pendingPin._deviceType;
-        const tagPrefix = isDevice
-          ? TAG_PREFIXES[`device_${pendingPin._deviceType}`] || 'DEV'
-          : TAG_PREFIXES.pin;
-        const tag = getNextTag(annotations, tagPrefix);
+        const isAnnotationType = pendingPin._annotationType;
+
+        let type, properties;
+
+        if (isDevice) {
+          const tagPrefix = TAG_PREFIXES[`device_${pendingPin._deviceType}`] || 'DEV';
+          const tag = getNextTag(annotations, tagPrefix);
+          type = 'device';
+          properties = { title, color: pendingPin._deviceColor, deviceType: pendingPin._deviceType, ...tag };
+        } else if (isAnnotationType) {
+          const tagPrefix = TAG_PREFIXES[isAnnotationType] || 'MRK';
+          const tag = getNextTag(annotations, tagPrefix);
+          type = isAnnotationType;
+          properties = { title, color: pendingPin._annotationColor, ...tag };
+        } else {
+          const tagPrefix = TAG_PREFIXES.pin;
+          const tag = getNextTag(annotations, tagPrefix);
+          type = 'pin';
+          properties = { title, color, ...tag };
+        }
+
         const result = await createAnnotation({
-          type: isDevice ? 'device' : 'pin',
+          type,
           geometry: pendingPin.geometry,
-          properties: isDevice
-            ? { title, color: pendingPin._deviceColor, deviceType: pendingPin._deviceType, ...tag }
-            : { title, color, ...tag },
+          properties,
         });
         recordAction({ action: 'create', annotationId: result.id, annotationData: result });
       } else if (selectedAnnotation) {
@@ -694,6 +753,12 @@ const SiteBox = ({ projectId, drawingId }) => {
         onDelete={handleRadialDelete}
       />
 
+      {/* Canvas Radial Menu for creating annotations */}
+      <CanvasRadialMenu
+        ref={canvasRadialMenuRef}
+        onSelect={handleCanvasRadialSelect}
+      />
+
       {/* Delete Confirmation Dialog */}
       <DeleteMarkerDialog
         open={deleteDialogOpen}
@@ -726,8 +791,14 @@ const SiteBox = ({ projectId, drawingId }) => {
         onSave={handlePinSave}
         onDelete={handlePinDelete}
         onClose={handlePopoverClose}
-        dialogTitle={pendingPin?._deviceType ? `Add ${DEVICE_TYPES[pendingPin._deviceType]?.label || 'Device'}` : undefined}
-        hideColorPicker={Boolean(pendingPin?._deviceType)}
+        dialogTitle={
+          pendingPin?._deviceType
+            ? `Add ${DEVICE_TYPES[pendingPin._deviceType]?.label || 'Device'}`
+            : pendingPin?._annotationType
+              ? `Add ${ANNOTATION_TYPES[pendingPin._annotationType]?.label || 'Annotation'}`
+              : undefined
+        }
+        hideColorPicker={Boolean(pendingPin?._deviceType || pendingPin?._annotationType)}
       />
 
       {/* Text Editor */}

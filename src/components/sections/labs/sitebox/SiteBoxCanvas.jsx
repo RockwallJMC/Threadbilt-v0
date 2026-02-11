@@ -7,7 +7,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import * as pdfjsLib from 'pdfjs-dist';
 import IconifyIcon from 'components/base/IconifyIcon';
 import { supabase } from 'lib/supabase/client';
-import DEVICE_TYPES from './deviceTypes';
+import DEVICE_TYPES, { ANNOTATION_TYPES } from './deviceTypes';
 
 // Set Mapbox access token
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
@@ -48,6 +48,7 @@ const SiteBoxCanvas = ({
   const calibrationMarkersRef = useRef([]);
   const measureMarkersRef = useRef([]);
   const deviceMarkersRef = useRef([]);
+  const badgeMarkersRef = useRef([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
 
@@ -299,7 +300,7 @@ const SiteBoxCanvas = ({
         }
       }
 
-      if ((tool === 'pin' || tool === 'text' || tool === 'measure' || tool === 'device') && onCanvasClickRef.current) {
+      if ((tool === 'pin' || tool === 'text' || tool === 'measure' || tool === 'device' || tool === 'select') && onCanvasClickRef.current) {
         onCanvasClickRef.current(e.lngLat);
       }
     });
@@ -531,17 +532,28 @@ const SiteBoxCanvas = ({
       wrapper.style.alignItems = 'center';
       wrapper.style.cursor = 'pointer';
 
-      // SVG teardrop (solid fill, no icon — same path as device markers)
+      // SVG teardrop with gradient for 3D effect
       const teardrop = document.createElement('div');
       teardrop.style.width = '32px';
       teardrop.style.height = '44px';
       teardrop.style.position = 'relative';
+      teardrop.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))';
       teardrop.innerHTML = `
         <svg width="32" height="44" viewBox="0 0 32 44" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16 0C7.16 0 0 7.16 0 16c0 12 16 28 16 28s16-16 16-28C32 7.16 24.84 0 16 0z" fill="${pinColor}" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>
+          <defs>
+            <radialGradient id="grad-${annotation.id}" cx="35%" cy="35%" r="65%">
+              <stop offset="0%" style="stop-color:rgba(255,255,255,0.4);stop-opacity:1" />
+              <stop offset="70%" style="stop-color:${pinColor};stop-opacity:1" />
+              <stop offset="100%" style="stop-color:rgba(0,0,0,0.3);stop-opacity:1" />
+            </radialGradient>
+          </defs>
+          <path d="M16 0C7.16 0 0 7.16 0 16c0 12 16 28 16 28s16-16 16-28C32 7.16 24.84 0 16 0z" fill="url(#grad-${annotation.id})" stroke="rgba(0,0,0,0.4)" stroke-width="1.5"/>
         </svg>
       `;
       wrapper.appendChild(teardrop);
+
+      // NOTE: Marker transparency can be controlled via CSS opacity on the wrapper element
+      // Example: wrapper.style.opacity = '0.8'; // 80% opacity (20% transparent)
 
       // Ground shadow beneath marker
       const shadow = document.createElement('div');
@@ -655,19 +667,30 @@ const SiteBoxCanvas = ({
       el.style.alignItems = 'center';
       el.style.cursor = 'pointer';
 
-      // Teardrop container
+      // Teardrop container with gradient for 3D effect
       const teardrop = document.createElement('div');
       teardrop.style.width = '32px';
       teardrop.style.height = '44px';
       teardrop.style.position = 'relative';
+      teardrop.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))';
       teardrop.innerHTML = `
         <svg width="32" height="44" viewBox="0 0 32 44" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16 0C7.16 0 0 7.16 0 16c0 12 16 28 16 28s16-16 16-28C32 7.16 24.84 0 16 0z" fill="${markerColor}" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>
+          <defs>
+            <radialGradient id="grad-${annotation.id}" cx="35%" cy="35%" r="65%">
+              <stop offset="0%" style="stop-color:rgba(255,255,255,0.4);stop-opacity:1" />
+              <stop offset="70%" style="stop-color:${markerColor};stop-opacity:1" />
+              <stop offset="100%" style="stop-color:rgba(0,0,0,0.3);stop-opacity:1" />
+            </radialGradient>
+          </defs>
+          <path d="M16 0C7.16 0 0 7.16 0 16c0 12 16 28 16 28s16-16 16-28C32 7.16 24.84 0 16 0z" fill="url(#grad-${annotation.id})" stroke="rgba(0,0,0,0.4)" stroke-width="1.5"/>
           <circle cx="16" cy="16" r="10" fill="white"/>
         </svg>
         <img src="${iconUrl}" width="16" height="16" style="position:absolute;top:8px;left:8px;pointer-events:none;" />
       `;
       el.appendChild(teardrop);
+
+      // NOTE: Marker transparency can be controlled via CSS opacity on the el element
+      // Example: el.style.opacity = '0.8'; // 80% opacity (20% transparent)
 
       // Ground shadow beneath marker
       const shadow = document.createElement('div');
@@ -748,6 +771,133 @@ const SiteBoxCanvas = ({
     return () => {
       deviceMarkersRef.current.forEach((marker) => marker.remove());
       deviceMarkersRef.current = [];
+    };
+  }, [annotations, isLoading, selectedAnnotationId, onPinClick]);
+
+  // Render badge markers (observation, rfi, note) from annotations
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !annotations || isLoading) return;
+
+    // Clean up old badge markers
+    badgeMarkersRef.current.forEach((marker) => marker.remove());
+    badgeMarkersRef.current = [];
+
+    // Filter badge-type annotations
+    const badgeAnnotations = annotations.filter(
+      (a) => a.type === 'observation' || a.type === 'rfi' || a.type === 'note'
+    );
+
+    badgeAnnotations.forEach((annotation) => {
+      let wasDragged = false;
+      const config = ANNOTATION_TYPES[annotation.type] || { color: '#94A3B8', icon: 'material-symbols:help' };
+      const badgeColor = annotation.properties?.color || config.color;
+      const isSelected = annotation.id === selectedAnnotationId;
+
+      // Extract icon name for Iconify CDN URL
+      const iconName = config.icon.split(':')[1] || 'help';
+      const iconUrl = `https://api.iconify.design/material-symbols/${iconName}.svg?color=${encodeURIComponent('#ffffff')}&width=16&height=16`;
+
+      // Create wrapper element for badge marker + tag label
+      const wrapper = document.createElement('div');
+      wrapper.style.display = 'flex';
+      wrapper.style.flexDirection = 'column';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.cursor = 'pointer';
+
+      // Rounded-square badge container
+      const badge = document.createElement('div');
+      badge.style.width = '30px';
+      badge.style.height = '30px';
+      badge.style.position = 'relative';
+      badge.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))';
+      badge.innerHTML = `
+        <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+          <rect width="30" height="30" rx="6" fill="${badgeColor}" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>
+        </svg>
+        <img src="${iconUrl}" width="16" height="16" style="position:absolute;top:7px;left:7px;pointer-events:none;" />
+      `;
+      wrapper.appendChild(badge);
+
+      // Ground shadow beneath marker
+      const shadow = document.createElement('div');
+      shadow.style.width = '18px';
+      shadow.style.height = '6px';
+      shadow.style.background = 'radial-gradient(ellipse, rgba(0,0,0,0.35) 0%, transparent 70%)';
+      shadow.style.marginTop = '1px';
+      shadow.style.pointerEvents = 'none';
+      shadow.style.flexShrink = '0';
+      wrapper.appendChild(shadow);
+
+      // Tag label below marker
+      const tagPrefix = annotation.properties?.tagPrefix;
+      const tagSequence = annotation.properties?.tagSequence;
+      if (tagPrefix && tagSequence) {
+        const tagLabel = document.createElement('div');
+        tagLabel.textContent = `${tagPrefix}-${String(tagSequence).padStart(4, '0')}`;
+        tagLabel.style.font = 'bold 9px monospace';
+        tagLabel.style.color = '#fff';
+        tagLabel.style.background = 'rgba(0,0,0,0.6)';
+        tagLabel.style.borderRadius = '3px';
+        tagLabel.style.padding = '1px 4px';
+        tagLabel.style.textAlign = 'center';
+        tagLabel.style.pointerEvents = 'none';
+        tagLabel.style.whiteSpace = 'nowrap';
+        tagLabel.style.marginTop = '2px';
+        wrapper.appendChild(tagLabel);
+      }
+
+      // Selection effect
+      if (isSelected) {
+        wrapper.style.filter = 'drop-shadow(0 0 4px rgba(255,255,255,0.8))';
+      }
+
+      // Hover effect
+      wrapper.addEventListener('mouseenter', () => {
+        wrapper.style.filter = isSelected
+          ? 'drop-shadow(0 0 6px rgba(255,255,255,0.9))'
+          : 'drop-shadow(0 0 4px rgba(255,255,255,0.6))';
+      });
+      wrapper.addEventListener('mouseleave', () => {
+        wrapper.style.filter = isSelected
+          ? 'drop-shadow(0 0 4px rgba(255,255,255,0.8))'
+          : 'none';
+      });
+
+      // Click handler - skip if marker was just dragged
+      wrapper.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (wasDragged) {
+          wasDragged = false;
+          return;
+        }
+        if (onPinClick) {
+          onPinClick(annotation, { x: e.clientX, y: e.clientY });
+        }
+      });
+
+      // Create draggable marker
+      const marker = new mapboxgl.Marker({ element: wrapper, draggable: true })
+        .setLngLat(annotation.geometry.coordinates)
+        .addTo(map);
+
+      // Track drag to distinguish from click
+      marker.on('dragstart', () => {
+        wasDragged = true;
+      });
+
+      marker.on('dragend', () => {
+        const newLngLat = marker.getLngLat();
+        onMarkerDragEndRef.current?.(annotation.id, newLngLat);
+      });
+
+      badgeMarkersRef.current.push(marker);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      badgeMarkersRef.current.forEach((marker) => marker.remove());
+      badgeMarkersRef.current = [];
     };
   }, [annotations, isLoading, selectedAnnotationId, onPinClick]);
 
