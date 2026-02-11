@@ -543,6 +543,16 @@ const SiteBoxCanvas = ({
       `;
       wrapper.appendChild(teardrop);
 
+      // Ground shadow beneath marker
+      const shadow = document.createElement('div');
+      shadow.style.width = '18px';
+      shadow.style.height = '6px';
+      shadow.style.background = 'radial-gradient(ellipse, rgba(0,0,0,0.35) 0%, transparent 70%)';
+      shadow.style.marginTop = '-3px';
+      shadow.style.pointerEvents = 'none';
+      shadow.style.flexShrink = '0';
+      wrapper.appendChild(shadow);
+
       // Tag label below marker
       const tagPrefix = annotation.properties?.tagPrefix;
       const tagSequence = annotation.properties?.tagSequence;
@@ -658,6 +668,16 @@ const SiteBoxCanvas = ({
         <img src="${iconUrl}" width="16" height="16" style="position:absolute;top:8px;left:8px;pointer-events:none;" />
       `;
       el.appendChild(teardrop);
+
+      // Ground shadow beneath marker
+      const shadow = document.createElement('div');
+      shadow.style.width = '18px';
+      shadow.style.height = '6px';
+      shadow.style.background = 'radial-gradient(ellipse, rgba(0,0,0,0.35) 0%, transparent 70%)';
+      shadow.style.marginTop = '-3px';
+      shadow.style.pointerEvents = 'none';
+      shadow.style.flexShrink = '0';
+      el.appendChild(shadow);
 
       // Tag label below marker
       const tagPrefix = annotation.properties?.tagPrefix;
