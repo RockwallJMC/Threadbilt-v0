@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Popover, Stack, Typography } from '@mui/material';
+import { Box, Popover, Typography } from '@mui/material';
 
 const MarkerInfoPopover = ({ open, anchorPosition, annotation, onClose }) => {
   if (!annotation) return null;
@@ -14,21 +14,28 @@ const MarkerInfoPopover = ({ open, anchorPosition, annotation, onClose }) => {
       open={open}
       onClose={onClose}
       anchorReference="anchorPosition"
-      anchorPosition={anchorPosition ? { top: anchorPosition.y - 10, left: anchorPosition.x } : undefined}
+      anchorPosition={
+        anchorPosition
+          ? { top: anchorPosition.y - 10, left: anchorPosition.x }
+          : undefined
+      }
       transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      PaperProps={{
-        sx: {
-          bgcolor: '#2a2a2a',
-          color: '#fff',
-          p: 2,
-          minWidth: 200,
-          maxWidth: 280,
-          borderRadius: 2,
+      slotProps={{
+        paper: {
+          sx: {
+            bgcolor: '#2a2a2a',
+            color: '#fff',
+            borderRadius: 2,
+            minWidth: 220,
+            maxWidth: 300,
+            overflow: 'hidden',
+          },
         },
       }}
     >
-      <Stack spacing={1}>
-        <Stack direction="row" alignItems="center" spacing={1}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, p: 2 }}>
+        {/* Title row with color dot */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box
             sx={{
               width: 14,
@@ -39,24 +46,31 @@ const MarkerInfoPopover = ({ open, anchorPosition, annotation, onClose }) => {
               flexShrink: 0,
             }}
           />
-          <Typography variant="subtitle1" fontWeight={600} noWrap>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }} noWrap>
             {title}
           </Typography>
-        </Stack>
-        <Stack spacing={0.5}>
+        </Box>
+
+        {/* Coordinates */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
           <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
             Coordinates
           </Typography>
-          <Typography variant="body2" sx={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.7)' }}>
+          <Typography
+            variant="body2"
+            sx={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.7)' }}
+          >
             {lat.toFixed(4)}, {lng.toFixed(4)}
           </Typography>
-        </Stack>
+        </Box>
+
+        {/* Created date */}
         {annotation.created_at && (
-          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', mt: 0.5 }}>
+          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)' }}>
             Created {new Date(annotation.created_at).toLocaleDateString()}
           </Typography>
         )}
-      </Stack>
+      </Box>
     </Popover>
   );
 };

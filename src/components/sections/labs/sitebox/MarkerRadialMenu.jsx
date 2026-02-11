@@ -46,9 +46,9 @@ const MarkerRadialMenu = forwardRef(({ onInfo, onView, onDelete }, ref) => {
       .then(({ default: RadialMenu }) => {
         const menu = new RadialMenu({
           fontFamily: 'Arial',
-          fontSize: 11,
+          fontSize: 22,
           innerCircle: 25,
-          outerCircle: 70,
+          outerCircle: 80,
           rotation: Math.PI / 2, // Rotate for better alignment
           backgroundColor: 'rgba(26, 26, 26, 0.9)',
           hoverBackgroundColor: 'rgba(59, 130, 246, 0.8)',
