@@ -517,31 +517,41 @@ const SiteBoxCanvas = ({
     const pinAnnotations = annotations.filter((a) => a.type === 'pin');
 
     pinAnnotations.forEach((annotation) => {
-      const el = document.createElement('div');
-      const isSelected = annotation.id === selectedAnnotationId;
       let wasDragged = false;
+      const pinColor = annotation.properties?.color || '#FF5252';
+      const isSelected = annotation.id === selectedAnnotationId;
 
-      // Style the pin marker
-      el.style.width = '24px';
-      el.style.height = '24px';
-      el.style.borderRadius = '50%';
-      el.style.backgroundColor = annotation.properties?.color || '#FF5252';
-      el.style.border = isSelected
-        ? '3px solid rgba(255,255,255,0.6)'
-        : '2px solid white';
+      // Use Mapbox's default teardrop/GPS pin marker with custom color
+      const marker = new mapboxgl.Marker({
+        color: pinColor,
+        draggable: true,
+        scale: 0.85,
+      })
+        .setLngLat(annotation.geometry.coordinates)
+        .addTo(map);
+
+      // Get the marker's DOM element for click/hover handlers
+      const el = marker.getElement();
       el.style.cursor = 'pointer';
-      el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
-      el.style.transition = 'box-shadow 0.2s';
 
-      // Add hover effect
+      // Selection ring
+      if (isSelected) {
+        el.style.filter = 'drop-shadow(0 0 4px rgba(255,255,255,0.8))';
+      }
+
+      // Hover effect using filter for the SVG marker
       el.addEventListener('mouseenter', () => {
-        el.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.3)';
+        el.style.filter = isSelected
+          ? 'drop-shadow(0 0 6px rgba(255,255,255,0.9))'
+          : 'drop-shadow(0 0 4px rgba(255,255,255,0.6))';
       });
       el.addEventListener('mouseleave', () => {
-        el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+        el.style.filter = isSelected
+          ? 'drop-shadow(0 0 4px rgba(255,255,255,0.8))'
+          : 'none';
       });
 
-      // Add click handler - skip if marker was just dragged
+      // Click handler - skip if marker was just dragged
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         if (wasDragged) {
@@ -552,11 +562,6 @@ const SiteBoxCanvas = ({
           onPinClick(annotation, { x: e.clientX, y: e.clientY });
         }
       });
-
-      // Create draggable marker
-      const marker = new mapboxgl.Marker({ element: el, draggable: true })
-        .setLngLat(annotation.geometry.coordinates)
-        .addTo(map);
 
       // Track drag to distinguish from click
       marker.on('dragstart', () => {
@@ -744,10 +749,14 @@ const SiteBoxCanvas = ({
 
     return () => {
       if (!mapRef.current) return;
-      calibrationMarkersRef.current.forEach((m) => m.remove());
-      calibrationMarkersRef.current = [];
-      if (map.getLayer('calibration-line')) map.removeLayer('calibration-line');
-      if (map.getSource('calibration-line')) map.removeSource('calibration-line');
+      try {
+        calibrationMarkersRef.current.forEach((m) => m.remove());
+        calibrationMarkersRef.current = [];
+        if (map.getLayer('calibration-line')) map.removeLayer('calibration-line');
+        if (map.getSource('calibration-line')) map.removeSource('calibration-line');
+      } catch {
+        // Map already destroyed
+      }
     };
   }, [calibrationPoints, calibrationMode]);
 
@@ -809,15 +818,19 @@ const SiteBoxCanvas = ({
     // Cleanup on unmount
     return () => {
       if (!mapRef.current) return;
-      freehandAnnotations.forEach((annotation) => {
-        const id = `freehand-${annotation.id}`;
-        if (map.getLayer(id)) {
-          map.removeLayer(id);
-        }
-        if (map.getSource(id)) {
-          map.removeSource(id);
-        }
-      });
+      try {
+        freehandAnnotations.forEach((annotation) => {
+          const id = `freehand-${annotation.id}`;
+          if (map.getLayer(id)) {
+            map.removeLayer(id);
+          }
+          if (map.getSource(id)) {
+            map.removeSource(id);
+          }
+        });
+      } catch {
+        // Map already destroyed
+      }
     };
   }, [annotations, isLoading]);
 
@@ -879,15 +892,19 @@ const SiteBoxCanvas = ({
     // Cleanup on unmount
     return () => {
       if (!mapRef.current) return;
-      shapeAnnotations.forEach((annotation) => {
-        const id = `shape-${annotation.id}`;
-        if (map.getLayer(id)) {
-          map.removeLayer(id);
-        }
-        if (map.getSource(id)) {
-          map.removeSource(id);
-        }
-      });
+      try {
+        shapeAnnotations.forEach((annotation) => {
+          const id = `shape-${annotation.id}`;
+          if (map.getLayer(id)) {
+            map.removeLayer(id);
+          }
+          if (map.getSource(id)) {
+            map.removeSource(id);
+          }
+        });
+      } catch {
+        // Map already destroyed
+      }
     };
   }, [annotations, isLoading]);
 
@@ -958,13 +975,17 @@ const SiteBoxCanvas = ({
 
     return () => {
       if (!mapRef.current) return;
-      measureAnnotations.forEach((a) => {
-        const id = `measure-${a.id}`;
-        if (map.getLayer(id)) map.removeLayer(id);
-        if (map.getSource(id)) map.removeSource(id);
-      });
-      measureMarkersRef.current.forEach((m) => m.remove());
-      measureMarkersRef.current = [];
+      try {
+        measureAnnotations.forEach((a) => {
+          const id = `measure-${a.id}`;
+          if (map.getLayer(id)) map.removeLayer(id);
+          if (map.getSource(id)) map.removeSource(id);
+        });
+        measureMarkersRef.current.forEach((m) => m.remove());
+        measureMarkersRef.current = [];
+      } catch {
+        // Map already destroyed
+      }
     };
   }, [annotations, isLoading]);
 
