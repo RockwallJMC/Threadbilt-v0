@@ -10,4 +10,13 @@ const DEVICE_TYPES = {
   network:   { icon: 'material-symbols:lan',               color: '#F97316', label: 'Network' },
 };
 
+export const TAG_PREFIXES = {
+  pin: 'MRK',
+  device_door: 'DOR',
+  device_camera: 'CAM',
+  device_enclosure: 'ENC',
+  device_alarm: 'ALM',
+  device_network: 'NET',
+};
+
 export default DEVICE_TYPES;

@@ -23,7 +23,18 @@ import MarkerRadialMenu from './MarkerRadialMenu';
 import DeleteMarkerDialog from './DeleteMarkerDialog';
 import MarkerInfoPopover from './MarkerInfoPopover';
 import MarkerDetailDrawer from './MarkerDetailDrawer';
-import DEVICE_TYPES from './deviceTypes';
+import DEVICE_TYPES, { TAG_PREFIXES } from './deviceTypes';
+
+/**
+ * Compute the next sequential tag number for a given prefix within a drawing's annotations.
+ * Returns { tagPrefix, tagSequence } to be spread into annotation properties.
+ */
+const getNextTag = (annotations, prefix) => {
+  const maxSeq = annotations
+    .filter(a => a.properties?.tagPrefix === prefix)
+    .reduce((max, a) => Math.max(max, a.properties?.tagSequence || 0), 0);
+  return { tagPrefix: prefix, tagSequence: maxSeq + 1 };
+};
 
 const SiteBox = ({ projectId, drawingId }) => {
   const router = useRouter();
@@ -291,12 +302,16 @@ const SiteBox = ({ projectId, drawingId }) => {
       if (pendingPin) {
         // Create new pin or device
         const isDevice = pendingPin._deviceType;
+        const tagPrefix = isDevice
+          ? TAG_PREFIXES[`device_${pendingPin._deviceType}`] || 'DEV'
+          : TAG_PREFIXES.pin;
+        const tag = getNextTag(annotations, tagPrefix);
         const result = await createAnnotation({
           type: isDevice ? 'device' : 'pin',
           geometry: pendingPin.geometry,
           properties: isDevice
-            ? { title, color: pendingPin._deviceColor, deviceType: pendingPin._deviceType }
-            : { title, color },
+            ? { title, color: pendingPin._deviceColor, deviceType: pendingPin._deviceType, ...tag }
+            : { title, color, ...tag },
         });
         recordAction({ action: 'create', annotationId: result.id, annotationData: result });
       } else if (selectedAnnotation) {

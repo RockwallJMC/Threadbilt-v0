@@ -524,38 +524,62 @@ const SiteBoxCanvas = ({
       const pinColor = annotation.properties?.color || '#FF5252';
       const isSelected = annotation.id === selectedAnnotationId;
 
-      // Use Mapbox's default teardrop/GPS pin marker with custom color
-      const marker = new mapboxgl.Marker({
-        color: pinColor,
-        draggable: true,
-        scale: 0.85,
-      })
-        .setLngLat(annotation.geometry.coordinates)
-        .addTo(map);
+      // Create wrapper element for custom pin marker + tag label
+      const wrapper = document.createElement('div');
+      wrapper.style.display = 'flex';
+      wrapper.style.flexDirection = 'column';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.cursor = 'pointer';
 
-      // Get the marker's DOM element for click/hover handlers
-      const el = marker.getElement();
-      el.style.cursor = 'pointer';
+      // SVG teardrop (solid fill, no icon — same path as device markers)
+      const teardrop = document.createElement('div');
+      teardrop.style.width = '32px';
+      teardrop.style.height = '44px';
+      teardrop.style.position = 'relative';
+      teardrop.innerHTML = `
+        <svg width="32" height="44" viewBox="0 0 32 44" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.16 0 0 7.16 0 16c0 12 16 28 16 28s16-16 16-28C32 7.16 24.84 0 16 0z" fill="${pinColor}" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>
+        </svg>
+      `;
+      wrapper.appendChild(teardrop);
 
-      // Selection ring
-      if (isSelected) {
-        el.style.filter = 'drop-shadow(0 0 4px rgba(255,255,255,0.8))';
+      // Tag label below marker
+      const tagPrefix = annotation.properties?.tagPrefix;
+      const tagSequence = annotation.properties?.tagSequence;
+      if (tagPrefix && tagSequence) {
+        const tagLabel = document.createElement('div');
+        tagLabel.textContent = `${tagPrefix}-${String(tagSequence).padStart(4, '0')}`;
+        tagLabel.style.font = 'bold 9px monospace';
+        tagLabel.style.color = '#fff';
+        tagLabel.style.background = 'rgba(0,0,0,0.6)';
+        tagLabel.style.borderRadius = '3px';
+        tagLabel.style.padding = '1px 4px';
+        tagLabel.style.textAlign = 'center';
+        tagLabel.style.pointerEvents = 'none';
+        tagLabel.style.whiteSpace = 'nowrap';
+        tagLabel.style.marginTop = '2px';
+        wrapper.appendChild(tagLabel);
       }
 
-      // Hover effect using filter for the SVG marker
-      el.addEventListener('mouseenter', () => {
-        el.style.filter = isSelected
+      // Selection effect
+      if (isSelected) {
+        wrapper.style.filter = 'drop-shadow(0 0 4px rgba(255,255,255,0.8))';
+      }
+
+      // Hover effect
+      wrapper.addEventListener('mouseenter', () => {
+        wrapper.style.filter = isSelected
           ? 'drop-shadow(0 0 6px rgba(255,255,255,0.9))'
           : 'drop-shadow(0 0 4px rgba(255,255,255,0.6))';
       });
-      el.addEventListener('mouseleave', () => {
-        el.style.filter = isSelected
+      wrapper.addEventListener('mouseleave', () => {
+        wrapper.style.filter = isSelected
           ? 'drop-shadow(0 0 4px rgba(255,255,255,0.8))'
           : 'none';
       });
 
       // Click handler - skip if marker was just dragged
-      el.addEventListener('click', (e) => {
+      wrapper.addEventListener('click', (e) => {
         e.stopPropagation();
         if (wasDragged) {
           wasDragged = false;
@@ -565,6 +589,11 @@ const SiteBoxCanvas = ({
           onPinClick(annotation, { x: e.clientX, y: e.clientY });
         }
       });
+
+      // Create draggable marker with anchor at bottom (teardrop point)
+      const marker = new mapboxgl.Marker({ element: wrapper, anchor: 'bottom', draggable: true })
+        .setLngLat(annotation.geometry.coordinates)
+        .addTo(map);
 
       // Track drag to distinguish from click
       marker.on('dragstart', () => {
@@ -609,21 +638,44 @@ const SiteBoxCanvas = ({
       const iconName = config.icon.split(':')[1] || 'devices-other';
       const iconUrl = `https://api.iconify.design/material-symbols/${iconName}.svg?color=${encodeURIComponent(markerColor)}&width=16&height=16`;
 
-      // Create custom teardrop HTML element
+      // Create wrapper element for device marker + tag label
       const el = document.createElement('div');
-      el.style.width = '32px';
-      el.style.height = '44px';
-      el.style.position = 'relative';
+      el.style.display = 'flex';
+      el.style.flexDirection = 'column';
+      el.style.alignItems = 'center';
       el.style.cursor = 'pointer';
 
-      // SVG teardrop with white circle (no embedded image - use HTML img overlay instead)
-      el.innerHTML = `
+      // Teardrop container
+      const teardrop = document.createElement('div');
+      teardrop.style.width = '32px';
+      teardrop.style.height = '44px';
+      teardrop.style.position = 'relative';
+      teardrop.innerHTML = `
         <svg width="32" height="44" viewBox="0 0 32 44" xmlns="http://www.w3.org/2000/svg">
           <path d="M16 0C7.16 0 0 7.16 0 16c0 12 16 28 16 28s16-16 16-28C32 7.16 24.84 0 16 0z" fill="${markerColor}" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>
           <circle cx="16" cy="16" r="10" fill="white"/>
         </svg>
         <img src="${iconUrl}" width="16" height="16" style="position:absolute;top:8px;left:8px;pointer-events:none;" />
       `;
+      el.appendChild(teardrop);
+
+      // Tag label below marker
+      const tagPrefix = annotation.properties?.tagPrefix;
+      const tagSequence = annotation.properties?.tagSequence;
+      if (tagPrefix && tagSequence) {
+        const tagLabel = document.createElement('div');
+        tagLabel.textContent = `${tagPrefix}-${String(tagSequence).padStart(4, '0')}`;
+        tagLabel.style.font = 'bold 9px monospace';
+        tagLabel.style.color = '#fff';
+        tagLabel.style.background = 'rgba(0,0,0,0.6)';
+        tagLabel.style.borderRadius = '3px';
+        tagLabel.style.padding = '1px 4px';
+        tagLabel.style.textAlign = 'center';
+        tagLabel.style.pointerEvents = 'none';
+        tagLabel.style.whiteSpace = 'nowrap';
+        tagLabel.style.marginTop = '2px';
+        el.appendChild(tagLabel);
+      }
 
       // Selection effect
       if (isSelected) {
